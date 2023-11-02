@@ -29,19 +29,22 @@ instructions_I_12 = {
     "bgeu":     "imm[12|10:5] rs2 rs1 111 imm[4:1|11] 1100011",
 }
 
-instructions_I_11 = {
-    "jalr":     "imm[11:0] rs1 000 rd 1100111",
-    "lb":       "imm[11:0] rs1 000 rd 0000011",
-    "lh":       "imm[11:0] rs1 001 rd 0000011",
-    "lw":       "imm[11:0] rs1 010 rd 0000011",
-    "lbu":      "imm[11:0] rs1 100 rd 0000011",
-    "lhu":      "imm[11:0] rs1 101 rd 0000011",
+instructions_I_11_a = {
     "addi":     "imm[11:0] rs1 000 rd 0010011",
     "slti":     "imm[11:0] rs1 010 rd 0010011",
     "sltiu":    "imm[11:0] rs1 011 rd 0010011",
     "xori":     "imm[11:0] rs1 100 rd 0010011",
     "ori":      "imm[11:0] rs1 110 rd 0010011",
     "andi":     "imm[11:0] rs1 111 rd 0010011",
+}
+
+instructions_I_11_b = {
+    "jalr":     "imm[11:0] rs1 000 rd 1100111",
+    "lb":       "imm[11:0] rs1 000 rd 0000011",
+    "lh":       "imm[11:0] rs1 001 rd 0000011",
+    "lw":       "imm[11:0] rs1 010 rd 0000011",
+    "lbu":      "imm[11:0] rs1 100 rd 0000011",
+    "lhu":      "imm[11:0] rs1 101 rd 0000011",
 }
 
 instructions_I_11_4 = {
@@ -57,7 +60,7 @@ instructions_I_4 = {
 }
 
 
-instructions_I_0 = {
+instructions_I_0_M = {
     "add":      "0000000 rs2 rs1 000 rd 0110011",
     "sub":      "0100000 rs2 rs1 000 rd 0110011",
     "sll":      "0000000 rs2 rs1 001 rd 0110011",
@@ -68,9 +71,7 @@ instructions_I_0 = {
     "sra":      "0100000 rs2 rs1 101 rd 0110011",
     "or":       "0000000 rs2 rs1 110 rd 0110011",
     "and":      "0000000 rs2 rs1 111 rd 0110011",
-}
 
-instructions_M = {
     "mul":      "0000001 rs2 rs1 000 rd 0110011",
     "mulh":     "0000001 rs2 rs1 001 rd 0110011",
     "mulhsu":   "0000001 rs2 rs1 010 rd 0110011",

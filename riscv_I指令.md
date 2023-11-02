@@ -178,7 +178,7 @@ bge[u]
    bgeu t0, t1, lable
 ```
 
-## jalr
+## jalr(似乎有误)
 
 ```
 jalr
