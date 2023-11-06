@@ -1,3 +1,4 @@
+# xxx
 instructions_I = {
     "fence.i":  "0000 0000 0000 00000 001 00000 0001111",
     "ecall":    "000000000000 00000 000 00000 1110011",
@@ -5,30 +6,37 @@ instructions_I = {
 
 }
 
+# xxx pred succ
 instructions_I_a = {
     "fence":    "0000 pred succ 00000 000 00000 0001111",
 }
 
+# xxx rd csr rs1
 instructions_I_b = {
     "csrrw":    "csr rs1 001 rd 1110011",
     "csrrs":    "csr rs1 010 rd 1110011",
     "csrrc":    "csr rs1 011 rd 1110011",
 }
+
+# xxx rd csr zimm
 instructions_I_c = {
     "csrrwi":   "csr zimm 101 rd 1110011",
     "csrrsi":   "csr zimm 110 rd 1110011",
     "csrrci":   "csr zimm 111 rd 1110011",
 }
 
+# xxx rd imm
 instructions_I_31 = {
     "lui":      "imm[31:12] rd 0110111",
     "auipc":    "imm[31:12] rd 0010111",
 }
 
+# xxx rd imm
 instructions_I_20 = {
     "jal":      "imm[20|10:1|11|19:12] rd 1101111",
 }
 
+# xxx rs1 rs2 imm
 instructions_I_12 = {
     "beq":      "imm[12|10:5] rs2 rs1 000 imm[4:1|11] 1100011",
     "bne":      "imm[12|10:5] rs2 rs1 001 imm[4:1|11] 1100011",
@@ -38,6 +46,7 @@ instructions_I_12 = {
     "bgeu":     "imm[12|10:5] rs2 rs1 111 imm[4:1|11] 1100011",
 }
 
+# xxx rd rs1 imm[11:0]
 instructions_I_11_a = {
     "addi":     "imm[11:0] rs1 000 rd 0010011",
     "slti":     "imm[11:0] rs1 010 rd 0010011",
@@ -47,6 +56,7 @@ instructions_I_11_a = {
     "andi":     "imm[11:0] rs1 111 rd 0010011",
 }
 
+# xx rd imm(rs1)
 instructions_I_11_b = {
     "jalr":     "imm[11:0] rs1 000 rd 1100111",
     "lb":       "imm[11:0] rs1 000 rd 0000011",
@@ -56,19 +66,21 @@ instructions_I_11_b = {
     "lhu":      "imm[11:0] rs1 101 rd 0000011",
 }
 
+# xxx rs2 imm(rs1)
 instructions_I_11_4 = {
     "sb":       "imm[11:5] rs2 rs1 000 imm[4:0] 0100011",
     "sh":       "imm[11:5] rs2 rs1 001 imm[4:0] 0100011",
     "sw":       "imm[11:5] rs2 rs1 010 imm[4:0] 0100011",
 }
 
+# xxx rd rs1 imm
 instructions_I_4 = {
     "slli":     "0000000 imm[4:0] rs1 001 rd 0010011",
     "srli":     "0000000 imm[4:0] rs1 101 rd 0010011",
     "srai":     "0100000 imm[4:0] rs1 101 rd 0010011",
 }
 
-
+# xxx rd rs1 rs2
 instructions_I_0_M = {
     "add":      "0000000 rs2 rs1 000 rd 0110011",
     "sub":      "0100000 rs2 rs1 000 rd 0110011",

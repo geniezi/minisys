@@ -2,11 +2,22 @@ import instructions
 import re
 
 
+def binary2hex(binary_string):
+    # 确保二进制字符串的长度是32，以便正确转换为十六进制
+    if len(binary_string) != 32:
+        print("error, length not correct")  # 在前面补零
+
+    # 将二进制字符串转换为十六进制
+    hex_value = hex(int(binary_string, 2))[2:].zfill(8)  # 使用int将二进制转换为十进制，然后用hex转换为十六进制字符串
+    return hex_value.lower()  # 返回大写形式的十六进制字符串
+
+
 def reg2int(reg):
     reg_ = re.findall(r'\d+', reg)[0]
     reg_ = dec2binary(int(reg_), 5)
     # print(reg_)
     return reg_
+
 
 def csr2int(csr):
     csr_ = re.findall(r'\d+', csr)[0]
@@ -14,8 +25,9 @@ def csr2int(csr):
     # print(csr_)
     return csr_
 
+
 def imm2binary(imm, width):
-    return dec2binary(imm, width)
+    return dec2binary(int(imm), width)
 
 
 def dec2binary(imm, width):
@@ -49,7 +61,7 @@ def assemble_i_4(parts):
 
 def assemble_i_11_4(parts):
     # xxx rs2 imm(rs1)
-    parts[3] = parts[2].split('(')[1].split(')')[0]
+    parts[3].append(parts[2].split('(')[1].split(')')[0])
     parts[2] = parts[2].split('(')[0]
     binary_instr = instructions.instructions_I_11_4.get(parts[0])
 
@@ -74,7 +86,7 @@ def assemble_i_11_a(parts):
 
 def assemble_i_11_b(parts):
     # xx rd imm(rs1)
-    parts[3] = parts[2].split('(')[1].split(')')[0]
+    parts.append(parts[2].split('(')[1].split(')')[0])
     parts[2] = parts[2].split('(')[0]
     binary_instr = instructions.instructions_I_11_b.get(parts[0])
 
@@ -139,7 +151,6 @@ def assemble_i_a(parts):
     return binary_instr
 
 
-
 def assemble_i_b(parts):
     # xxx rd csr rs1
     binary_instr = instructions.instructions_I_b.get(parts[0])
@@ -158,6 +169,8 @@ def assemble_i_c(parts):
     binary_instr = binary_instr.replace("rd", reg2int(parts[1]))
     binary_instr = binary_instr.replace("csr", csr2int(parts[2]))
     binary_instr = binary_instr.replace("zimm", imm2binary(parts[3], 5))
+
+    return binary_instr
 
 
 def assemble_risc_v(assembly_code):
@@ -190,17 +203,22 @@ def assemble_risc_v(assembly_code):
             machine_code.append(assemble_i_b(parts))
         if parts[0] in instructions.instructions_I_c:
             machine_code.append(assemble_i_c(parts))
-    return '\n'.join(machine_code)
+    for i in range(len(machine_code)):
+        machine_code[i] = machine_code[i].replace(" ", "")
+        machine_code[i] = binary2hex(machine_code[i])
+    result = ('\n'.join(machine_code))
+    return result
 
 
 print(imm2binary(7, 2))
 
-# # 测试汇编器
-# assembly_code = """slli x1, x2, 2
-# jalr x1, x2, 100
-# srli x3, x4, 8
-# add x1, x2, x3
-# mulh x4, x5, x6"""
-#
-# machine_code = assemble_risc_v(assembly_code)
-# print(machine_code)
+# 测试汇编器
+assembly_code = """slli x1, x2, 2
+sub x3, x4, x5
+jalr x1, 100(x2)
+srli x3, x4, 8
+add x1, x2, x3
+mulh x4, x5, x6"""
+
+machine_code = assemble_risc_v(assembly_code)
+print(machine_code)
