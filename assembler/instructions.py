@@ -1,11 +1,20 @@
 instructions_I = {
-    "fence":    "0000 pred succ 00000 000 0001111",
-    "fence.i":  "0000 0000 0000 00000 001 0001111",
-    "ecall":    "000000000000 00000 000 1110011",
-    "ebreak":   "000000000001 00000 000 1110011",
+    "fence.i":  "0000 0000 0000 00000 001 00000 0001111",
+    "ecall":    "000000000000 00000 000 00000 1110011",
+    "ebreak":   "000000000001 00000 000 00000 1110011",
+
+}
+
+instructions_I_a = {
+    "fence":    "0000 pred succ 00000 000 00000 0001111",
+}
+
+instructions_I_b = {
     "csrrw":    "csr rs1 001 rd 1110011",
     "csrrs":    "csr rs1 010 rd 1110011",
     "csrrc":    "csr rs1 011 rd 1110011",
+}
+instructions_I_c = {
     "csrrwi":   "csr zimm 101 rd 1110011",
     "csrrsi":   "csr zimm 110 rd 1110011",
     "csrrci":   "csr zimm 111 rd 1110011",

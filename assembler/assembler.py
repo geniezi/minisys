@@ -4,12 +4,21 @@ import re
 
 def reg2int(reg):
     reg_ = re.findall(r'\d+', reg)[0]
-    reg_ = format(int(reg_), '05b')
+    reg_ = dec2binary(int(reg_), 5)
     # print(reg_)
     return reg_
 
+def csr2int(csr):
+    csr_ = re.findall(r'\d+', csr)[0]
+    csr_ = dec2binary(int(csr_), 12)
+    # print(csr_)
+    return csr_
 
 def imm2binary(imm, width):
+    return dec2binary(imm, width)
+
+
+def dec2binary(imm, width):
     mask = (1 << width) - 1
     imm = imm & mask
     imm_ = format(int(imm), '0' + str(width) + 'b')
@@ -108,9 +117,47 @@ def assemble_i_31(parts):
     binary_instr = instructions.instructions_I_31.get(parts[0])
 
     binary_instr = binary_instr.replace("rd", reg2int(parts[1]))
-    binary_instr = binary_instr.replace("imm[31:12]", imm2binary(parts[2]>>12, 20))
+    binary_instr = binary_instr.replace("imm[31:12]", imm2binary(parts[2] >> 12, 20))
 
     return binary_instr
+
+
+def assemble_I(parts):
+    # xxx
+    binary_instr = instructions.instructions_I.get(parts[0])
+
+    return binary_instr
+
+
+def assemble_i_a(parts):
+    # xxx pred succ
+    binary_instr = instructions.instructions_I_a.get(parts[0])
+
+    binary_instr = binary_instr.replace("pred", imm2binary(parts[1], 4))
+    binary_instr = binary_instr.replace("succ", imm2binary(parts[2], 4))
+
+    return binary_instr
+
+
+
+def assemble_i_b(parts):
+    # xxx rd csr rs1
+    binary_instr = instructions.instructions_I_b.get(parts[0])
+
+    binary_instr = binary_instr.replace("rd", reg2int(parts[1]))
+    binary_instr = binary_instr.replace("csr", csr2int(parts[2]))
+    binary_instr = binary_instr.replace("rs1", reg2int(parts[3]))
+
+    return binary_instr
+
+
+def assemble_i_c(parts):
+    # xxx rd csr zimm
+    binary_instr = instructions.instructions_I_c.get(parts[0])
+
+    binary_instr = binary_instr.replace("rd", reg2int(parts[1]))
+    binary_instr = binary_instr.replace("csr", csr2int(parts[2]))
+    binary_instr = binary_instr.replace("zimm", imm2binary(parts[3], 5))
 
 
 def assemble_risc_v(assembly_code):
@@ -135,6 +182,14 @@ def assemble_risc_v(assembly_code):
             machine_code.append(assemble_i_20(parts))
         if parts[0] in instructions.instructions_I_31:
             machine_code.append(assemble_i_31(parts))
+        if parts[0] in instructions.instructions_I:
+            machine_code.append(assemble_I(parts))
+        if parts[0] in instructions.instructions_I_a:
+            machine_code.append(assemble_i_a(parts))
+        if parts[0] in instructions.instructions_I_b:
+            machine_code.append(assemble_i_b(parts))
+        if parts[0] in instructions.instructions_I_c:
+            machine_code.append(assemble_i_c(parts))
     return '\n'.join(machine_code)
 
 
