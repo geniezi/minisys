@@ -8,8 +8,8 @@ def binary2hex(binary_string):
         print("error, length not correct")  # 在前面补零
 
     # 将二进制字符串转换为十六进制
-    hex_value = hex(int(binary_string, 2))[2:].zfill(8)  # 使用int将二进制转换为十进制，然后用hex转换为十六进制字符串
-    return hex_value.lower()  # 返回大写形式的十六进制字符串
+    hex_value = hex(int(binary_string, 2))[2:].zfill(8)  # 使用int将二进制转换为十进制，然后用hex转换为十六进制字符串，并补0
+    return hex_value.lower()  # 返回小写形式的十六进制字符串
 
 
 def reg2int(reg):
@@ -210,7 +210,8 @@ def assemble_risc_v(assembly_code):
     return result
 
 
-print(imm2binary(7, 2))
+# print(imm2binary(7, 2))
+print()
 
 # 测试汇编器
 assembly_code = """slli x1, x2, 2
