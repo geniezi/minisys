@@ -2,13 +2,14 @@ import instructions
 import re
 
 
-def binary2hex(binary_string):
-    # 确保二进制字符串的长度是32，以便正确转换为十六进制
-    if len(binary_string) != 32:
-        print("error, length not correct")  # 在前面补零
+def binary2hex(binary_string, width):
+    # 确保二进制字符串的长度是width，以便正确转换为十六进制
+    if len(binary_string) != width*4:
+        print("error, length not correct")  # 报错
+        binary_string = binary_string.zfill(width*4)  # 使用0补齐
 
     # 将二进制字符串转换为十六进制
-    hex_value = hex(int(binary_string, 2))[2:].zfill(8)  # 使用int将二进制转换为十进制，然后用hex转换为十六进制字符串，并补0
+    hex_value = hex(int(binary_string, 2))[2:].zfill(width)  # 使用int将二进制转换为十进制，然后用hex转换为十六进制字符串，并补0
     return hex_value.lower()  # 返回小写形式的十六进制字符串
 
 
@@ -205,21 +206,21 @@ def assemble_risc_v(assembly_code):
             machine_code.append(assemble_i_c(parts))
     for i in range(len(machine_code)):
         machine_code[i] = machine_code[i].replace(" ", "")
-        machine_code[i] = binary2hex(machine_code[i])
-    result = ('\n'.join(machine_code))
+        machine_code[i] = binary2hex(machine_code[i], 8)
+    result = (',\n'.join(machine_code))
     return result
 
 
-# print(imm2binary(7, 2))
-print()
+if __name__ == '__main__':
+    print()
 
-# 测试汇编器
-assembly_code = """slli x1, x2, 2
-sub x3, x4, x5
-jalr x1, 100(x2)
-srli x3, x4, 8
-add x1, x2, x3
-mulh x4, x5, x6"""
+    # 测试汇编器
+    assembly_code = """slli x1, x2, 2
+    sub x3, x4, x5
+    jalr x1, 100(x2)
+    srli x3, x4, 8
+    add x1, x2, x3
+    mulh x4, x5, x6"""
 
-machine_code = assemble_risc_v(assembly_code)
-print(machine_code)
+    machine_code = assemble_risc_v(assembly_code)
+    print(machine_code)
