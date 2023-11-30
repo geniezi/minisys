@@ -62,14 +62,14 @@ def assemble_i_4(parts):
 
 def assemble_i_11_4(parts):
     # xxx rs2 imm(rs1)
-    parts[3].append(parts[2].split('(')[1].split(')')[0])
+    parts.append(parts[2].split('(')[1].split(')')[0])
     parts[2] = parts[2].split('(')[0]
     binary_instr = instructions.instructions_I_11_4.get(parts[0])
 
     binary_instr = binary_instr.replace("rs2", reg2int(parts[1]))
     binary_instr = binary_instr.replace("rs1", reg2int(parts[3]))
-    binary_instr = binary_instr.replace("imm[11:5]", imm2binary(parts[2] >> 5, 7))
-    binary_instr = binary_instr.replace("imm[4:0]", imm2binary(parts[2], 5))
+    binary_instr = binary_instr.replace("imm[11:5]", imm2binary(int(parts[2]) >> 5, 7))
+    binary_instr = binary_instr.replace("imm[4:0]", imm2binary(int(parts[2]), 5))
 
     return binary_instr
 
@@ -118,9 +118,9 @@ def assemble_i_20(parts):
 
     binary_instr = binary_instr.replace("rd", reg2int(parts[1]))
     binary_instr = binary_instr.replace("imm[20|10:1|11|19:12]",
-                                        imm2binary(parts[2] >> 20, 1) + imm2binary(parts[2] >> 1,
+                                        imm2binary(int(parts[2]) >> 20, 1) + imm2binary(int(parts[2]) >> 1,
                                                                                    10) + imm2binary(
-                                            parts[2] >> 11, 1) + imm2binary(parts[2] >> 12, 8))
+                                            int(parts[2]) >> 11, 1) + imm2binary(int(parts[2]) >> 12, 8))
 
     return binary_instr
 
@@ -130,7 +130,7 @@ def assemble_i_31(parts):
     binary_instr = instructions.instructions_I_31.get(parts[0])
 
     binary_instr = binary_instr.replace("rd", reg2int(parts[1]))
-    binary_instr = binary_instr.replace("imm[31:12]", imm2binary(parts[2] >> 12, 20))
+    binary_instr = binary_instr.replace("imm[31:12]", imm2binary(int(parts[2]) >> 12, 20))
 
     return binary_instr
 
@@ -215,12 +215,7 @@ if __name__ == '__main__':
     print()
 
     # 测试汇编器
-    assembly_code = """slli x1, x2, 2
-    sub x3, x4, x5
-    jalr x1, 100(x2)
-    srli x3, x4, 8
-    add x1, x2, x3
-    mulh x4, x5, x6"""
-
+    assembly_code = """addi x2, x0, 4
+    jalr x4, 16(x2)"""
     machine_code = assemble_risc_v(assembly_code)
     print(machine_code)
