@@ -28,7 +28,10 @@ def csr2int(csr):
 
 
 def imm2binary(imm, width):
-    return dec2binary(int(imm), width)
+    if imm[0:2] == "0x" or imm[0:3] == "-0x":
+        return dec2binary(int(imm,16), width)
+    else:
+        return dec2binary(int(imm), width)
 
 
 def dec2binary(imm, width):
@@ -65,12 +68,12 @@ def assemble_i_11_4(parts):
     parts.append(parts[2].split('(')[1].split(')')[0])
     parts[2] = parts[2].split('(')[0]
     binary_instr = instructions.instructions_I_11_4.get(parts[0])
-
     binary_instr = binary_instr.replace("rs2", reg2int(parts[1]))
     binary_instr = binary_instr.replace("rs1", reg2int(parts[3]))
-    binary_instr = binary_instr.replace("imm[11:5]", imm2binary(int(parts[2]) >> 5, 7))
-    binary_instr = binary_instr.replace("imm[4:0]", imm2binary(int(parts[2]), 5))
-
+    imm = imm2binary(parts[2],12)
+    binary_instr = binary_instr.replace("imm[11:5]", imm[0:7])
+    binary_instr = binary_instr.replace("imm[4:0]", imm[7:12])
+    print(binary_instr)
     return binary_instr
 
 
@@ -104,11 +107,13 @@ def assemble_i_12(parts):
 
     binary_instr = binary_instr.replace("rs1", reg2int(parts[1]))
     binary_instr = binary_instr.replace("rs2", reg2int(parts[2]))
+    instr = '0' + imm2binary(parts[3],12)
+    print(instr)
     binary_instr = binary_instr.replace("imm[12|10:5]",
-                                        imm2binary(parts[3] >> 12, 1) + imm2binary(parts[3] >> 5, 6))
+                                        instr[0] + instr[2:8])
     binary_instr = binary_instr.replace("imm[4:1|11]",
-                                        imm2binary(parts[3] >> 1, 4) + imm2binary(parts[3] >> 11, 1))
-
+                                        instr[8:12] + instr[1])
+    print(binary_instr)
     return binary_instr
 
 
@@ -117,10 +122,11 @@ def assemble_i_20(parts):
     binary_instr = instructions.instructions_I_20.get(parts[0])
 
     binary_instr = binary_instr.replace("rd", reg2int(parts[1]))
-    binary_instr = binary_instr.replace("imm[20|10:1|11|19:12]",
-                                        imm2binary(int(parts[2]) >> 20, 1) + imm2binary(int(parts[2]) >> 1,
-                                                                                   10) + imm2binary(
-                                            int(parts[2]) >> 11, 1) + imm2binary(int(parts[2]) >> 12, 8))
+    instr = imm2binary(parts[2],20)
+    binary_instr = binary_instr.replace("imm[20|10:1|11|19:12]",instr[0]+instr[10:20]+instr[9]+instr[1:9])
+                                        # imm2binary(int(parts[2]) >> 20, 1) + imm2binary(int(parts[2]) >> 1,
+                                        #                                            10) + imm2binary(
+                                        #     int(parts[2]) >> 11, 1) + imm2binary(int(parts[2]) >> 12, 8))
 
     return binary_instr
 
@@ -130,7 +136,7 @@ def assemble_i_31(parts):
     binary_instr = instructions.instructions_I_31.get(parts[0])
 
     binary_instr = binary_instr.replace("rd", reg2int(parts[1]))
-    binary_instr = binary_instr.replace("imm[31:12]", imm2binary(int(parts[2]) >> 12, 20))
+    binary_instr = binary_instr.replace("imm[31:12]", imm2binary(parts[2],20))
 
     return binary_instr
 
@@ -215,7 +221,15 @@ if __name__ == '__main__':
     print()
 
     # 测试汇编器
-    assembly_code = """addi x2, x0, 4
-    jalr x4, 16(x2)"""
+    assembly_code = """addi x11, x11, -0x400
+    lui x10, 0x00001
+    addi x10, x10, 0x234
+    sw x10, 0(x11)
+    lui x10, 0x00005
+    addi x10, x10, 0x678
+    sw x10, 2(x11)
+    lui x10, 0x00010
+    addi x10, x10, -0x100
+    sw x10, 4(x11)"""
     machine_code = assemble_risc_v(assembly_code)
     print(machine_code)
