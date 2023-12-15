@@ -73,7 +73,6 @@ def assemble_i_11_4(parts):
     imm = imm2binary(parts[2],12)
     binary_instr = binary_instr.replace("imm[11:5]", imm[0:7])
     binary_instr = binary_instr.replace("imm[4:0]", imm[7:12])
-    print(binary_instr)
     return binary_instr
 
 
@@ -107,13 +106,11 @@ def assemble_i_12(parts):
 
     binary_instr = binary_instr.replace("rs1", reg2int(parts[1]))
     binary_instr = binary_instr.replace("rs2", reg2int(parts[2]))
-    instr = '0' + imm2binary(parts[3],12)
-    print(instr)
+    instr = imm2binary(parts[3],12)[0] + imm2binary(parts[3],12)
     binary_instr = binary_instr.replace("imm[12|10:5]",
                                         instr[0] + instr[2:8])
     binary_instr = binary_instr.replace("imm[4:1|11]",
                                         instr[8:12] + instr[1])
-    print(binary_instr)
     return binary_instr
 
 
@@ -122,7 +119,7 @@ def assemble_i_20(parts):
     binary_instr = instructions.instructions_I_20.get(parts[0])
 
     binary_instr = binary_instr.replace("rd", reg2int(parts[1]))
-    instr = imm2binary(parts[2],20)
+    instr = imm2binary(parts[2],20)[0] + imm2binary(parts[2],20)
     binary_instr = binary_instr.replace("imm[20|10:1|11|19:12]",instr[0]+instr[10:20]+instr[9]+instr[1:9])
                                         # imm2binary(int(parts[2]) >> 20, 1) + imm2binary(int(parts[2]) >> 1,
                                         #                                            10) + imm2binary(
@@ -213,23 +210,29 @@ def assemble_risc_v(assembly_code):
     for i in range(len(machine_code)):
         machine_code[i] = machine_code[i].replace(" ", "")
         machine_code[i] = binary2hex(machine_code[i], 8)
-    result = (',\n'.join(machine_code))
-    return result
+    # result = (',\n'.join(machine_code))
+    return machine_code
 
 
 if __name__ == '__main__':
     print()
 
     # 测试汇编器
-    assembly_code = """addi x11, x11, -0x400
-    lui x10, 0x00001
-    addi x10, x10, 0x234
-    sw x10, 0(x11)
-    lui x10, 0x00005
-    addi x10, x10, 0x678
-    sw x10, 2(x11)
-    lui x10, 0x00010
-    addi x10, x10, -0x100
-    sw x10, 4(x11)"""
+    assembly_code = """addi x1, x1, -0x3F0
+    addi x4, x4, -0x3C0
+    lui x7, 2
+    addi x7, x7, -0x22F
+    addi x8, x8, 1
+    lw x5, 0(x1)
+    lw x6, 2(x1)
+    beq x6, x0, -8
+    sw x7, 0(x4)
+    sw x8, 2(x4)
+    jal x9, -20"""
     machine_code = assemble_risc_v(assembly_code)
     print(machine_code)
+    for i in range(0,machine_code.__len__()):
+        machine_code[i] = machine_code[i][4:8] + "," + machine_code[i][0:4]
+    binary_code = (',\n'.join(machine_code)) + ","
+    print(binary_code)
+
