@@ -1,6 +1,10 @@
 import instructions
 import re
 
+def hex2binary(hex_string):
+    dec=int(hex_string[2:],16)
+    binarys=bin(dec)[2:]
+    return binarys
 
 def binary2hex(binary_string, width):
     # 确保二进制字符串的长度是width，以便正确转换为十六进制
@@ -73,6 +77,7 @@ def assemble_i_11_4(parts):
     imm = imm2binary(parts[2],12)
     binary_instr = binary_instr.replace("imm[11:5]", imm[0:7])
     binary_instr = binary_instr.replace("imm[4:0]", imm[7:12])
+    print(binary_instr)
     return binary_instr
 
 
@@ -106,11 +111,13 @@ def assemble_i_12(parts):
 
     binary_instr = binary_instr.replace("rs1", reg2int(parts[1]))
     binary_instr = binary_instr.replace("rs2", reg2int(parts[2]))
-    instr = imm2binary(parts[3],12)[0] + imm2binary(parts[3],12)
+    instr = '0' + imm2binary(parts[3],12)
+    print(instr)
     binary_instr = binary_instr.replace("imm[12|10:5]",
                                         instr[0] + instr[2:8])
     binary_instr = binary_instr.replace("imm[4:1|11]",
                                         instr[8:12] + instr[1])
+    print(binary_instr)
     return binary_instr
 
 
@@ -119,7 +126,7 @@ def assemble_i_20(parts):
     binary_instr = instructions.instructions_I_20.get(parts[0])
 
     binary_instr = binary_instr.replace("rd", reg2int(parts[1]))
-    instr = imm2binary(parts[2],20)[0] + imm2binary(parts[2],20)
+    instr = imm2binary(parts[2],20)
     binary_instr = binary_instr.replace("imm[20|10:1|11|19:12]",instr[0]+instr[10:20]+instr[9]+instr[1:9])
                                         # imm2binary(int(parts[2]) >> 20, 1) + imm2binary(int(parts[2]) >> 1,
                                         #                                            10) + imm2binary(
@@ -182,7 +189,7 @@ def assemble_risc_v(assembly_code):
     lines = assembly_code.split('\n')
 
     for line in lines:
-        parts = line.strip().replace(",", " ").split()
+        parts = line.replace(",", "").split()
         if parts[0] in instructions.instructions_I_0_M:
             machine_code.append(assemble_i_0_m(parts))
         if parts[0] in instructions.instructions_I_4:
@@ -207,47 +214,28 @@ def assemble_risc_v(assembly_code):
             machine_code.append(assemble_i_b(parts))
         if parts[0] in instructions.instructions_I_c:
             machine_code.append(assemble_i_c(parts))
+        if parts[0] in instructions.instructions_privilege:
+            machine_code.append(instructions.instructions_privilege.get(parts[0]))
     for i in range(len(machine_code)):
         machine_code[i] = machine_code[i].replace(" ", "")
         machine_code[i] = binary2hex(machine_code[i], 8)
-    # result = (',\n'.join(machine_code))
-    return machine_code
+    result = (',\n'.join(machine_code))
+    return result
 
 
 if __name__ == '__main__':
     print()
 
     # 测试汇编器
-    assembly_code = """addi x1,x1,-0x3F0
-    addi x4,x4,-0x3C0
-    addi x8,x8,1
-    addi x10,x10,1
-    addi x11,x11,2
-    addi x13,x13,3
-    addi x14,x14,4
-    lw x5,0(x1)
-    lw x6,4(x1)
-    beq x6,x0,-8
-    bne x5,x10,12
-    lw x7,0(x0)
-    jal x9,44
-    bne x5,x11,12
-    lw x7,4(x0)
-    jal x9,32
-    bne x5,x12,12
-    lw x7,8(x0)
-    jal x9,28
-    bne x5,x13,12
-    lw x7,12(x0)
-    jal x9,24
-    jal x9,-60
-    sw x7,0(x4)
-    sw x8,2(x4)
-    jal x9,-72"""
+    assembly_code = """addi x11, x11, -0x400
+    lui x10, 0x00001
+    addi x10, x10, 0x234
+    sw x10, 0(x11)
+    lui x10, 0x00005
+    addi x10, x10, 0x678
+    sw x10, 2(x11)
+    lui x10, 0x00010
+    addi x10, x10, -0x100
+    sw x10, 4(x11)"""
     machine_code = assemble_risc_v(assembly_code)
     print(machine_code)
-    for i in range(0,machine_code.__len__()):
-        machine_code[i] = machine_code[i][4:8] + "," + machine_code[i][0:4]
-    binary_code = (',\n'.join(machine_code)) + ","
-    print(binary_code)
-
