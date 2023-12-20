@@ -1004,7 +1004,7 @@ void SeuYacc::translateAction() {
 				actionTranslate += ";\n";
 				++index;
 			}
-			else if (action[index] == '|' && action[index+1] == '|') {
+			else if (action[index] == '|' && action[index+1] == '|') { // concat || to + 
 				actionTranslate += " + ";
 				++index;
 				++index;
