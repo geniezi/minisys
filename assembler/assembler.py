@@ -20,14 +20,12 @@ def binary2hex(binary_string, width):
 def reg2int(reg):
     reg_ = re.findall(r'\d+', reg)[0]
     reg_ = dec2binary(int(reg_), 5)
-    # print(reg_)
     return reg_
 
 
 def csr2int(csr):
     csr_ = re.findall(r'\d+', csr)[0]
     csr_ = dec2binary(int(csr_), 12)
-    # print(csr_)
     return csr_
 
 
@@ -48,7 +46,6 @@ def dec2binary(imm, width):
 def assemble_i_0_m(parts):
     # xxx rd rs1 rs2
     binary_instr = instructions.instructions_I_0_M.get(parts[0])
-    # print(binary_instr)
 
     binary_instr = binary_instr.replace("rd", reg2int(parts[1]))
     binary_instr = binary_instr.replace("rs1", reg2int(parts[2]))
@@ -115,7 +112,6 @@ def assemble_i_12(parts):
                                         instr[0] + instr[2:8])
     binary_instr = binary_instr.replace("imm[4:1|11]",
                                         instr[8:12] + instr[1])
-    print(binary_instr)
     return binary_instr
 
 
@@ -184,7 +180,7 @@ def assemble_i_c(parts):
 
 def assemble_risc_v(assembly_code):
     machine_code = []
-    lines = assembly_code.split('\n')
+    lines = list(filter(None,assembly_code.split('\n')))
 
     for line in lines:
         parts = line.strip().replace(",", " ").split()
@@ -225,32 +221,33 @@ if __name__ == '__main__':
     print()
 
     # 测试汇编器
-    assembly_code = """addi x1,x1,-0x3F0
-        addi x4,x4,-0x3C0
-        addi x8,x8,1
-        addi x10,x10,1
-        addi x11,x11,2
-        addi x13,x13,3
-        addi x14,x14,4
-        lw x5,0(x1)
-        lw x6,4(x1)
-        beq x6,x0,-8
-        bne x5,x10,12
-        lw x7,0(x0)
-        jal x9,44
-        bne x5,x11,12
-        lw x7,4(x0)
-        jal x9,32
-        bne x5,x12,12
-        lw x7,8(x0)
-        jal x9,28
-        bne x5,x13,12
-        lw x7,12(x0)
-        jal x9,24
-        jal x9,-60
-        sw x7,0(x4)
-        sw x8,2(x4)
-        jal x9,-72"""
+    # assembly_code = """addi x1,x1,-0x3F0
+    #     addi x4,x4,-0x3C0
+    #     addi x8,x8,1
+    #     addi x10,x10,1
+    #     addi x11,x11,2
+    #     addi x13,x13,3
+    #     addi x14,x14,4
+    #     lw x5,0(x1)
+    #     lw x6,4(x1)
+    #     beq x6,x0,-8
+    #     bne x5,x10,12
+    #     lw x7,0(x0)
+    #     jal x9,44
+    #     bne x5,x11,12
+    #     lw x7,4(x0)
+    #     jal x9,32
+    #     bne x5,x12,12
+    #     lw x7,8(x0)
+    #     jal x9,28
+    #     bne x5,x13,12
+    #     lw x7,12(x0)
+    #     jal x9,24
+    #     jal x9,-60
+    #     sw x7,0(x4)
+    #     sw x8,2(x4)
+    #     jal x9,-72"""
+    assembly_code = open("test.s").read()
     machine_code = assemble_risc_v(assembly_code)
     print(machine_code)
     for i in range(0, machine_code.__len__()):
