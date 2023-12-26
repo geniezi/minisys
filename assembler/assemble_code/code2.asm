@@ -32,7 +32,6 @@
              lw x5,-16(x8)
              add x5,x10,x0
              addi x0,x0,0
-             lw x10,0
              add x2,x8,x0
              lw x1,0(x2)
              addi x2,x2,4
