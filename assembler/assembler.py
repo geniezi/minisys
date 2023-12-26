@@ -1,3 +1,5 @@
+import os
+
 import instructions
 import re
 
@@ -189,7 +191,7 @@ def assemble_i_c(parts):
 
 def assemble_risc_v(assembly_code):
     global symbol
-    machine_code = []
+    global machine_code
     lines = list(filter(None, assembly_code.split('\n')))
     flag = 0
 
@@ -260,6 +262,37 @@ def assemble_risc_v(assembly_code):
     return machine_code
 
 
+def generate_ins_coe_file(machine_code):
+    directory = 'coe_result'
+    os.makedirs(directory, exist_ok=True)
+    file_path = os.path.join(directory, 'ins.coe')
+
+    coe_file = open(file_path, "w")
+    coe_file.write("memory_initialization_radix = 16;\n")
+    coe_file.write("memory_initialization_vector =\n")
+
+    for i in range(0, machine_code.__len__()):
+        machine_code[i] = machine_code[i][4:8] + "," + machine_code[i][0:4]
+    binary_code = (',\n'.join(machine_code)) + ","
+    print(binary_code)
+
+    coe_file.write(binary_code)
+    coe_file.close()
+
+
+def generate_data_coe_file(data):
+    directory = 'coe_result'
+    os.makedirs(directory, exist_ok=True)
+    file_path = os.path.join(directory, 'data.coe')
+
+    coe_file = open(file_path, "w")
+    coe_file.write("memory_initialization_radix = 16;\n")
+    coe_file.write("memory_initialization_vector =\n")
+
+    # coe_file.write(binary_code)
+    coe_file.close()
+
+
 if __name__ == '__main__':
     print()
     # minus_start,minus_end = 0, 0
@@ -268,9 +301,9 @@ if __name__ == '__main__':
     data = {}
 
     assembly_code = open("assemble_code/code2.asm").read()
-    machine_code = assemble_risc_v(assembly_code)
+    machine_code = []
+    assemble_risc_v(assembly_code)
     print(machine_code)
-    for i in range(0, machine_code.__len__()):
-        machine_code[i] = machine_code[i][4:8] + "," + machine_code[i][0:4]
-    binary_code = (',\n'.join(machine_code)) + ","
-    print(binary_code)
+
+    generate_ins_coe_file(machine_code)
+    generate_data_coe_file(data)
