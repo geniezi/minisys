@@ -13,7 +13,9 @@ digit [0~9];
 letter [A~Za~z];
 id {letter}({letter}|{digit})*;
 number {digit}+(.{digit}+)?(E[+-]?{digit}+)?;
+
 %%
+
 char {return "char";}
 int {return "int";}
 float {return "float";}

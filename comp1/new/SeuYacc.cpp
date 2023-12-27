@@ -39,7 +39,7 @@ SeuYacc::SeuYacc(const string grammerFile, const string parsingFile) {
 bool SeuYacc::readGrammer(const string grammerFile) {
 
 	_sourcefile.open(grammerFile, ios::in);
-	// ÎÄ¼þ²»´æÔÚ
+	// ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	if (_sourcefile.fail()) {
 		cout<<grammerFile + " cannot be open";
 		return false;
@@ -48,21 +48,22 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 	_buffer = new char[100];
 
 	IDType state = 0;
-	string lexeme = ""; //¸ù¾Ýlex´Ê·¨±£´æÒ»¸öµ¥´Ê£¨Ò»¸ö·ÇÖÕ½á·û»òÖÕ½á·û£©
-	IDType procHead = 9999; // ±£´æ²úÉúÊ½Í·²¿
+	string lexeme = ""; //ï¿½ï¿½ï¿½ï¿½lexï¿½Ê·ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ê£ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Õ½ï¿½ï¿½ï¿½ï¿½ï¿½Õ½ï¿½ï¿½ï¿½ï¿½
+	IDType procHead = 9999; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½Í·ï¿½ï¿½
 	bool endFlag = false;
-	unsigned int braceMatch = 0; //ÓÃÓÚÆ¥ÅäÀ¨ºÅ
+	unsigned int braceMatch = 0; //ï¿½ï¿½ï¿½ï¿½Æ¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	_indexSymbol = 0;
-	list<ElementType> list; // ÀûÓÃlist±£´æ²úÉúÊ½ÓÒ²¿£¬ElementType£¨ÖÕ½á·û»ò·ÇÖÕ½á·û£©
-	unsigned int numOfProd = 0;  // ¼ÇÂ¼²úÉúÊ½µÄÊýÁ¿
+	list<ElementType> list; // ï¿½ï¿½ï¿½ï¿½listï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½Ò²ï¿½ï¿½ï¿½ElementTypeï¿½ï¿½ï¿½Õ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ½ï¿½ï¿½ï¿½ï¿½
+	unsigned int numOfProd = 0;  // ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	// read Priority infomation first
 	if (!readPriority()) {
 		//error("illegal addition condition declaration", 0);
 		return false;
 	}
-	// ¿ªÊ¼¶ÁÈ¡²úÉúÊ½Ö±ÖÁendFlagÎªtrue
+
+	// ï¿½ï¿½Ê¼ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ê½Ö±ï¿½ï¿½endFlagÎªtrue
 	// read production
 	while (!endFlag) {
 		switch (state) {
@@ -70,18 +71,18 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 			// read prodction head
 			if (!read()) endFlag = true;
 			else if (isLegalLetter(_peek)) {
-				lexeme.operator+=(_peek);  // ¶ÁÈ¡ÍêÕûµÄÒ»¸ö·ÇÖÕ½á·û»òÖÕ½á·û
+				lexeme.operator+=(_peek);  // ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Õ½ï¿½ï¿½ï¿½ï¿½ï¿½Õ½ï¿½ï¿½
 				state = 0;
 			}
-			else if (_peek == ':') { //²úÉúÊ½Í·²¿½áÊø
-				auto found = _nonterminalTable.find(lexeme); //ÔÚ·ÇÖÕ½á·û±íÖÐÊÇ·ñ´æÔÚ
+			else if (_peek == ':') { //ï¿½ï¿½ï¿½ï¿½Ê½Í·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+				auto found = _nonterminalTable.find(lexeme); //ï¿½Ú·ï¿½ï¿½Õ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½
 				if (found != _nonterminalTable.end()) {
-					procHead = found->second;  //procHead±£´æÒÑÓÐµÄ·ÇÖÕ½á·ûElementType
+					procHead = found->second;  //procHeadï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÐµÄ·ï¿½ï¿½Õ½ï¿½ï¿½ElementType
 				}
 				else {
-					// new nontermianl production head ÐÂ±£´æÒ»¸ö·ÇÖÕ½á·û
+					// new nontermianl production head ï¿½Â±ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Õ½ï¿½ï¿½
 					_nonterminalTable.insert(make_pair(lexeme, _indexSymbol));
-					_nonterminalNullable.insert(make_pair(_indexSymbol, false));// Ä¬ÈÏÐÂ±£´æµÄ·ÇÖÕ½á·û²»²úÉú¿Õ´®
+					_nonterminalNullable.insert(make_pair(_indexSymbol, false));// Ä¬ï¿½ï¿½ï¿½Â±ï¿½ï¿½ï¿½Ä·ï¿½ï¿½Õ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ´ï¿½
 					_word.push_back(lexeme);
 					procHead = _indexSymbol;
 					++_indexSymbol;
@@ -105,7 +106,7 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 					}
 					else {
 						_nonterminalTable.insert(make_pair(lexeme, _indexSymbol));
-						_nonterminalNullable.insert(make_pair(_indexSymbol, false)); //Ä¬ÈÏ²»ÊÇ¿Õ´®
+						_nonterminalNullable.insert(make_pair(_indexSymbol, false)); //Ä¬ï¿½Ï²ï¿½ï¿½Ç¿Õ´ï¿½
 						_word.push_back(lexeme);
 						list.push_back(_indexSymbol);
 						++_indexSymbol;
@@ -116,13 +117,13 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 			}
 			else if (_peek == '|') {
 				// same production head with different body list
-				// ÏÈ±£´æÒÑÓÐµÄÒ»¸ö²úÉúÊ½
+				// ï¿½È±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½
 				_productionVector.push_back(ProductionItem(procHead, list, list.size(), numOfProd++));
 				if (list.empty()) {
-					// empty production£¬²úÉúÊ½Îª¿Õ´®£¬¼ÇÂ¼¸Ã·ÇÖÕ½á·ûÎª¿Õ´®
+					// empty productionï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½Îªï¿½Õ´ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½Ã·ï¿½ï¿½Õ½ï¿½ï¿½Îªï¿½Õ´ï¿½
 					_nonterminalNullable.find(procHead)->second = true;
 				}
-				//list.swap(list<ElementType>());// Çå¿ÕlistÁÐ±í
+				//list.swap(list<ElementType>());// ï¿½ï¿½ï¿½listï¿½Ð±ï¿½
 				list.clear();
 				lexeme = "";
 			}
@@ -141,15 +142,15 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 					}
 				}
 				lexeme = "";
-				if (_peek == '\'') state = 2; //¶Áµ½ÒýºÅ±íÊ¾Ö®ºó¶Áµ½µÄÎªÖÕ½á·û
-				else if (_peek == ';') state = 3; //¶Áµ½£»±íÊ¾Ò»Ìõ²úÉúÊ½½áÊø×¼±¸¶ÁÏÂÒ»Ìõ
+				if (_peek == '\'') state = 2; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å±ï¿½Ê¾Ö®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½Õ½ï¿½ï¿½
+				else if (_peek == ';') state = 3; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½×¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½
 				else if (_peek == '{') { state = 4; ++braceMatch; }
 			}
 			break;
 		case 2:
 			// read terminal 'xxx'
 			read();
-			if (_peek == '\'') { //Ò»¸öÖÕ½á·û¶ÁÍê
+			if (_peek == '\'') { //Ò»ï¿½ï¿½ï¿½Õ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				auto found = _terminalTable.find(lexeme);
 				if (found != _terminalTable.end()) {
 					list.push_back(found->second);
@@ -166,7 +167,7 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 			else lexeme.operator+=(_peek);
 			break;
 		case 3:
-			// add production£¬ÀàËÆ¶Áµ½|£¬½«Ö®Ç°±£´æµÄ²úÉúÊ½±£´æµ½_productionVector
+			// add productionï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½|ï¿½ï¿½ï¿½ï¿½Ö®Ç°ï¿½ï¿½ï¿½ï¿½Ä²ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½æµ½_productionVector
 			_productionVector.push_back(ProductionItem(procHead, list, list.size(), numOfProd++));
 			if (list.empty()) {
 				// empty production
@@ -178,12 +179,13 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 			state = 0;
 			break;
 		case 4:
-			// action part ¶¨Òå¶¯×÷£¬ÓÃÓÚÓï·¨ÖÆµ¼·­ÒëÉú³ÉÖÐ¼ä´úÂë
-			// yacc.yÎÄ¼þÖÐ{}ÖÐµÄ²¿·Ö
+			// action part ï¿½ï¿½ï¿½å¶¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï·¨ï¿½Æµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¼ï¿½ï¿½ï¿½ï¿½
+			// yacc.yï¿½Ä¼ï¿½ï¿½ï¿½{}ï¿½ÐµÄ²ï¿½ï¿½ï¿½
 			read();
 			if (_peek == '}' && braceMatch == 1) {
+				
 				--braceMatch;
-				// numOfProd±íÊ¾µÚn¸ö²úÉúÊ½£¬lexeme±íÊ¾ÒªÖ´ÐÐµÄ¶¯×÷£¬map¸ù¾Ý²úÉúÊ½±êºÅ²é¶ÔÓ¦µÄ²Ù×÷
+				// numOfProdï¿½ï¿½Ê¾ï¿½ï¿½nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½lexemeï¿½ï¿½Ê¾ÒªÖ´ï¿½ÐµÄ¶ï¿½ï¿½ï¿½ï¿½ï¿½mapï¿½ï¿½ï¿½Ý²ï¿½ï¿½ï¿½Ê½ï¿½ï¿½Å²ï¿½ï¿½Ó¦ï¿½Ä²ï¿½ï¿½ï¿½
 				_productionAction.insert(make_pair(numOfProd, lexeme));
 				lexeme = "";
 				state = 1;
@@ -195,51 +197,52 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 			}
 			break;
 		default:
-			//error("unreachable state");
+			cout<<"unreachable state error\n";
 			return false;
 			break;
 		}
 	}
-	//ËùÓÐÓï·¨¶ÁÈ¡Íê±Ï
-	translateAction(); //°Ñ¶ÁÈ¡µ½¶¯×÷ÓÉstring×ª»»³É¿ÉÖ´ÐÐ¶¯×÷
-	nullableAnalyze(); //¼ÇÂ¼·ÇÖÕ½á·ûÊÇ·ñ²úÉú¿Õ´®
-	_terminalTable.insert(make_pair("$", _indexSymbol)); //$×÷ÎªÌØÊâµÄÖÕ½á·û
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï·¨ï¿½ï¿½È¡ï¿½ï¿½ï¿½
+	translateAction(); //ï¿½Ñ¶ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½string×ªï¿½ï¿½ï¿½É¿ï¿½Ö´ï¿½Ð¶ï¿½ï¿½ï¿½
+	nullableAnalyze(); //ï¿½ï¿½Â¼ï¿½ï¿½ï¿½Õ½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½Õ´ï¿½
+	_terminalTable.insert(make_pair("$", _indexSymbol)); //$ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ½ï¿½ï¿½
 	_word.push_back("$");
 	++_indexSymbol;
 
 	if (_buffer != nullptr) delete[] _buffer;
 	_sourcefile.close();
+	cout << "reading yacc ok\n";
 	return true;
 }
 
 // read addition conditions from file
-// ¶ÁÈ¡¸½¼ÓÌõ¼þ£¨×óÓÒµÝ¹éºÍÓÅÏÈ¼¶£©
+// ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÒµÝ¹ï¿½ï¿½ï¿½ï¿½ï¿½È¼ï¿½ï¿½ï¿½
 bool SeuYacc::readPriority() {
 	string lexeme = "";
 	unsigned int curPriority = 0;
 	read();
 	while (true) {
 		if (_peek != '%') { retract(); return true; }
-		++curPriority; //ÍùÏÂÒ»ÐÐÓÅÏÈ¼¶Ôö¼Ó
+		++curPriority; //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½È¼ï¿½ï¿½ï¿½ï¿½ï¿½
 		read();
-		// ¿ªÊ¼¶ÁÈ¡Ò»ÐÐ%ºóµÄ×Ö·û
+		// ï¿½ï¿½Ê¼ï¿½ï¿½È¡Ò»ï¿½ï¿½%ï¿½ï¿½ï¿½ï¿½Ö·ï¿½
 		if (_peek == 'l') {
 			read(); if (_peek != 'e') return false;
 			read(); if (_peek != 'f') return false;
 			read(); if (_peek != 't') return false;
-			// ÎÞÒì³£Âú×ã×ó½áºÏ
+			// ï¿½ï¿½ï¿½ì³£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			read();
 			while (_peek != '%') {
 				if (_peek == ' ' || _peek == '\t') {}
-				else if (_peek == '\'') { //¶Áµ½¡®
+				else if (_peek == '\'') { //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 					lexeme = "";
 					read();
-					while (_peek != '\'') //»¹Î´¶Áµ½¡¯£¬±íÊ¾¸Ã·ûºÅÎ´½áÊø
-					{ lexeme.operator+=(_peek); read(); } //µ±Ç°²Ù×÷·û±£´æÔÚlexemeÖÐ
-					_terminalTable.insert(make_pair(lexeme, _indexSymbol)); //ÖÕ½á·û±í±£´æ²Ù×÷·ûºÍindex£¨²Ù×÷·ûÐòºÅ£©
-					_priority.insert(make_pair(_indexSymbol, curPriority)); //ÓÅÏÈ¼¶±í±£´æ²Ù×÷·ûindexºÍÓÅÏÈ¼¶
-					_leftAssociative.insert(make_pair(_indexSymbol, true));	//×ó½áºÏ±í±£´æ²Ù×÷·ûindexºÍÂú×ã×ó½áºÏ
-					_word.push_back(lexeme); //word±£´æÒ»¸ö´Ê£¨²Ù×÷·û£©
+					while (_peek != '\'') //ï¿½ï¿½Î´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½Ã·ï¿½ï¿½ï¿½Î´ï¿½ï¿½ï¿½ï¿½
+					{ lexeme.operator+=(_peek); read(); } //ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½lexemeï¿½ï¿½
+					_terminalTable.insert(make_pair(lexeme, _indexSymbol)); //ï¿½Õ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½indexï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å£ï¿½
+					_priority.insert(make_pair(_indexSymbol, curPriority)); //ï¿½ï¿½ï¿½È¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½indexï¿½ï¿½ï¿½ï¿½ï¿½È¼ï¿½
+					_leftAssociative.insert(make_pair(_indexSymbol, true));	//ï¿½ï¿½ï¿½Ï±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½indexï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+					_word.push_back(lexeme); //wordï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 					++_indexSymbol;
 				}
 				read();
@@ -266,13 +269,13 @@ bool SeuYacc::readPriority() {
 				read();
 			}
 		}
-		else if (_peek == '%') {  //¸½¼ÓÌõ¼þ¶ÁÈ¡Íê
+		else if (_peek == '%') {  //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½
 			return true;   
 		}
 	}
 }
 
-// read a char from sourse file£¬¶ÁÈ¡Ò»¸ö×Ö·û£¬¶ÁÈ¡ÍêÖ®ºó»»ÐÐ
+// read a char from sourse fileï¿½ï¿½ï¿½ï¿½È¡Ò»ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½Ö®ï¿½ï¿½ï¿½ï¿½
 bool SeuYacc::read() {
 	if (_offset == -1) {
 		if (!_sourcefile.eof()) {
@@ -307,7 +310,7 @@ bool SeuYacc::isLetterOrDigit(char ch) {
 		|| ('a' <= ch && ch <= 'z')
 		|| ('0' <= ch && ch <= '9');
 }
-// ÊÇ·ñºÏ·¨×Ö·û
+// ï¿½Ç·ï¿½Ï·ï¿½ï¿½Ö·ï¿½
 bool SeuYacc::isLegalLetter(char ch) {
 	return (isLetterOrDigit(ch) || ch == '_');
 }
@@ -329,7 +332,7 @@ void SeuYacc::nullableAnalyze() {
 						auto bodyIT = prod._bodyList.begin(), bodyEnd = prod._bodyList.end();
 						for (; bodyIT != bodyEnd; ++bodyIT) {
 							auto found = _nonterminalNullable.find(*bodyIT);
-							if (found == termEnd || found->second == false) break; //Ã»ÓÐÕÒµ½ÄÜ²úÉú¿Õ´®µÄ·ÇÖÕ½á·û
+							if (found == termEnd || found->second == false) break; //Ã»ï¿½ï¿½ï¿½Òµï¿½ï¿½Ü²ï¿½ï¿½ï¿½ï¿½Õ´ï¿½ï¿½Ä·ï¿½ï¿½Õ½ï¿½ï¿½
 						}
 						// X is nullable, new one
 						if (bodyIT == bodyEnd) {
@@ -344,21 +347,21 @@ void SeuYacc::nullableAnalyze() {
 }
 
 // content : auto construct state transition
-// ³õÊ¼»¯LR1ÏÂÍÆ×Ô¶¯»ú£¬¹¹ÔìI0×´Ì¬£¬²¢²»¶ÏÀ©Õ¹×´Ì¬µÃµ½×îÖÕµÄÏÂÍÆ×Ô¶¯»ú
+// ï¿½ï¿½Ê¼ï¿½ï¿½LR1ï¿½ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½I0×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¹×´Ì¬ï¿½Ãµï¿½ï¿½ï¿½ï¿½Õµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½
 void SeuYacc::initTransition() {
 	// add the first state H
 	LR1State H;
 	set<ElementType> predSet;
 	predSet.insert(_terminalTable.find("$")->second);
-	H.addItem(LR1Item(&_productionVector.front(), predSet));  // S'->S£¬$
-	_LR1stateTransition.push_back(TransitionItem(LRClosure(H), 0)); // ²úÉúÏàÓ¦µÄ±Õ°ü
-	// ×´Ì¬±ßµÄÀ©Õ¹
+	H.addItem(LR1Item(&_productionVector.front(), predSet));  // S'->Sï¿½ï¿½$
+	_LR1stateTransition.push_back(TransitionItem(LRClosure(H), 0)); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½Ä±Õ°ï¿½
+	// ×´Ì¬ï¿½ßµï¿½ï¿½ï¿½Õ¹
 	// inner-state-extension and between-state-extension
 	IDType maxState = 1;
-	for (IDType k = 0; k < maxState; ++k) { //´Ó0×´Ì¬µ½×î´ó×´Ì¬¿ªÊ¼±éÀú
+	for (IDType k = 0; k < maxState; ++k) { //ï¿½ï¿½0×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½
 		// check all symbols whether current state has a out-edge
 		for (IDType edge = 0; edge < _indexSymbol; ++edge) {
-			LR1State newState = GOTO(_LR1stateTransition.at(k).LR1state, edge); //Ñ°ÕÒÓÐÎÞÒÆÈë·ûºÅ²úÉúµÄÐÂ×´Ì¬
+			LR1State newState = GOTO(_LR1stateTransition.at(k).LR1state, edge); //Ñ°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
 			// transition construct
 			if (!newState.itemList.empty()) {
 				bool newStateFlag = true;
@@ -372,7 +375,7 @@ void SeuYacc::initTransition() {
 				}
 				if (newStateFlag) {
 					// create a new state in transition table
-					_LR1stateTransition.push_back(TransitionItem(newState, maxState)); //ÐÂ×´Ì¬ºÍÐÂÐòºÅ
+					_LR1stateTransition.push_back(TransitionItem(newState, maxState)); //ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 					_LR1stateTransition.at(k).TransMap.insert(make_pair(edge, maxState));
 					++maxState;
 				}
@@ -386,20 +389,20 @@ void SeuYacc::initParseTable() {
 	for (IDType state = 0, maxState = _LR1stateTransition.size(); state < maxState; ++state) {
 		vector<TableItem> temp(_indexSymbol);
 		// for end state, make reduction action
-		for (auto& p : _LR1stateTransition.at(state).LR1state.itemList) { //¶ÔÓÚÄ³¸ö×´Ì¬µÄÄ³Ìõ²úÉúÊ½
-			if (p._dot == p._prod->_bodyList.end()) { //¡¤ÒÆµ½ÁË×îºóÐèÒª½øÐÐ¹æÔ¼
-				for (auto& pred : p._predSet) { //ÌîÈëÔ¤²â·ûµÄ¹æÔ¼Ïî
+		for (auto& p : _LR1stateTransition.at(state).LR1state.itemList) { //ï¿½ï¿½ï¿½ï¿½Ä³ï¿½ï¿½×´Ì¬ï¿½ï¿½Ä³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½
+			if (p._dot == p._prod->_bodyList.end()) { //ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½Ð¹ï¿½Ô¼
+				for (auto& pred : p._predSet) { //ï¿½ï¿½ï¿½ï¿½Ô¤ï¿½ï¿½ï¿½ï¿½Ä¹ï¿½Ô¼ï¿½ï¿½
 					TableItem &curItem = temp.at(pred);
 					switch (curItem.action) {
-					case ERROR: //TableItem³õÊ¼»¯¿Õ¸ñ×Ó¶¼ÎªERROR
+					case ERROR: //TableItemï¿½ï¿½Ê¼ï¿½ï¿½ï¿½Õ¸ï¿½ï¿½Ó¶ï¿½ÎªERROR
 						// no table item now
-						// ÓÃp._prod->_indexÕâÌõ±í´ïÊ½½øÐÐ¹æÔ¼
+						// ï¿½ï¿½p._prod->_indexï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½Ð¹ï¿½Ô¼
 						curItem = TableItem(REDUCTION, p._prod->_index);// terminal, action reduction
-						if (p._prod->_index == 0) //µÚ0Ìõ±í´ïÊ½¼´¿ªÊ¼·ûºÅS'
+						if (p._prod->_index == 0) //ï¿½ï¿½0ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½S'
 							curItem = TableItem(ACCEPT, p._prod->_index);// terminal, action reduction
 						break;
 					default:
-						// ¹æÔ¼-¹æÔ¼³åÍ»
+						// ï¿½ï¿½Ô¼-ï¿½ï¿½Ô¼ï¿½ï¿½Í»
 						//error("warning : state " + to_string(state) + " occurs reduce-reduce conflict");
 						//error("state transition table should be initialed by error state");
 						break;
@@ -418,7 +421,7 @@ void SeuYacc::initParseTable() {
 					curItem = TableItem(GOTO_STATE, tran.second);// nonterminal, goto
 			}
 			else if (curItem.action == REDUCTION) {
-				// ²úÉúÒÆÈë-¹æÔ¼³åÍ»ÀûÓÃ¸½¼ÓÌõ¼þÏû³ý³åÍ»
+				// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½Ô¼ï¿½ï¿½Í»ï¿½ï¿½ï¿½Ã¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í»
 				// solving shift-reduce conflixt
 				// reduce action is done before
 				unsigned int reduceOP = _indexSymbol;
@@ -430,8 +433,8 @@ void SeuYacc::initParseTable() {
 						break;
 					}
 				}
-				// ¸ù¾Ý³åÍ»Ïû³ý¹æÔòÓ¦±£ÁôSHIFT²Ù×÷
-				// tran.first±íÊ¾×ª»»Ê±ÒÆÈëµÄ²Ù×÷·û£¬Óë¹æÔ¼·ûºÅ½øÐÐconflictSolve
+				// ï¿½ï¿½ï¿½Ý³ï¿½Í»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½SHIFTï¿½ï¿½ï¿½ï¿½
+				// tran.firstï¿½ï¿½Ê¾×ªï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ä²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½Å½ï¿½ï¿½ï¿½conflictSolve
 				if (reduceOP != _indexSymbol && conflictSolve(tran.first, reduceOP) == SHIFT) {
 					curItem = TableItem(SHIFT, tran.second);
 				}
@@ -456,7 +459,7 @@ bool SeuYacc::transformIntoLALR() {
 		for (IDType it2State = 0; it2State < checkState; ++it2State) {
 			auto& finalState = _LR1stateTransition.at(it2State).LR1state
 				, tomergeState = _LR1stateTransition.at(checkState).LR1state;
-			// ÕÒµ½Á½¸ö²úÉúÊ½£¨ºË£©¶¼ÏàÍ¬µÄ×´Ì¬
+			// ï¿½Òµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½Ë£ï¿½ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½×´Ì¬
 			if (finalState.equalSameCore(tomergeState)) {
 				mergeMap.insert(make_pair(checkState, it2State));
 				break;
@@ -467,12 +470,12 @@ bool SeuYacc::transformIntoLALR() {
 	for (IDType index = 0; index < _LR1stateTransition.size(); ++index) {
 		if (mergeMap.find(index) == mergeMap.end())
 			// it is not a merge_need state,preserve it
-			// Ã»ÓÐÐèÒªºÏ²¢µÄ²úÉúÊ½£¬Ö±½Ó±£´æLR1µÄstate
+			// Ã»ï¿½ï¿½ï¿½ï¿½Òªï¿½Ï²ï¿½ï¿½Ä²ï¿½ï¿½ï¿½Ê½ï¿½ï¿½Ö±ï¿½Ó±ï¿½ï¿½ï¿½LR1ï¿½ï¿½state
 			_LALR1stateTransition.insert(make_pair(index, _LR1stateTransition[index]));
 	}
 	// add the merged item list to the merge final one
 	for (auto it : mergeMap) {
-		// È¡³ömergeMapÏàÍ¬ºË×´Ì¬µÄµÚÒ»¸östateµÄLR1state
+		// È¡ï¿½ï¿½mergeMapï¿½ï¿½Í¬ï¿½ï¿½×´Ì¬ï¿½Äµï¿½Ò»ï¿½ï¿½stateï¿½ï¿½LR1state
 		auto& mergeFinalState = _LALR1stateTransition.find(it.second)->second.LR1state;
 		for (auto& itemListIt : _LR1stateTransition.at(it.first).LR1state.itemList) {
 			mergeFinalState.addItem(itemListIt);
@@ -483,7 +486,7 @@ bool SeuYacc::transformIntoLALR() {
 	for (IDType curstate = 0; curstate != _LR1parseTable.size(); ++curstate) {
 		vector<TableItem> newLine(_LR1parseTable [curstate]);
 		// update _index to after-merge state id
-		// ¶ÔÓÚLR1parseTableÃ¿Ò»¸ö×´Ì¬ÖÐµÄÃ¿Ò»ÏîÐÞ¸ÄSHIFTºÍGOTO_STATEÌøµ½µÄ×´Ì¬
+		// ï¿½ï¿½ï¿½ï¿½LR1parseTableÃ¿Ò»ï¿½ï¿½×´Ì¬ï¿½Ðµï¿½Ã¿Ò»ï¿½ï¿½ï¿½Þ¸ï¿½SHIFTï¿½ï¿½GOTO_STATEï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
 		for (auto& it4 : newLine) {
 			if (it4.action == SHIFT || it4.action == GOTO_STATE) {
 				auto found = mergeMap.find(it4.index);
@@ -492,7 +495,7 @@ bool SeuYacc::transformIntoLALR() {
 				}
 			}
 		}
-		// Õë¶ÔLR1parseTableÖÐ²»Í¬×´Ì¬ÏàÍ¬ºËµÄ×´Ì¬ºÏ²¢
+		// ï¿½ï¿½ï¿½LR1parseTableï¿½Ð²ï¿½Í¬×´Ì¬ï¿½ï¿½Í¬ï¿½Ëµï¿½×´Ì¬ï¿½Ï²ï¿½
 		auto found = mergeMap.find(curstate);
 		if (found == mergeMap.end()) {
 			// it is not a merge-need state
@@ -500,8 +503,8 @@ bool SeuYacc::transformIntoLALR() {
 		}
 		else {
 			// merge same core states
-			// ½«±í¸ñÉÏ×´Ì¬ÏàÍ¬µÄÁ½ÐÐ½øÐÐºÏ²¢
-			auto mergeFinalTranItr = _LALR1parseTable.at(found->second).begin();  // È¡³ö×îÖÕ±£ÁôÔÚLALR1parseTableµÄÒ»ÐÐ
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½Í¬ï¿½ï¿½ï¿½ï¿½ï¿½Ð½ï¿½ï¿½ÐºÏ²ï¿½
+			auto mergeFinalTranItr = _LALR1parseTable.at(found->second).begin();  // È¡ï¿½ï¿½ï¿½ï¿½ï¿½Õ±ï¿½ï¿½ï¿½ï¿½ï¿½LALR1parseTableï¿½ï¿½Ò»ï¿½ï¿½
 			for (auto& toMergeTran : newLine) {
 				if (toMergeTran.action == REDUCTION || toMergeTran.action == SHIFT || toMergeTran.action == GOTO_STATE) {
 					if (toMergeTran.action == mergeFinalTranItr->action && toMergeTran.index != mergeFinalTranItr->index) {
@@ -519,7 +522,7 @@ bool SeuYacc::transformIntoLALR() {
 
 // content : LRClosure(T) is T with extended layer FAs
 // return  : LRClosure(T)
-// ÇóLR1×´Ì¬µÄ±Õ°ü
+// ï¿½ï¿½LR1×´Ì¬ï¿½Ä±Õ°ï¿½
 SeuYacc::LR1State SeuYacc::LRClosure(LR1State T) {
 	for (auto& A : T.itemList) {
 		// dot at the end
@@ -528,11 +531,11 @@ SeuYacc::LR1State SeuYacc::LRClosure(LR1State T) {
 		}
 		for (auto &it2 : _productionVector) {
 			if (it2._head == *(A._dot)) {
-				// A->¡¤B£¬¼ÓÈëBÎª¿ªÍ·µÄ²úÉúÊ½
+				// A->ï¿½ï¿½Bï¿½ï¿½ï¿½ï¿½ï¿½ï¿½BÎªï¿½ï¿½Í·ï¿½Ä²ï¿½ï¿½ï¿½Ê½
 				auto next = A._dot; ++next;
 				// A->B, add B->xxx to T
-				// A->BÖ®ºóÃ»ÓÐÆäËû·ûºÅ£¬ÔòB->xxxµÄÔ¤²â·ûÓëA->BÏàÍ¬
-				// A->a¡¤Bb£¬B->xxxµÄÔ¤²â·ûÎªFIRST£¨¦Â¦Á£©
+				// A->BÖ®ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å£ï¿½ï¿½ï¿½B->xxxï¿½ï¿½Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½A->Bï¿½ï¿½Í¬
+				// A->aï¿½ï¿½Bbï¿½ï¿½B->xxxï¿½ï¿½Ô¤ï¿½ï¿½ï¿½ÎªFIRSTï¿½ï¿½ï¿½Â¦ï¿½ï¿½ï¿½
 				if (next == A._prod->_bodyList.end()) {
 					T.addItem(LR1Item(&it2, A._predSet));
 				}
@@ -545,7 +548,7 @@ SeuYacc::LR1State SeuYacc::LRClosure(LR1State T) {
 					}
 					else if (found->second) {
 						// A->a.BCDE.., C can be empty
-						set<ElementType> firstC = First(*next); //µÃµ½CµÄFIRST¼¯ºÏ
+						set<ElementType> firstC = First(*next); //ï¿½Ãµï¿½Cï¿½ï¿½FIRSTï¿½ï¿½ï¿½ï¿½
 						firstC.erase(find(firstC.begin(), firstC.end(), EPLISON)); // erase empty
 						firstC.insert(A._predSet.begin(), A._predSet.end()); // copy preSet to first(C)
 
@@ -589,7 +592,7 @@ SeuYacc::LR1State SeuYacc::LRClosure(LR1State T) {
 
 // content : h with edge X to GOTO(T)
 // return  : GOTO(T)
-// LR1State h½ÓÊÜÊäÈëedge×ª»»µ½µÄ×´Ì¬
+// LR1State hï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½edge×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
 SeuYacc::LR1State SeuYacc::GOTO(LR1State h, ElementType edge) {
 	LR1State result;
 	for (auto& it : h.itemList) {
@@ -607,7 +610,7 @@ SeuYacc::LR1State SeuYacc::GOTO(LR1State h, ElementType edge) {
 }
 
 // content : First(X) is all terminials X begins with
-// ¿É´ÓÎÄ·¨·ûºÅÍÆµ¼³öµÄ´®µÄÊ×·ûºÅµÄ¼¯ºÏ
+// ï¿½É´ï¿½ï¿½Ä·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½Ä´ï¿½ï¿½ï¿½ï¿½×·ï¿½ï¿½ÅµÄ¼ï¿½ï¿½ï¿½
 // return  : First(X)
 set<SeuYacc::ElementType> SeuYacc::First(ElementType X) {
 	// check whether First(X) has done
@@ -660,7 +663,7 @@ set<SeuYacc::ElementType> SeuYacc::First(ElementType X) {
 }
 
 // content : Follow(X) is all terminials X being front of
-// ½ô¸úÔÚ·ÇÖÕ½á·ûXÖ®ºóÖÕ½á·ûºÅµÄ¼¯ºÏ
+// ï¿½ï¿½ï¿½ï¿½ï¿½Ú·ï¿½ï¿½Õ½ï¿½ï¿½XÖ®ï¿½ï¿½ï¿½Õ½ï¿½ï¿½ï¿½ÅµÄ¼ï¿½ï¿½ï¿½
 // return  : Follow(X)
 
 //incorrect and needless
@@ -886,7 +889,7 @@ void SeuYacc::outputLRParsingTable() {
 	
 	file.close();
 }
-// Êä³ö·ÇÖÕ½á·û¹©Éú³ÉÓï·¨Ê÷µ÷ÓÃ
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï·¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void SeuYacc::outputnonterminal() {
 	ofstream file;
 	file.open("LR(1)_nonterminal.txt", ios::out);
@@ -894,7 +897,7 @@ void SeuYacc::outputnonterminal() {
 		file << item.first << " " << item.second << endl;
 	}
 }
-// ½«LALR·ÖÎö±íÒÔcase·½Ê½Êä³ö³ÉhÎÄ¼þ¹©Óï·¨·ÖÎöÊ±µ÷ÓÃ
+// ï¿½ï¿½LALRï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½caseï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½hï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï·¨ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
 void SeuYacc::outputTable() {
 	ofstream out("tableYacc.h");
 	out << "#ifndef _TABLE_YACC_H\n";
@@ -905,12 +908,12 @@ void SeuYacc::outputTable() {
 	out << "void initTable(map<unsigned int, map<string, TableItem> >& _parseTable) {\n";
 	out << "\tmap<string, TableItem> tran;\n";
 	if (!_LALR1parseTable.empty()) {
-		// TableItemµÚÒ»Ïî±íÊ¾¶¯×÷£¬µÚ¶þÏî±íÊ¾²úÉúÊ½±êºÅ»òÌø×ªµÄ×´Ì¬
+		// TableItemï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¶ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½Å»ï¿½ï¿½ï¿½×ªï¿½ï¿½×´Ì¬
 		for (auto& item : _LALR1parseTable) {
 			out << "\t// state " << item.first << endl;
 			for (ElementType edge = 0; edge < _indexSymbol; ++edge) {
 				if (item.second[edge].action != ERROR) {
-					// _word.at(edge)±íÊ¾ÏÂÒ»¸ö¶ÁÈ¡µÄ±ß
+					// _word.at(edge)ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½È¡ï¿½Ä±ï¿½
 					out << "\ttran.insert(make_pair(\"" << _word.at(edge) << "\", TableItem("
 						<< item.second[edge].action << "," << item.second[edge].index << ")));\n";
 				}
@@ -923,10 +926,10 @@ void SeuYacc::outputTable() {
 	}
 	else {
 		for (int i = 0; i < _LR1parseTable.size(); ++i) {
-			// ×´Ì¬i£¬LALR·ÖÎö±íµÚiÐÐ£¬
+			// ×´Ì¬iï¿½ï¿½LALRï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½iï¿½Ð£ï¿½
 			out << "\t// state " << i << endl;
 			auto& item = _LR1parseTable.at(i);
-			// Õë¶ÔÒ»¸ö×´Ì¬µÄ¶à¸ö³ö±ß£¬Ö´ÐÐ¶¯×÷Çé¿öÒÀ´ÎÊä³öµ½tableYaccÎÄ¼þÖÐ
+			// ï¿½ï¿½ï¿½Ò»ï¿½ï¿½×´Ì¬ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ï¿½ß£ï¿½Ö´ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½tableYaccï¿½Ä¼ï¿½ï¿½ï¿½
 			for (ElementType edge = 0; edge < _indexSymbol; ++edge) {
 				// 
 				if (item.at(edge).action != ERROR) {
@@ -948,24 +951,24 @@ void SeuYacc::outputTable() {
 
 // translate action string to runnable one
 /*   
-	 ÓÃÓÚÖÐ¼ä´úÂëÉú³É£¨ËÄÔªÊ½£©
-	 ¸ù¾ÝÓï·¨¶ÔÃ¿Ò»¸ö²úÉúÊ½ÓÐÒ»¸ö¶¯×÷´æ´¢ÔÚ_productionActionÖÐ,¸ù¾Ý¶¯×÷½øÐÐ·­Òë
-	 µ±¶Áµ½ÌØ¶¨²úÉúÊ½Ê±½øÐÐÌîÐ´ÏÂÒ»Ð©×´Ì¬ºÍ»ØÌî
-	 Óï·¨ÖÆµ¼·­Òë¾ÍÊÇÔÚÎÄ·¨ÖÐ¼ÓÉÏÊôÐÔºÍ¸÷ÖÖ¶¯×÷£¬ÕâÐ©¶¯×÷»ù±¾Ò²¾ÍÊÇÕâÀïµÄ¡°·­Òë¡±£»
-	 ¶øÓïÒå·ÖÎö£¬ÔòÊÇÔÚÕû¸ö¹ý³ÌËùÒª½øÐÐµÄÒ»Ð©ÉÏÏÂÎÄÏà¹ØµÄ·ÖÎö¶¯×÷£¨ÈçÀàÐÍ¼ì²é£©
-	 ÏàÓ¦¹ØÓÚÖÐ¼ä´úÂëµÄÊý¾Ý½á¹¹Éè¼ÆÔÚStructDefine.hÖÐÉùÃ÷
+	 ï¿½ï¿½ï¿½ï¿½ï¿½Ð¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É£ï¿½ï¿½ï¿½ÔªÊ½ï¿½ï¿½
+	 ï¿½ï¿½ï¿½ï¿½ï¿½ï·¨ï¿½ï¿½Ã¿Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ´¢ï¿½ï¿½_productionActionï¿½ï¿½,ï¿½ï¿½ï¿½Ý¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð·ï¿½ï¿½ï¿½
+	 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¶ï¿½ï¿½ï¿½ï¿½ï¿½Ê½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½Ò»Ð©×´Ì¬ï¿½Í»ï¿½ï¿½ï¿½
+	 ï¿½ï·¨ï¿½Æµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä·ï¿½ï¿½Ð¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÔºÍ¸ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ë¡±ï¿½ï¿½
+	 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½Ðµï¿½Ò»Ð©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ØµÄ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½é£©
+	 ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½Ð¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý½á¹¹ï¿½ï¿½ï¿½ï¿½ï¿½StructDefine.hï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 */
 void SeuYacc::translateAction() {
 	for (auto& mapAction : _productionAction) {
 		string action = mapAction.second;
 		string actionTranslate;
 		size_t index = 0, indexEnd = action.length();
-		// ´ÓµÚÒ»¸ö×Ö·û¿ªÊ¼ÒÀ´Î·­Òë
+		// ï¿½Óµï¿½Ò»ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½Î·ï¿½ï¿½ï¿½
 		while (index != indexEnd) {
 			if (action[index] == '$') {
 				++index;
 				if (action[index] == '$') {
-					++index; ++index;// skip dot  $$.Ìøµ½.Ö®ºóµÄ×Ö·û
+					++index; ++index;// skip dot  $$.ï¿½ï¿½ï¿½ï¿½.Ö®ï¿½ï¿½ï¿½ï¿½Ö·ï¿½
 					string strAttr;
 					while (isalpha(action[index])) {
 						strAttr += action[index];
@@ -978,7 +981,7 @@ void SeuYacc::translateAction() {
 					++index;
 					while (isdigit(action[index])) {
 						pos = pos * 10 + (action[index] - '0');
-						++index;  // µÃµ½µÚpos¸ö×Ö·û
+						++index;  // ï¿½Ãµï¿½ï¿½ï¿½posï¿½ï¿½ï¿½Ö·ï¿½
 					}
 					++index; // skip dot
 					string strAttr;
@@ -986,14 +989,14 @@ void SeuYacc::translateAction() {
 						strAttr += action[index];
 						++index;
 					}
-					// ¶ÔÓÚintÊôÐÔµÄÖµÒª×ª»»³ÉintÏòÉÏ´«µÝ
+					// ï¿½ï¿½ï¿½ï¿½intï¿½ï¿½ï¿½Ôµï¿½ÖµÒª×ªï¿½ï¿½ï¿½ï¿½intï¿½ï¿½ï¿½Ï´ï¿½ï¿½ï¿½
 					if (strAttr == "width" || strAttr == "lexval") {
 						actionTranslate += "atoi(st[stackSize - " + to_string(_productionVector[mapAction.first]._bodyLength) 
 							+ " + " + to_string(pos) + "]._map[\"" + strAttr + "\"].c_str())";
 					}
 					else {
-						// ´Ó²úÉúÊ½¿ªÍ·¶ÓÁÐÎ»ÖÃËãÆð($$),²úÉúÊ½ÓÒ±ßµÚpos¸öµÄÊôÐÔÖµ¹æÔ¼Ê±ÏòÉÏ´«¸ø×ó±ß
-						// ·­Òë±í_map¼ÇÂ¼·ÇÖÕ½á·ûÃ¿¸öÊôÐÔµÄÖµ£¬Ë÷ÒýÎªÊôÐÔÃû
+						// ï¿½Ó²ï¿½ï¿½ï¿½Ê½ï¿½ï¿½Í·ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½($$),ï¿½ï¿½ï¿½ï¿½Ê½ï¿½Ò±ßµï¿½posï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½Ô¼Ê±ï¿½ï¿½ï¿½Ï´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+						// ï¿½ï¿½ï¿½ï¿½ï¿½_mapï¿½ï¿½Â¼ï¿½ï¿½ï¿½Õ½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½Ôµï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 						actionTranslate += "st[stackSize - " + to_string(_productionVector[mapAction.first]._bodyLength) + " + " + to_string(pos) + "]._map[\"" + strAttr + "\"]";
 					}
 					
@@ -1032,11 +1035,11 @@ void SeuYacc::outputAction() {
 
 	out << "extern unsigned int offset;\n";
 	out << "string p;\n";
-	// ´æ·ÅÃ¿¸ö²úÉúÊ½¶ÓÁÐ
+	// ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½
 	out << "extern deque<StackItem> st;\n";
-	// ´æ·Å±äÁ¿µÄÕ»
+	// ï¿½ï¿½Å±ï¿½ï¿½ï¿½ï¿½ï¿½Õ»
 	out << "extern stack<string> paramStack;\n";
-	// ¹¹½¨¶ÁÈ¡×Ö·ûÖ´ÐÐ¶¯×÷µÄ×Ô¶¯º¯ÊýperformAction
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½Ö·ï¿½Ö´ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½performAction
 	out << "pair<unsigned int, string> performAction(unsigned int index, map<string, string>& reduceHead) {\n";
 	out << "\tsize_t stackSize = st.size() - 1;\n";
 	out << "\tswitch(index) {\n";
@@ -1044,21 +1047,21 @@ void SeuYacc::outputAction() {
 
 		out << "\tcase " << index << " :";
 		// output production for view
-		// ²úÉúÊ½ÏÔÊ½±íÊ¾
+		// ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½Ê½ï¿½ï¿½Ê¾
 		out << "//" << _word.at(_productionVector[index]._head).c_str() << "->";
 		for (auto& it3 : _productionVector[index]._bodyList) {
 			out << _word.at(it3).c_str() << " ";
 		}
-		// Ö´ÐÐ¸Ã²úÉúÊ½µÄ¶¯×÷
+		// Ö´ï¿½Ð¸Ã²ï¿½ï¿½ï¿½Ê½ï¿½Ä¶ï¿½ï¿½ï¿½
 		out << endl << _productionAction[index] << endl;
 		out << "\treturn pair<unsigned int, string>(" 
-			<< _productionVector[index]._bodyLength << ",\"" //²úÉúÊ½ÓÒ²¿³¤¶È
+			<< _productionVector[index]._bodyLength << ",\"" //ï¿½ï¿½ï¿½ï¿½Ê½ï¿½Ò²ï¿½ï¿½ï¿½ï¿½ï¿½
 			<< _word[_productionVector[index]._head] << "\");\n\n";
 	}
 	out << "\tdefault: return pair<unsigned int, string>(0,\"\");\n";
 	out << "\t}\n";
 	out << "}// end function\n";
-	// »ñÈ¡²úÉúÊ½ÓÃÓÚÊä³öreduce_sequence
+	// ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½reduce_sequence
 	out << "string getProduction(unsigned int index) {\n";
 	out << "\tswitch(index) {\n";
 	for (unsigned int index = 0; index < _productionAction.size(); ++index) {
@@ -1074,7 +1077,7 @@ void SeuYacc::outputAction() {
 	out << "}\n";
 	out << "#endif\n";
 	out.close();// code below is cut
-	// ¼ÇÂ¼²úÉúÊ½·ÖÎö¹ý³ÌµÄÓï·¨Ê÷
+	// ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìµï¿½ï¿½ï·¨ï¿½ï¿½
 	out << "struct node {\n";
 	out << "string name;\n";
 	out << "vector<string> son;\n";
