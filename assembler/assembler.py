@@ -1,4 +1,5 @@
 import os
+import sys
 
 import instructions
 import linker
@@ -259,20 +260,30 @@ def assemble_risc_v(assembly_code):
             machine_code[i] = binary2hex(machine_code[i], 8)
 
 
-if __name__ == '__main__':
-    print()
-    # minus_start,minus_end = 0, 0
-    symbol = ""
-    funct = {}
-    data = {}
+def main(file_paths):
+    for file_path in file_paths:
+        assembly_code = open(file_path).read()
+        assemble_risc_v(assembly_code)
 
-    # TODO 多个文件
-    # TODO 链接
-    assembly_code = open("assemble_code/code2.asm").read()
-    machine_code = []
-    assemble_risc_v(assembly_code)
     linker.process_jal(funct, machine_code)
     print(machine_code)
 
     linker.generate_ins_coe_file(machine_code)
     linker.generate_data_coe_file(data)
+
+
+if __name__ == '__main__':
+    print()
+    symbol = ""
+    funct = {}
+    data = {}
+    machine_code = []
+
+    # python assembler.py file1.asm file2.asm file3.asm
+    file_paths = sys.argv[1:]
+
+    # TODO 多个文件
+    # TODO 链接
+    # assembly_code = open("assemble_code/code2.asm").read()
+    main(file_paths)
+    # assemble_risc_v(assembly_code)
