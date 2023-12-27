@@ -123,8 +123,6 @@ def assemble_i_12(parts):
 def assemble_i_20(parts):
     # xxx rd funct
     if parts[2] in funct:
-        # TODO 跳转指令
-        # return 16个0
         return reg2int(parts[1]) + '+' + parts[2]
 
     # xxx rd imm
@@ -259,8 +257,6 @@ def assemble_risc_v(assembly_code):
         machine_code[i] = machine_code[i].replace(" ", "")
         if machine_code[i].__len__() == 32:
             machine_code[i] = binary2hex(machine_code[i], 8)
-    # result = (',\n'.join(machine_code))
-    return machine_code
 
 
 if __name__ == '__main__':
@@ -270,6 +266,8 @@ if __name__ == '__main__':
     funct = {}
     data = {}
 
+    # TODO 多个文件
+    # TODO 链接
     assembly_code = open("assemble_code/code2.asm").read()
     machine_code = []
     assemble_risc_v(assembly_code)
