@@ -6,6 +6,11 @@ import linker
 import re
 
 
+def start_with_letter_or_underscore(s):
+    pattern = r'^[a-zA-Z_].*'
+    return bool(re.match(pattern, s))
+
+
 def hex2binary(hex_string):
     dec = int(hex_string[2:], 16)
     binarys = bin(dec)[2:]
@@ -123,7 +128,7 @@ def assemble_i_12(parts):
 
 def assemble_i_20(parts):
     # xxx rd funct
-    if parts[2] in funct:
+    if start_with_letter_or_underscore(parts[2]):
         return reg2int(parts[1]) + '+' + parts[2]
 
     # xxx rd imm
@@ -279,11 +284,8 @@ if __name__ == '__main__':
     data = {}
     machine_code = []
 
-    # python assembler.py file1.asm file2.asm file3.asm
+    # cmd 运行 python assembler.py file1.asm file2.asm file3.asm
     file_paths = sys.argv[1:]
 
-    # TODO 多个文件
-    # TODO 链接
-    # assembly_code = open("assemble_code/code2.asm").read()
+    # TODO 链接变量
     main(file_paths)
-    # assemble_risc_v(assembly_code)
