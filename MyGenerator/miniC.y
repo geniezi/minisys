@@ -22,7 +22,9 @@ globalData : globalStmts  {};
 globalStmts : globalStmts globalStmt {}
 	    | globalStmt {}
 	    ;
-globalStmt : 'static' var_decl ';' {};
+globalStmt : 'static' var_decl ';' {}
+           | var_decl ';' {}
+           ;
 stmts	: stmts	M stmt { backpatch($1.nextlist, $2.instr); $$.nextlist = $3.nextlist;}
 	| stmt { $$.nextlist = $1.nextlist; }
 	;
@@ -32,56 +34,60 @@ stmt	: '{' stmts  '}' { $$.nextlist = $2.nextlist; }
 	| while_stmt { $$.nextlist = $1.nextlist; }
 	| var_decl ';' { $$.nextlist = $1.nextlist; }			
 	| expr_stmt ';' {}
-	| 'return' expr ';' { emit("return",$2.place,"",""); 
-			      setOutLiveVar($2.place); }
+	| 'return' expr ';' { emit("return",$2.place,"",""); setOutLiveVar($2.place); }
 	;
 fun_define   : fun_decl_head BlockLeader '{' stmts '}' { $$.name = $1.name; } ;
 fun_decl_head : type_spec 'id' '(' ')' { $$.name = $2.lexeme; 
 					 createSymbolTable($2.lexeme, $1.width); 
 					 addFunLabel(nextInstr, $2.lexeme);}
-	      | type_spec 'id' '(' param_list ')' { $$.name = $2.lexeme; 
-						    createSymbolTable($2.lexeme, $1.width); 
-						    addToSymbolTable($4.itemlist); 
-						    addFunLabel(nextInstr, $2.lexeme);};
+	      | type_spec 'id' '(' param_list ')' { 
+			$$.name = $2.lexeme; 
+			createSymbolTable($2.lexeme, $1.width); 
+			addToSymbolTable($4.itemlist); 
+			addFunLabel(nextInstr, $2.lexeme);}
+	      ;
 param_list : param_list ',' param { $$.itemlist = $1.itemlist || $3.itemlist; }
 	   | param { $$.itemlist = $1.itemlist; }
 	   ;
 param : type_spec 'id' { $$.itemlist = makeParam($2.lexeme,$1.type,$1.width); }
-      | type_spec 'id' '[' int_literal ']' { $$.itemlist = makeParam($2.lexeme,make_array($4.lexval,$1.type),$4.lexval * $1.width); }
+      | type_spec 'id' '[' int_literal ']' {
+			$$.itemlist = makeParam($2.lexeme,make_array($4.lexval,$1.type),$4.lexval * $1.width); 
+			}
       ;
-int_literal : 'num' { $$.lexval = $1.lexeme; }	;
-static_var_decl : 'static' var_decl { $$.code = $2.code; };
-var_decl  : type_spec 'id' { enter($2.lexeme,$1.type,$1.width); }
-	  | type_spec 'id' '=' expr { p = enter($2.lexeme,$1.type,$1.width); emit("",$4.place,"",p); }
-	  | type_spec 'id' '[' int_literal ']' { enter($2.lexeme,make_array($4.lexval,$1.type),$4.lexval * $1.width); }		
-	  ;
-type_spec  : 'int' { $$.type = "int";
-		     $$.width = "4";
+int_literal : 'num' {$$.lexval = $1.lexeme; };
+var_decl : type_spec 'id' {enter($2.lexeme,$1.type,$1.width); }
+	| type_spec 'id' '=' expr {p = enter($2.lexeme,$1.type,$1.width); emit("",$4.place,"",p); }
+	| type_spec 'id' '[' int_literal ']' {
+		enter($2.lexeme,make_array($4.lexval,$1.type),$4.lexval * $1.width); 
+	}
+	;
+type_spec : 'int' { $$.type = "int";
+		    $$.width = "4";
 		   }
-	   | 'double' {	$$.type = "double";
+		| 'double' {	$$.type = "double";
 			$$.width = "8";
 		      }
-	   | 'void' { $$.type = "void";
-		      $$.width = "0";
+		| 'void' { $$.type = "void";
+		    $$.width = "0";
 		    }
-	   | 'char' { $$.type = "char";
-		      $$.width = "1";
+		| 'char' { $$.type = "char";
+		    $$.width = "1";
 		    }
-           | 'bool' { $$.type = "bool";
-		      $$.width = "1";
+        | 'bool' { $$.type = "bool";
+		    $$.width = "1";
 		    }
-	   | 'float' { $$.type = "float";
-		      $$.width = "4";
+		| 'float' { $$.type = "float";
+		    $$.width = "4";
 		    }
-	   ;
-expr_stmt : 'id' '=' expr { p = lookupPlace($1.lexeme);
-			    if (p.empty()) error();
-			    emit("MOV",$3.place,"",p); }
-	  | 'hex' '=' expr { p = lookupPlace($1.lexeme); 
-			     if (p.empty()) error(); 
-			     emit("MOVaddr",$3.place,"",p); }
-	  ;
-
+		;
+expr_stmt : 'id' '=' expr { 
+		p = lookupPlace($1.lexeme); 
+		if (p.empty()) error(); emit("MOV",$3.place,"",p); }
+	| 'hex' '=' expr { 
+		p = lookupPlace($1.lexeme); 
+		if (p.empty()) error(); 
+		emit("MOVaddr",$3.place,"",p); }
+	;
 expr : expr '+' expr {
                 	$$.place = newtemp($1.place);
 			emit("add", $1.place, $3.place, $$.place);
@@ -137,8 +143,7 @@ expr : expr '+' expr {
 				emit("call", p, $1.lexeme,"");
 				enter("#","int",4);
 				$$.place = newtemp("#");
-				emit("MOV","#","",$$.place);
-	   		     }
+				emit("MOV","#","",$$.place); }
      | 'num' {
 		$$.place = addNum($1.lexeme);
 	     }
