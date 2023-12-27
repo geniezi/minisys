@@ -68,6 +68,9 @@ def generate_data_coe_file(datas):
     coe_file.write("memory_initialization_radix = 16;\n")
     coe_file.write("memory_initialization_vector =\n")
 
+    for i in range(1024):
+        coe_file.write("00000000,\n")
+
     for data in datas:
         bin = dec2binary(int(datas[data]), 32)
         coe_file.write(binary2hex(bin, 8) + ",\n")
