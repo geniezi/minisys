@@ -10,7 +10,6 @@ def dec2binary(imm, width):
     return imm_
 
 
-
 def binary2hex(binary_string, width):
     # 确保二进制字符串的长度是width，以便正确转换为十六进制
     if len(binary_string) != width * 4:
@@ -20,7 +19,6 @@ def binary2hex(binary_string, width):
     # 将二进制字符串转换为十六进制
     hex_value = hex(int(binary_string, 2))[2:].zfill(width)  # 使用int将二进制转换为十进制，然后用hex转换为十六进制字符串，并补0
     return hex_value.lower()  # 返回小写形式的十六进制字符串
-
 
 
 def process_jal(functs, machine_code):
@@ -39,7 +37,7 @@ def process_jal(functs, machine_code):
                     binary_instr = binary_instr.replace("rd", rd_here)
                     binary_instr = binary_instr.replace("imm[20|10:1|11|19:12]",
                                                         instr[0] + instr[10:20] + instr[9] + instr[1:9])
-                    binary_instr=binary_instr.replace(" ","")
+                    binary_instr = binary_instr.replace(" ", "")
                     machine_code[i] = binary2hex(binary_instr, 8)
 
 
@@ -55,13 +53,13 @@ def generate_ins_coe_file(machine_code):
     for i in range(0, machine_code.__len__()):
         machine_code[i] = machine_code[i][4:8] + "," + machine_code[i][0:4]
     binary_code = (',\n'.join(machine_code)) + ","
-    print(binary_code)
+    # print(binary_code)
 
     coe_file.write(binary_code)
     coe_file.close()
 
 
-def generate_data_coe_file(data):
+def generate_data_coe_file(datas):
     directory = 'coe_result'
     os.makedirs(directory, exist_ok=True)
     file_path = os.path.join(directory, 'data.coe')
@@ -69,6 +67,10 @@ def generate_data_coe_file(data):
     coe_file = open(file_path, "w")
     coe_file.write("memory_initialization_radix = 16;\n")
     coe_file.write("memory_initialization_vector =\n")
+
+    for data in datas:
+        bin = dec2binary(int(datas[data]), 32)
+        coe_file.write(binary2hex(bin, 8) + ",\n")
 
     # coe_file.write(binary_code)
     coe_file.close()
