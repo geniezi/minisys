@@ -115,8 +115,8 @@ private:
 	// priority define for RE parsing
 	const ElementType RIGHT_BRACE_OP = 1;
 	const ElementType LEFT_BRACE_OP = 2;
-	const ElementType CONCAT_OP = 3;
-	const ElementType UNION_OP = 4;
+	const ElementType CONCAT_OP = 4;
+	const ElementType UNION_OP = 3;
 	const ElementType STAR_OP = 5;
 	const ElementType QUESTION_OP = 6;
 	const ElementType PLUS_OP = 7;

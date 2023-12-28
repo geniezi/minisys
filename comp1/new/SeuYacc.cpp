@@ -48,14 +48,14 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 	_buffer = new char[100];
 
 	IDType state = 0;
-	string lexeme = ""; //����lex�ʷ�����һ�����ʣ�һ�����ս�����ս����
-	IDType procHead = 9999; // �������ʽͷ��
+	string lexeme = ""; //根据lex词法保存一个单词（一个非终结符或终结符）
+	IDType procHead = 9999; // 保存产生式头部
 	bool endFlag = false;
-	unsigned int braceMatch = 0; //����ƥ������
+	unsigned int braceMatch = 0; //用于匹配括号
 
 	_indexSymbol = 0;
-	list<ElementType> list; // ����list�������ʽ�Ҳ���ElementType���ս������ս����
-	unsigned int numOfProd = 0;  // ��¼����ʽ������
+	list<ElementType> list; // 利用list保存产生式右部，ElementType（终结符或非终结符）
+	unsigned int numOfProd = 0;  // 记录产生式的数量
 
 	// read Priority infomation first
 	if (!readPriority()) {
@@ -63,7 +63,7 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 		return false;
 	}
 
-	// ��ʼ��ȡ����ʽֱ��endFlagΪtrue
+	// 始读取产生式直至endFlag为true
 	// read production
 	while (!endFlag) {
 		switch (state) {
@@ -905,6 +905,7 @@ void SeuYacc::outputTable() {
 	out << "#include \"StructDefine.h\"\n";
 	out << "#include <vector>\n";
 	out << "#include <map>\n";
+	out << "using namespace std;\n";
 	out << "void initTable(map<unsigned int, map<string, TableItem> >& _parseTable) {\n";
 	out << "\tmap<string, TableItem> tran;\n";
 	if (!_LALR1parseTable.empty()) {
@@ -1032,7 +1033,7 @@ void SeuYacc::outputAction() {
 	out << "#include <stack>\n";
 	out << "#include <vector>\n";
 	out << "#include <stdlib.h>\n";
-
+	out << "using namespace std;";
 	out << "extern unsigned int offset;\n";
 	out << "string p;\n";
 	// ���ÿ������ʽ����

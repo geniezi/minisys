@@ -15,16 +15,8 @@
 
 S : program {}
   ;
-program : globalData stmts {}
-	| stmts	{}
+program : stmts	{}
 	;
-globalData : globalStmts  {};
-globalStmts : globalStmts globalStmt {}
-	    | globalStmt {}
-	    ;
-globalStmt : 'static' var_decl ';' {}
-           | var_decl ';' {}
-           ;
 stmts	: stmts	M stmt { backpatch($1.nextlist, $2.instr); $$.nextlist = $3.nextlist;}
 	| stmt { $$.nextlist = $1.nextlist; }
 	;
@@ -32,7 +24,8 @@ stmt	: '{' stmts  '}' { $$.nextlist = $2.nextlist; }
 	| fun_define  {	returnToGlobalTable(); }
 	| if_stmt { $$.nextlist = $1.nextlist; }
 	| while_stmt { $$.nextlist = $1.nextlist; }
-	| var_decl ';' { $$.nextlist = $1.nextlist; }			
+	| var_decl ';' { $$.nextlist = $1.nextlist; }
+	| static var_decl ';' { $$.nextlist = $2.nextlist; }
 	| expr_stmt ';' {}
 	| 'return' expr ';' { emit("return",$2.place,"",""); setOutLiveVar($2.place); }
 	;
@@ -56,7 +49,10 @@ param : type_spec 'id' { $$.itemlist = makeParam($2.lexeme,$1.type,$1.width); }
       ;
 int_literal : 'num' {$$.lexval = $1.lexeme; };
 var_decl : type_spec 'id' {enter($2.lexeme,$1.type,$1.width); }
-	| type_spec 'id' '=' expr {p = enter($2.lexeme,$1.type,$1.width); emit("",$4.place,"",p); }
+	| type_spec 'id' '=' expr {
+		p = enter($2.lexeme,$1.type,$1.width); 
+		emit("MOV",$4.place,"",p); 
+		}
 	| type_spec 'id' '[' int_literal ']' {
 		enter($2.lexeme,make_array($4.lexval,$1.type),$4.lexval * $1.width); 
 	}
@@ -82,12 +78,8 @@ type_spec : 'int' { $$.type = "int";
 		;
 expr_stmt : 'id' '=' expr { 
 		p = lookupPlace($1.lexeme); 
-		if (p.empty()) error(); emit("MOV",$3.place,"",p); }
-	| 'hex' '=' expr { 
-		p = lookupPlace($1.lexeme); 
-		if (p.empty()) error(); 
-		emit("MOVaddr",$3.place,"",p); }
-	;
+		if (p.empty()) error("undefined variable used"); 
+		emit("MOV",$3.place,"",p); };
 expr : expr '+' expr {
                 	$$.place = newtemp($1.place);
 			emit("add", $1.place, $3.place, $$.place);
@@ -128,6 +120,10 @@ expr : expr '+' expr {
                 	$$.place = newtemp($1.place);
 			emit("sll", $1.place, $3.place, $$.place);
                       }
+	| '-' neg_expr {
+		$$.place = newtemp($2.place);
+        emit("neg", $2.place,"",$$.place);
+				}
      | '(' expr ')'  {
                 	$$.place = $2.place;
                      }
@@ -147,10 +143,8 @@ expr : expr '+' expr {
      | 'num' {
 		$$.place = addNum($1.lexeme);
 	     }
-     |'hex'{
-	     $$.place = lookupPlace($1.lexeme);
-	   }
      ;
+neg_expr : expr {$$.place = $1.place;} ;
 arg_list  : arg_list ',' expr { paramStack.push($3.place); }
           |  expr  { paramStack.push($1.place);	}
 	  | { }

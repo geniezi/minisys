@@ -6,16 +6,13 @@
 int line = 0;
 int numCount = 0;
 %}
-
-blank [ \t\n\r];
+blank \n|\r| |\t;
 ws {blank}+;
 digit [0~9];
 letter [A~Za~z];
 id {letter}({letter}|{digit})*;
-number {digit}+(.{digit}+)?(E[+-]?{digit}+)?;
-
+number {digit}+(.{digit}+)?(E[+-]?{digit}+)?|0x({digit}|a|b|c|d|e|f)+;
 %%
-
 char {return "char";}
 int {return "int";}
 float {return "float";}
@@ -65,15 +62,12 @@ continue {return "continue";}
 ";" {++line;return ";";}
 "," {return ",";}
 %%
-
 void calLine() {
 	std::cout << "number of semicolon : " << line << std::endl;
 }
-
 void getNumCount() {
     std::cout << "count of num : " << numCount << std::endl;
 }
-
 void main() {
 	calLine();
 	getNumCount();

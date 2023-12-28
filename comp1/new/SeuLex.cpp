@@ -20,13 +20,19 @@ struct Token;
 // input   : reFile -> xxx.l
 //           parsingFile -> parsing file xxx.cpp generated
 SeuLex::SeuLex(const string& reFile, const string& parsingFile) {
+	_outputRE[0] = '~'; _outputRE[1] = ')'; _outputRE[2] = '('; _outputRE[4] = '~'; 
+	_outputRE[3] = '|'; _outputRE[5] = '*'; _outputRE[6] = '?'; _outputRE[7] = '+';
 	_symbolTable = new StringHash();
 	outputFile.open(parsingFile);	
 	if (readREFile(reFile)) {
 		_NFA_start = new State(0);
+		cout << "reading lex ok\n";
 		createNFA();
+		cout << "NFA ok\n";
 		createDFA();
+		cout << "DFA ok\n";
 		optimizeDFA();
+		cout << "optimize ok\n";
 		generateParsingProgram();
 	}
 	outputFile.close();
@@ -66,6 +72,18 @@ bool SeuLex::read() {
 		if (!_reFile.eof()) {
 			_reFile.getline(_buffer, MAX_CHAR_PER_LINE);
 			++_line;
+			//cout << _buffer << endl;
+			//cout << strlen(_buffer) << endl;
+			for (int i = 0; i < strlen(_buffer) - 1; i++)
+			{
+				if (_buffer[i] == '\\')
+				{
+					if (_buffer[i + 1] == 't') _buffer[i] = '\t';
+					if (_buffer[i + 1] == 'n') _buffer[i] = '\n';
+					if (_buffer[i + 1] == 'r') _buffer[i] = '\r';
+					for (int j = i + 1; j < strlen(_buffer); j++) _buffer[j] = _buffer[j + 1];
+				}
+			}
 		}
 		else
 			return false;
@@ -73,11 +91,11 @@ bool SeuLex::read() {
 	++_offset;
 	if (_offset == strlen(_buffer)) {
 		_offset = -1;
-		_peek = ' ';
+		_peek = '\n';
 	}
 	else {
 		_peek = _buffer[_offset];
-		if (_peek == '\t') _peek = ' ';
+	//	if (_peek == '\t') _peek = ' ';
 	}
 	return true;
 }
@@ -219,7 +237,7 @@ bool SeuLex::readRegularDefinition() {
 					relist.push_back(RIGHT_BRACE_OP);
 				}
 				else {
-					error("no such nonterminal definition above");
+					error("no such nonterminal: "+nonterminal+" in definition above");
 					return false;
 				}
 				read();
@@ -275,6 +293,11 @@ bool SeuLex::readRegularDefinition() {
 				continue;
 			}
 		}
+		/*if (relist.front() != LEFT_BRACE_OP || relist.back() != RIGHT_BRACE_OP)
+		{
+			relist.push_back(RIGHT_BRACE_OP);
+			relist.push_front(LEFT_BRACE_OP);
+		}*/
 		_REs.insert(make_pair(head, relist));
 	}
 
@@ -396,10 +419,18 @@ bool  SeuLex::readTranslationRule() {
 				}
 			}
 		}
-
+		
 		// convert to Post format and add it to map
+		for (auto it : relist) {
+			cout << _outputRE[it] << " ";
+		}
+		cout << endl;
 		_postREs.push_back(convertPost(relist));
 		_actionMap.push_back(actionStr);
+		for (auto it : convertPost(relist)) {
+			cout << _outputRE[it] << " ";
+		}
+		cout << endl << endl;
 	}
 
 	return true;
@@ -484,7 +515,7 @@ list<SeuLex::ElementType> SeuLex::convertPost(list<ElementType>& list) {
 	std::list<ElementType> postlist;
 	stack<ElementType> stack;
 	for (auto k : list) {
-		if (k == UNION_OP) {
+		/*if (k == UNION_OP) {
 			while (!stack.empty() && k <= stack.top()) {
 				postlist.push_back(stack.top());
 				stack.pop();
@@ -506,6 +537,13 @@ list<SeuLex::ElementType> SeuLex::convertPost(list<ElementType>& list) {
 		}
 		else if (k == QUESTION_OP) {
 			postlist.push_back(k);
+		}*/
+		if (k >= 3 && k <= 7) {
+			while (!stack.empty() && k <= stack.top()) {
+				postlist.push_back(stack.top());
+				stack.pop();
+			}
+			stack.push(k);
 		}
 		else if (k == LEFT_BRACE_OP) {
 			stack.push(k);
@@ -677,8 +715,9 @@ bool SeuLex::PLUS() {
 // return  : true if succeed; false if fail
 bool SeuLex::createNFA() {
 	for (IDType re = 0, reEnd = _postREs.size(); re != reEnd; ++re) {
-
+		
 		for (auto i : _postREs.at(re)) {
+			//cout << _outputRE[i] << " ";
 			if (i == CONCAT_OP) {
 				CONCAT();
 			}
@@ -698,7 +737,10 @@ bool SeuLex::createNFA() {
 				PUSH(i);
 			}
 		}
-		FA A = _operandStack.top(); _operandStack.pop();
+		//cout << endl<<endl;
+		//cout << "op:"<< _operandStack.size() << endl;
+		FA A = _operandStack.top(); 
+		_operandStack.pop();
 		_NFA_start->addEdge(EPSILON, A.front());
 		_NFAfinalStateSet.insert(A.back()->_id);
 		_NFAAction.insert(make_pair(A.back()->_id, re));
@@ -1000,6 +1042,9 @@ void SeuLex::outputAction() {
 	out << "#ifndef _ACTION_LEX_H\n";
 	out << "#define _ACTION_LEX_H\n";
 	out << "#include <set>\n";
+	out << "#include <string>\n";
+	out << "#include <map>\n";
+	out << "using namespace std;\n";
 	out << "void initFinalSet(set<unsigned int>& finalSet) {\n";
 	for (auto& state : _minDFAfinalStateSet)
 		out << "\tfinalSet.insert(" << state << ");\n";
@@ -1030,6 +1075,8 @@ void SeuLex::outputMinDFA() {
 	out << "#define _TABLE_LEX_H\n";
 	out << "#include <vector>\n";
 	out << "#include <map>\n";
+	out << "#include <string>\n";
+	out << "using namespace std;\n";
 	out << "void initMinDFAStateTranfer(vector<map<char, unsigned int> >* _minDFAStateTranfer) {\n";
 	out << "\tmap<char, unsigned int> tran;\n";
 	unsigned int stateIndex = 0;
