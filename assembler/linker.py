@@ -41,10 +41,8 @@ def process_jal(functs, machine_code):
                     machine_code[i] = binary2hex(binary_instr, 8)
 
 
-def generate_ins_coe_file(machine_code):
-    directory = 'coe_result'
-    os.makedirs(directory, exist_ok=True)
-    file_path = os.path.join(directory, 'ins.coe')
+def generate_ins_coe_file(machine_code, output_path):
+    file_path = os.path.join(output_path, 'ins.coe')
 
     coe_file = open(file_path, "w")
     coe_file.write("memory_initialization_radix = 16;\n")
@@ -59,10 +57,8 @@ def generate_ins_coe_file(machine_code):
     coe_file.close()
 
 
-def generate_data_coe_file(datas):
-    directory = 'coe_result'
-    os.makedirs(directory, exist_ok=True)
-    file_path = os.path.join(directory, 'data.coe')
+def generate_data_coe_file(datas, output_path):
+    file_path = os.path.join(output_path, 'data.coe')
 
     coe_file = open(file_path, "w")
     coe_file.write("memory_initialization_radix = 16;\n")

@@ -265,27 +265,33 @@ def assemble_risc_v(assembly_code):
             machine_code[i] = binary2hex(machine_code[i], 8)
 
 
-def main(file_paths):
-    for file_path in file_paths:
+def main(input_files, output_path):
+    for file_path in input_files:
         assembly_code = open(file_path).read()
         assemble_risc_v(assembly_code)
 
     linker.process_jal(funct, machine_code)
     print(machine_code)
 
-    linker.generate_ins_coe_file(machine_code)
-    linker.generate_data_coe_file(data)
+    linker.generate_ins_coe_file(machine_code, output_path)
+    linker.generate_data_coe_file(data, output_path)
 
 
 if __name__ == '__main__':
     print()
+    if len(sys.argv) < 3:
+        print("Too few arguments")
+        print("Usage: python assembler.py input_file1 input_file2 ... output_path")
+        exit(1)
     symbol = ""
     funct = {}
     data = {}
     machine_code = []
 
-    # cmd 运行 python assembler.py file1.asm file2.asm file3.asm
-    file_paths = sys.argv[1:]
+    # cmd 运行 python assembler.py input_file1 input_file2 ... output_path
+    input_files = sys.argv[1:-1]
+    output_path = sys.argv[-1]
 
-    # TODO 链接变量
-    main(file_paths)
+    os.makedirs(output_path, exist_ok=True)
+
+    main(input_files, output_path)
