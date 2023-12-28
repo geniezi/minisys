@@ -43,17 +43,16 @@ param_list : param_list ',' param { $$.itemlist = $1.itemlist || $3.itemlist; }
 	   | param { $$.itemlist = $1.itemlist; }
 	   ;
 param : type_spec 'id' { $$.itemlist = makeParam($2.lexeme,$1.type,$1.width); }
-      | type_spec 'id' '[' int_literal ']' {
+      | type_spec 'id' '[' num ']' {
 			$$.itemlist = makeParam($2.lexeme,make_array($4.lexval,$1.type),$4.lexval * $1.width); 
 			}
       ;
-int_literal : 'num' {$$.lexval = $1.lexeme; };
 var_decl : type_spec 'id' {enter($2.lexeme,$1.type,$1.width); }
 	| type_spec 'id' '=' expr {
 		p = enter($2.lexeme,$1.type,$1.width); 
 		emit("MOV",$4.place,"",p); 
 		}
-	| type_spec 'id' '[' int_literal ']' {
+	| type_spec 'id' '[' num ']' {
 		enter($2.lexeme,make_array($4.lexval,$1.type),$4.lexval * $1.width); 
 	}
 	;
@@ -83,14 +82,17 @@ expr_stmt : 'id' '=' expr {
 expr : expr '+' expr {
                 	$$.place = newtemp($1.place);
 			emit("add", $1.place, $3.place, $$.place);
+			$$.lexval = $1.lexval + $3.lexval;
                      }
      | expr '-' expr {
                 	$$.place = newtemp($1.place);
 			emit("sub", $1.place, $3.place, $$.place);
+			$$.lexval = $1.lexval - $3.lexval;
                      }
      | expr '*' expr {
                 	$$.place = newtemp($1.place);
 			emit("mul", $1.place, $3.place, $$.place);
+			$$.lexval = $1.lexval * $3.lexval;
                      }
      | expr '/' expr {
                 	$$.place = newtemp($1.place);
@@ -99,33 +101,36 @@ expr : expr '+' expr {
      | expr '%' expr {
                 	$$.place = newtemp($1.place);
 			emit("rem", $1.place, $3.place, $$.place);
+			$$.lexval = $1.lexval % $3.lexval;
                      }
      | expr '&' expr {
                 	$$.place = newtemp($1.place);
 			emit("and", $1.place, $3.place, $$.place);
+			$$.lexval = $1.lexval & $3.lexval;
                      }
      | expr '|' expr {
                 	$$.place = newtemp($1.place);
 			emit("or", $1.place, $3.place, $$.place);
+			$$.lexval = $1.lexval | $3.lexval;
                      }
      | expr '^' expr {
                 	$$.place = newtemp($1.place);
 			emit("xor", $1.place, $3.place, $$.place);
+			$$.lexval = $1.lexval ^ $3.lexval;
                      }
      | expr '>>' expr {
                 	$$.place = newtemp($1.place);
 			emit("srl", $1.place, $3.place, $$.place);
+			$$.lexval = $1.lexval >> $3.lexval;
                       }
      | expr '<<' expr {
                 	$$.place = newtemp($1.place);
 			emit("sll", $1.place, $3.place, $$.place);
+			$$.lexval = $1.lexval << $3.lexval;
                       }
-	| '-' neg_expr {
-		$$.place = newtemp($2.place);
-        emit("neg", $2.place,"",$$.place);
-				}
      | '(' expr ')'  {
                 	$$.place = $2.place;
+					$$.lexval = $2.lexval;
                      }
      | 'id'   	     {
 			$$.place = lookupPlace($1.lexeme);
@@ -142,9 +147,21 @@ expr : expr '+' expr {
 				emit("MOV","#","",$$.place); }
      | 'num' {
 		$$.place = addNum($1.lexeme);
+		$$.lexval = $1.lexeme;
 	     }
+	| '-' 'num' {
+		$$.place = addNum($2.lexeme);
+		$$.lexval = - $2.lexeme;
+	}
+	| 'id' '[' expr ']' {
+		{
+			string ty=getType($$.lexeme);
+			if(ty.substr(0,6)!="array<") error(ty+"cannot be converted to array");
+			int p=$1.place.find('(');
+			$$.place = to_string(atoi($1.place.substr(0,p)) + $1.width * $3.lexval)+"(x8)";
+		}
+	}	
      ;
-neg_expr : expr {$$.place = $1.place;} ;
 arg_list  : arg_list ',' expr { paramStack.push($3.place); }
           |  expr  { paramStack.push($1.place);	}
 	  | { }

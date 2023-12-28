@@ -22,14 +22,14 @@ SeuYacc::SeuYacc(const string grammerFile, const string parsingFile) {
 		initTransition();
 		initParseTable();
 		//transformIntoLALR();
-		if (!transformIntoLALR()) {
+		/*if (!transformIntoLALR()) {
 			// it can not be transform into LALR, clear corresbonding data
 			cout << "it can not be transform into LALR!" << endl;
 			//_LALR1parseTable.swap(map<ElementType, vector<TableItem>>());
 			_LALR1parseTable.clear();
 			//_LALR1stateTransition.swap(map<ElementType, TransitionItem>());
 			_LALR1stateTransition.clear();
-		}
+		}*/
 		generateParsingProgram();
 	}
 	_outputFile.close();
@@ -71,18 +71,18 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 			// read prodction head
 			if (!read()) endFlag = true;
 			else if (isLegalLetter(_peek)) {
-				lexeme.operator+=(_peek);  // ��ȡ������һ�����ս�����ս��
+				lexeme.operator+=(_peek);  // 读取完整的一个非终结符或终结符
 				state = 0;
 			}
-			else if (_peek == ':') { //����ʽͷ������
-				auto found = _nonterminalTable.find(lexeme); //�ڷ��ս�������Ƿ����
+			else if (_peek == ':') {  //产生式头部结束
+				auto found = _nonterminalTable.find(lexeme); //在非终结符表中是否存在
 				if (found != _nonterminalTable.end()) {
-					procHead = found->second;  //procHead�������еķ��ս��ElementType
+					procHead = found->second;  //procHead保存已有的非终结符ElementType
 				}
 				else {
-					// new nontermianl production head �±���һ�����ս��
+					// new nontermianl production head 新保存一个非终结符
 					_nonterminalTable.insert(make_pair(lexeme, _indexSymbol));
-					_nonterminalNullable.insert(make_pair(_indexSymbol, false));// Ĭ���±���ķ��ս���������մ�
+					_nonterminalNullable.insert(make_pair(_indexSymbol, false));// 默认新保存的非终结符不产生空串
 					_word.push_back(lexeme);
 					procHead = _indexSymbol;
 					++_indexSymbol;
@@ -106,7 +106,7 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 					}
 					else {
 						_nonterminalTable.insert(make_pair(lexeme, _indexSymbol));
-						_nonterminalNullable.insert(make_pair(_indexSymbol, false)); //Ĭ�ϲ��ǿմ�
+						_nonterminalNullable.insert(make_pair(_indexSymbol, false)); //default non-empty
 						_word.push_back(lexeme);
 						list.push_back(_indexSymbol);
 						++_indexSymbol;
@@ -117,13 +117,13 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 			}
 			else if (_peek == '|') {
 				// same production head with different body list
-				// �ȱ������е�һ������ʽ
+				// 先保存已有的一个产生式
 				_productionVector.push_back(ProductionItem(procHead, list, list.size(), numOfProd++));
 				if (list.empty()) {
-					// empty production������ʽΪ�մ�����¼�÷��ս��Ϊ�մ�
+					// empty production产生式为空串，记录该非终结符为空串
 					_nonterminalNullable.find(procHead)->second = true;
 				}
-				//list.swap(list<ElementType>());// ���list�б�
+				//list.swap(list<ElementType>());
 				list.clear();
 				lexeme = "";
 			}
@@ -142,15 +142,15 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 					}
 				}
 				lexeme = "";
-				if (_peek == '\'') state = 2; //�������ű�ʾ֮�������Ϊ�ս��
-				else if (_peek == ';') state = 3; //��������ʾһ������ʽ����׼������һ��
+				if (_peek == '\'') state = 2; //读到引号表示之后读到的为终结符
+				else if (_peek == ';') state = 3; //读到；表示一条产生式结束准备读下一条
 				else if (_peek == '{') { state = 4; ++braceMatch; }
 			}
 			break;
 		case 2:
 			// read terminal 'xxx'
 			read();
-			if (_peek == '\'') { //һ���ս������
+			if (_peek == '\'') { //一个终结符读完
 				auto found = _terminalTable.find(lexeme);
 				if (found != _terminalTable.end()) {
 					list.push_back(found->second);
@@ -167,7 +167,7 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 			else lexeme.operator+=(_peek);
 			break;
 		case 3:
-			// add production�����ƶ���|����֮ǰ����Ĳ���ʽ���浽_productionVector
+			// add production类似读到|，将之前保存的产生式保存到_productionVector
 			_productionVector.push_back(ProductionItem(procHead, list, list.size(), numOfProd++));
 			if (list.empty()) {
 				// empty production
@@ -179,13 +179,13 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 			state = 0;
 			break;
 		case 4:
-			// action part ���嶯���������﷨�Ƶ����������м����
-			// yacc.y�ļ���{}�еĲ���
+			// action part定义动作，用于语法制导翻译生成中间代码
+			// yacc.y文件中{}中的部分
 			read();
 			if (_peek == '}' && braceMatch == 1) {
 				
 				--braceMatch;
-				// numOfProd��ʾ��n������ʽ��lexeme��ʾҪִ�еĶ�����map���ݲ���ʽ��Ų��Ӧ�Ĳ���
+				// numOfProd表示第n个产生式，lexeme表示要执行的动作，map根据产生式标号查对应的操作
 				_productionAction.insert(make_pair(numOfProd, lexeme));
 				lexeme = "";
 				state = 1;
@@ -202,10 +202,10 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 			break;
 		}
 	}
-	//�����﷨��ȡ���
-	translateAction(); //�Ѷ�ȡ��������stringת���ɿ�ִ�ж���
-	nullableAnalyze(); //��¼���ս���Ƿ�����մ�
-	_terminalTable.insert(make_pair("$", _indexSymbol)); //$��Ϊ������ս��
+	//所有语法读取完毕
+	translateAction(); 
+	nullableAnalyze(); 
+	_terminalTable.insert(make_pair("$", _indexSymbol));
 	_word.push_back("$");
 	++_indexSymbol;
 
@@ -216,33 +216,32 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 }
 
 // read addition conditions from file
-// ��ȡ�������������ҵݹ�����ȼ���
 bool SeuYacc::readPriority() {
 	string lexeme = "";
 	unsigned int curPriority = 0;
 	read();
 	while (true) {
 		if (_peek != '%') { retract(); return true; }
-		++curPriority; //����һ�����ȼ�����
+		++curPriority; //the lower the higher priority
 		read();
-		// ��ʼ��ȡһ��%����ַ�
+		// 开始读取一行%后的字符
 		if (_peek == 'l') {
 			read(); if (_peek != 'e') return false;
 			read(); if (_peek != 'f') return false;
 			read(); if (_peek != 't') return false;
-			// ���쳣��������
+			// 无异常满足左结合
 			read();
 			while (_peek != '%') {
 				if (_peek == ' ' || _peek == '\t') {}
-				else if (_peek == '\'') { //������
+				else if (_peek == '\'') { //读到‘
 					lexeme = "";
 					read();
-					while (_peek != '\'') //��δ����������ʾ�÷���δ����
-					{ lexeme.operator+=(_peek); read(); } //��ǰ������������lexeme��
-					_terminalTable.insert(make_pair(lexeme, _indexSymbol)); //�ս�������������index����������ţ�
-					_priority.insert(make_pair(_indexSymbol, curPriority)); //���ȼ����������index�����ȼ�
-					_leftAssociative.insert(make_pair(_indexSymbol, true));	//���ϱ��������index����������
-					_word.push_back(lexeme); //word����һ���ʣ���������
+					while (_peek != '\'') //还未读到’，表示该符号未结束
+					{ lexeme.operator+=(_peek); read(); } //当前操作符保存在lexeme中
+					_terminalTable.insert(make_pair(lexeme, _indexSymbol));//终结符表保存操作符和index（操作符序号）
+					_priority.insert(make_pair(_indexSymbol, curPriority)); //优先级表保存操作符index和优先级
+					_leftAssociative.insert(make_pair(_indexSymbol, true));	//左结合表保存操作符index和满足左结合
+					_word.push_back(lexeme); //word保存一个词（操作符）
 					++_indexSymbol;
 				}
 				read();
@@ -269,13 +268,13 @@ bool SeuYacc::readPriority() {
 				read();
 			}
 		}
-		else if (_peek == '%') {  //����������ȡ��
+		else if (_peek == '%') {  //finish priority
 			return true;   
 		}
 	}
 }
 
-// read a char from sourse file����ȡһ���ַ�����ȡ��֮����
+// read a char from sourse file
 bool SeuYacc::read() {
 	if (_offset == -1) {
 		if (!_sourcefile.eof()) {
@@ -310,7 +309,7 @@ bool SeuYacc::isLetterOrDigit(char ch) {
 		|| ('a' <= ch && ch <= 'z')
 		|| ('0' <= ch && ch <= '9');
 }
-// �Ƿ�Ϸ��ַ�
+
 bool SeuYacc::isLegalLetter(char ch) {
 	return (isLetterOrDigit(ch) || ch == '_');
 }
@@ -332,7 +331,7 @@ void SeuYacc::nullableAnalyze() {
 						auto bodyIT = prod._bodyList.begin(), bodyEnd = prod._bodyList.end();
 						for (; bodyIT != bodyEnd; ++bodyIT) {
 							auto found = _nonterminalNullable.find(*bodyIT);
-							if (found == termEnd || found->second == false) break; //û���ҵ��ܲ����մ��ķ��ս��
+							if (found == termEnd || found->second == false) break; // 没有找到能产生空串的非终结符
 						}
 						// X is nullable, new one
 						if (bodyIT == bodyEnd) {
@@ -347,21 +346,21 @@ void SeuYacc::nullableAnalyze() {
 }
 
 // content : auto construct state transition
-// ��ʼ��LR1�����Զ���������I0״̬����������չ״̬�õ����յ������Զ���
+// 初始化LR1下推自动机，构造I0状态，并不断扩展状态得到最终的下推自动机
 void SeuYacc::initTransition() {
 	// add the first state H
 	LR1State H;
 	set<ElementType> predSet;
 	predSet.insert(_terminalTable.find("$")->second);
-	H.addItem(LR1Item(&_productionVector.front(), predSet));  // S'->S��$
-	_LR1stateTransition.push_back(TransitionItem(LRClosure(H), 0)); // ������Ӧ�ıհ�
-	// ״̬�ߵ���չ
+	H.addItem(LR1Item(&_productionVector.front(), predSet));  // S'->S, $
+	_LR1stateTransition.push_back(TransitionItem(LRClosure(H), 0)); // closure for I0
+	// 状态边的扩展
 	// inner-state-extension and between-state-extension
 	IDType maxState = 1;
-	for (IDType k = 0; k < maxState; ++k) { //��0״̬�����״̬��ʼ����
+	for (IDType k = 0; k < maxState; ++k) { //from 0状态to最大状态开始遍历
 		// check all symbols whether current state has a out-edge
 		for (IDType edge = 0; edge < _indexSymbol; ++edge) {
-			LR1State newState = GOTO(_LR1stateTransition.at(k).LR1state, edge); //Ѱ������������Ų�������״̬
+			LR1State newState = GOTO(_LR1stateTransition.at(k).LR1state, edge); //寻找有无移入符号产生的新状态
 			// transition construct
 			if (!newState.itemList.empty()) {
 				bool newStateFlag = true;
@@ -375,7 +374,7 @@ void SeuYacc::initTransition() {
 				}
 				if (newStateFlag) {
 					// create a new state in transition table
-					_LR1stateTransition.push_back(TransitionItem(newState, maxState)); //��״̬�������
+					_LR1stateTransition.push_back(TransitionItem(newState, maxState)); //新状态和新序号
 					_LR1stateTransition.at(k).TransMap.insert(make_pair(edge, maxState));
 					++maxState;
 				}
@@ -389,20 +388,20 @@ void SeuYacc::initParseTable() {
 	for (IDType state = 0, maxState = _LR1stateTransition.size(); state < maxState; ++state) {
 		vector<TableItem> temp(_indexSymbol);
 		// for end state, make reduction action
-		for (auto& p : _LR1stateTransition.at(state).LR1state.itemList) { //����ĳ��״̬��ĳ������ʽ
-			if (p._dot == p._prod->_bodyList.end()) { //���Ƶ��������Ҫ���й�Լ
-				for (auto& pred : p._predSet) { //����Ԥ����Ĺ�Լ��
+		for (auto& p : _LR1stateTransition.at(state).LR1state.itemList) { //对于某个状态的某条产生式
+			if (p._dot == p._prod->_bodyList.end()) { //.移到了最后需要进行规约
+				for (auto& pred : p._predSet) { //填入预测符的规约项
 					TableItem &curItem = temp.at(pred);
 					switch (curItem.action) {
-					case ERROR: //TableItem��ʼ���ո��Ӷ�ΪERROR
+					case ERROR: //TableItem初始化空格子都为ERROR
 						// no table item now
-						// ��p._prod->_index�������ʽ���й�Լ
+						// 用p._prod->_index这条表达式进行规约
 						curItem = TableItem(REDUCTION, p._prod->_index);// terminal, action reduction
-						if (p._prod->_index == 0) //��0�����ʽ����ʼ����S'
+						if (p._prod->_index == 0) //0条表达式即开始符号S'
 							curItem = TableItem(ACCEPT, p._prod->_index);// terminal, action reduction
 						break;
 					default:
-						// ��Լ-��Լ��ͻ
+						
 						//error("warning : state " + to_string(state) + " occurs reduce-reduce conflict");
 						//error("state transition table should be initialed by error state");
 						break;
@@ -421,7 +420,6 @@ void SeuYacc::initParseTable() {
 					curItem = TableItem(GOTO_STATE, tran.second);// nonterminal, goto
 			}
 			else if (curItem.action == REDUCTION) {
-				// ��������-��Լ��ͻ���ø�������������ͻ
 				// solving shift-reduce conflixt
 				// reduce action is done before
 				unsigned int reduceOP = _indexSymbol;
@@ -433,8 +431,8 @@ void SeuYacc::initParseTable() {
 						break;
 					}
 				}
-				// ���ݳ�ͻ��������Ӧ����SHIFT����
-				// tran.first��ʾת��ʱ����Ĳ����������Լ���Ž���conflictSolve
+				// 根据冲突消除规则应保留SHIFT操作
+				// tran.first表示转换时移入的操作符，与规约符号进行conflictSolve
 				if (reduceOP != _indexSymbol && conflictSolve(tran.first, reduceOP) == SHIFT) {
 					curItem = TableItem(SHIFT, tran.second);
 				}
@@ -522,7 +520,6 @@ bool SeuYacc::transformIntoLALR() {
 
 // content : LRClosure(T) is T with extended layer FAs
 // return  : LRClosure(T)
-// ��LR1״̬�ıհ�
 SeuYacc::LR1State SeuYacc::LRClosure(LR1State T) {
 	for (auto& A : T.itemList) {
 		// dot at the end
@@ -531,11 +528,11 @@ SeuYacc::LR1State SeuYacc::LRClosure(LR1State T) {
 		}
 		for (auto &it2 : _productionVector) {
 			if (it2._head == *(A._dot)) {
-				// A->��B������BΪ��ͷ�Ĳ���ʽ
+				// A->·B，加入B为开头的产生式
 				auto next = A._dot; ++next;
 				// A->B, add B->xxx to T
-				// A->B֮��û���������ţ���B->xxx��Ԥ�����A->B��ͬ
-				// A->a��Bb��B->xxx��Ԥ���ΪFIRST���¦���
+				// A->B之后没有其他符号，则B->xxx的预测符与A->B相同
+				// A->a·Bb，B->xxx的预测符为FIRST（βα）
 				if (next == A._prod->_bodyList.end()) {
 					T.addItem(LR1Item(&it2, A._predSet));
 				}
@@ -548,7 +545,7 @@ SeuYacc::LR1State SeuYacc::LRClosure(LR1State T) {
 					}
 					else if (found->second) {
 						// A->a.BCDE.., C can be empty
-						set<ElementType> firstC = First(*next); //�õ�C��FIRST����
+						set<ElementType> firstC = First(*next); //得到C的FIRST集合
 						firstC.erase(find(firstC.begin(), firstC.end(), EPLISON)); // erase empty
 						firstC.insert(A._predSet.begin(), A._predSet.end()); // copy preSet to first(C)
 
@@ -592,7 +589,7 @@ SeuYacc::LR1State SeuYacc::LRClosure(LR1State T) {
 
 // content : h with edge X to GOTO(T)
 // return  : GOTO(T)
-// LR1State h��������edgeת������״̬
+// LR1State h接受输入edge转换到的状态
 SeuYacc::LR1State SeuYacc::GOTO(LR1State h, ElementType edge) {
 	LR1State result;
 	for (auto& it : h.itemList) {
@@ -610,7 +607,6 @@ SeuYacc::LR1State SeuYacc::GOTO(LR1State h, ElementType edge) {
 }
 
 // content : First(X) is all terminials X begins with
-// �ɴ��ķ������Ƶ����Ĵ����׷��ŵļ���
 // return  : First(X)
 set<SeuYacc::ElementType> SeuYacc::First(ElementType X) {
 	// check whether First(X) has done
@@ -663,11 +659,10 @@ set<SeuYacc::ElementType> SeuYacc::First(ElementType X) {
 }
 
 // content : Follow(X) is all terminials X being front of
-// �����ڷ��ս��X֮���ս���ŵļ���
 // return  : Follow(X)
 
 //incorrect and needless
-set<SeuYacc::ElementType> SeuYacc::Follow(ElementType X) {
+/*set<SeuYacc::ElementType> SeuYacc::Follow(ElementType X) {
 	set<ElementType> result;
 	if (_productionVector.begin()->_head == X)  // X is start symbol
 		result.insert(_terminalTable.find("$")->second);
@@ -727,7 +722,7 @@ set<SeuYacc::ElementType> SeuYacc::Follow(ElementType X) {
 		}
 	} // end for each in _productionVector
 	return result;
-}
+}*/
 
 // content : Follow(X) is all terminials X being front of
 // return SHIFT or REDUCTION based on the adddtional condition
@@ -889,7 +884,7 @@ void SeuYacc::outputLRParsingTable() {
 	
 	file.close();
 }
-// ������ս���������﷨������
+
 void SeuYacc::outputnonterminal() {
 	ofstream file;
 	file.open("LR(1)_nonterminal.txt", ios::out);
@@ -897,7 +892,7 @@ void SeuYacc::outputnonterminal() {
 		file << item.first << " " << item.second << endl;
 	}
 }
-// ��LALR��������case��ʽ�����h�ļ����﷨����ʱ����
+
 void SeuYacc::outputTable() {
 	ofstream out("tableYacc.h");
 	out << "#ifndef _TABLE_YACC_H\n";
@@ -909,12 +904,12 @@ void SeuYacc::outputTable() {
 	out << "void initTable(map<unsigned int, map<string, TableItem> >& _parseTable) {\n";
 	out << "\tmap<string, TableItem> tran;\n";
 	if (!_LALR1parseTable.empty()) {
-		// TableItem��һ���ʾ�������ڶ����ʾ����ʽ��Ż���ת��״̬
+		// TableItem第一项表示动作，第二项表示产生式标号或跳转的状态
 		for (auto& item : _LALR1parseTable) {
 			out << "\t// state " << item.first << endl;
 			for (ElementType edge = 0; edge < _indexSymbol; ++edge) {
 				if (item.second[edge].action != ERROR) {
-					// _word.at(edge)��ʾ��һ����ȡ�ı�
+					// _word.at(edge)表示下一个读取的边
 					out << "\ttran.insert(make_pair(\"" << _word.at(edge) << "\", TableItem("
 						<< item.second[edge].action << "," << item.second[edge].index << ")));\n";
 				}
@@ -927,10 +922,10 @@ void SeuYacc::outputTable() {
 	}
 	else {
 		for (int i = 0; i < _LR1parseTable.size(); ++i) {
-			// ״̬i��LALR�������i�У�
+			// 状态i，LALR分析表第i行，
 			out << "\t// state " << i << endl;
 			auto& item = _LR1parseTable.at(i);
-			// ���һ��״̬�Ķ�����ߣ�ִ�ж���������������tableYacc�ļ���
+			// 针对一个状态的多个出边，执行动作情况依次输出到tableYacc文件中
 			for (ElementType edge = 0; edge < _indexSymbol; ++edge) {
 				// 
 				if (item.at(edge).action != ERROR) {
@@ -952,24 +947,24 @@ void SeuYacc::outputTable() {
 
 // translate action string to runnable one
 /*   
-	 �����м�������ɣ���Ԫʽ��
-	 �����﷨��ÿһ������ʽ��һ�������洢��_productionAction��,���ݶ������з���
-	 �������ض�����ʽʱ������д��һЩ״̬�ͻ���
-	 �﷨�Ƶ�����������ķ��м������Ժ͸��ֶ�������Щ��������Ҳ��������ġ����롱��
-	 ���������������������������Ҫ���е�һЩ��������صķ��������������ͼ�飩
-	 ��Ӧ�����м��������ݽṹ�����StructDefine.h������
+	 用于中间代码生成（四元式）
+	 根据语法对每一个产生式有一个动作存储在_productionAction中,根据动作进行翻译
+	 当读到特定产生式时进行填写下一些状态和回填
+	 语法制导翻译就是在文法中加上属性和各种动作，这些动作基本也就是这里的“翻译”；
+	 而语义分析，则是在整个过程所要进行的一些上下文相关的分析动作（如类型检查）
+	 相应关于中间代码的数据结构设计在StructDefine.h中声明
 */
 void SeuYacc::translateAction() {
 	for (auto& mapAction : _productionAction) {
 		string action = mapAction.second;
 		string actionTranslate;
 		size_t index = 0, indexEnd = action.length();
-		// �ӵ�һ���ַ���ʼ���η���
+		//从第一个字符开始依次翻译
 		while (index != indexEnd) {
 			if (action[index] == '$') {
 				++index;
 				if (action[index] == '$') {
-					++index; ++index;// skip dot  $$.����.֮����ַ�
+					++index; ++index;// skip dot $$.跳到.之后的字符
 					string strAttr;
 					while (isalpha(action[index])) {
 						strAttr += action[index];
@@ -982,7 +977,7 @@ void SeuYacc::translateAction() {
 					++index;
 					while (isdigit(action[index])) {
 						pos = pos * 10 + (action[index] - '0');
-						++index;  // �õ���pos���ַ�
+						++index;  // 得到第pos个字符
 					}
 					++index; // skip dot
 					string strAttr;
@@ -990,14 +985,14 @@ void SeuYacc::translateAction() {
 						strAttr += action[index];
 						++index;
 					}
-					// ����int���Ե�ֵҪת����int���ϴ���
+					// 对于int属性的值要转换成int向上传递
 					if (strAttr == "width" || strAttr == "lexval") {
 						actionTranslate += "atoi(st[stackSize - " + to_string(_productionVector[mapAction.first]._bodyLength) 
 							+ " + " + to_string(pos) + "]._map[\"" + strAttr + "\"].c_str())";
 					}
 					else {
-						// �Ӳ���ʽ��ͷ����λ������($$),����ʽ�ұߵ�pos��������ֵ��Լʱ���ϴ������
-						// �����_map��¼���ս��ÿ�����Ե�ֵ������Ϊ������
+						// 从产生式开头队列位置算起($$),产生式右边第pos个的属性值规约时向上传给左边
+						// 翻译表_map记录非终结符每个属性的值，索引为属性名
 						actionTranslate += "st[stackSize - " + to_string(_productionVector[mapAction.first]._bodyLength) + " + " + to_string(pos) + "]._map[\"" + strAttr + "\"]";
 					}
 					
@@ -1036,11 +1031,11 @@ void SeuYacc::outputAction() {
 	out << "using namespace std;";
 	out << "extern unsigned int offset;\n";
 	out << "string p;\n";
-	// ���ÿ������ʽ����
+	// 放每个产生式队列
 	out << "extern deque<StackItem> st;\n";
-	// ��ű�����ջ
+	// 放变量的栈
 	out << "extern stack<string> paramStack;\n";
-	// ������ȡ�ַ�ִ�ж������Զ�����performAction
+	// 建读取字符执行动作的自动函数performActionperformAction
 	out << "pair<unsigned int, string> performAction(unsigned int index, map<string, string>& reduceHead) {\n";
 	out << "\tsize_t stackSize = st.size() - 1;\n";
 	out << "\tswitch(index) {\n";
@@ -1048,12 +1043,12 @@ void SeuYacc::outputAction() {
 
 		out << "\tcase " << index << " :";
 		// output production for view
-		// ����ʽ��ʽ��ʾ
+		// 产生式显式表示
 		out << "//" << _word.at(_productionVector[index]._head).c_str() << "->";
 		for (auto& it3 : _productionVector[index]._bodyList) {
 			out << _word.at(it3).c_str() << " ";
 		}
-		// ִ�иò���ʽ�Ķ���
+		//执行该产生式的动作
 		out << endl << _productionAction[index] << endl;
 		out << "\treturn pair<unsigned int, string>(" 
 			<< _productionVector[index]._bodyLength << ",\"" //����ʽ�Ҳ�����
@@ -1062,7 +1057,7 @@ void SeuYacc::outputAction() {
 	out << "\tdefault: return pair<unsigned int, string>(0,\"\");\n";
 	out << "\t}\n";
 	out << "}// end function\n";
-	// ��ȡ����ʽ�������reduce_sequence
+	// 获取产生式用于输出reduce_sequence
 	out << "string getProduction(unsigned int index) {\n";
 	out << "\tswitch(index) {\n";
 	for (unsigned int index = 0; index < _productionAction.size(); ++index) {
@@ -1078,7 +1073,7 @@ void SeuYacc::outputAction() {
 	out << "}\n";
 	out << "#endif\n";
 	out.close();// code below is cut
-	// ��¼����ʽ�������̵��﷨��
+	// 记录产生式分析过程的语法树
 	out << "struct node {\n";
 	out << "string name;\n";
 	out << "vector<string> son;\n";

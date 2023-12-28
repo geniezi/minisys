@@ -421,16 +421,16 @@ bool  SeuLex::readTranslationRule() {
 		}
 		
 		// convert to Post format and add it to map
-		for (auto it : relist) {
+		/*for (auto it : relist) {
 			cout << _outputRE[it] << " ";
 		}
-		cout << endl;
+		cout << endl;*/
 		_postREs.push_back(convertPost(relist));
 		_actionMap.push_back(actionStr);
-		for (auto it : convertPost(relist)) {
+		/*for (auto it : convertPost(relist)) {
 			cout << _outputRE[it] << " ";
 		}
-		cout << endl << endl;
+		cout << endl << endl;*/
 	}
 
 	return true;

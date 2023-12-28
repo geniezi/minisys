@@ -24,6 +24,7 @@ while {return "while";}
 return {return "return";}
 static {return "static";}
 break {return "break";}
+#include {return "include";}
 continue {return "continue";}
 {id} {return "id";}
 {number} {++numCount; return "num";}
@@ -61,6 +62,7 @@ continue {return "continue";}
 "]" {return "]";}
 ";" {++line;return ";";}
 "," {return ",";}
+"//" {return "//";}
 %%
 void calLine() {
 	std::cout << "number of semicolon : " << line << std::endl;
