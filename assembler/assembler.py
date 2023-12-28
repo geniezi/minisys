@@ -257,7 +257,7 @@ def assemble_risc_v(assembly_code):
                 machine_code.append(assemble_i_c(parts))
             if parts[0] in instructions.instructions_privilege:
                 machine_code.append(instructions.instructions_privilege.get(parts[0]))
-    funct["main"]["end"] = len(machine_code)
+    funct[symbol]["end"] = len(machine_code)
     for i in range(len(machine_code)):
         # print(machine_code[i])
         machine_code[i] = machine_code[i].replace(" ", "")
