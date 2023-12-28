@@ -1,7 +1,14 @@
 import os
+import sys
 
 import instructions
+import linker
 import re
+
+
+def start_with_letter_or_underscore(s):
+    pattern = r'^[a-zA-Z_].*'
+    return bool(re.match(pattern, s))
 
 
 def hex2binary(hex_string):
@@ -121,11 +128,8 @@ def assemble_i_12(parts):
 
 def assemble_i_20(parts):
     # xxx rd funct
-    for key in funct.keys():
-        if key in parts[2]:
-            # TODO 跳转指令
-            # return 16个0
-            return "00000000000000000000000000000000"
+    if start_with_letter_or_underscore(parts[2]):
+        return reg2int(parts[1]) + '+' + parts[2]
 
     # xxx rd imm
     binary_instr = instructions.instructions_I_20.get(parts[0])
@@ -257,53 +261,37 @@ def assemble_risc_v(assembly_code):
     for i in range(len(machine_code)):
         # print(machine_code[i])
         machine_code[i] = machine_code[i].replace(" ", "")
-        machine_code[i] = binary2hex(machine_code[i], 8)
-    # result = (',\n'.join(machine_code))
-    return machine_code
+        if machine_code[i].__len__() == 32:
+            machine_code[i] = binary2hex(machine_code[i], 8)
 
 
-def generate_ins_coe_file(machine_code):
-    directory = 'coe_result'
-    os.makedirs(directory, exist_ok=True)
-    file_path = os.path.join(directory, 'ins.coe')
+def main(input_files, output_path):
+    for file_path in input_files:
+        assembly_code = open(file_path).read()
+        assemble_risc_v(assembly_code)
 
-    coe_file = open(file_path, "w")
-    coe_file.write("memory_initialization_radix = 16;\n")
-    coe_file.write("memory_initialization_vector =\n")
+    linker.process_jal(funct, machine_code)
+    print(machine_code)
 
-    for i in range(0, machine_code.__len__()):
-        machine_code[i] = machine_code[i][4:8] + "," + machine_code[i][0:4]
-    binary_code = (',\n'.join(machine_code)) + ","
-    print(binary_code)
-
-    coe_file.write(binary_code)
-    coe_file.close()
-
-
-def generate_data_coe_file(data):
-    directory = 'coe_result'
-    os.makedirs(directory, exist_ok=True)
-    file_path = os.path.join(directory, 'data.coe')
-
-    coe_file = open(file_path, "w")
-    coe_file.write("memory_initialization_radix = 16;\n")
-    coe_file.write("memory_initialization_vector =\n")
-
-    # coe_file.write(binary_code)
-    coe_file.close()
+    linker.generate_ins_coe_file(machine_code, output_path)
+    linker.generate_data_coe_file(data, output_path)
 
 
 if __name__ == '__main__':
     print()
-    # minus_start,minus_end = 0, 0
+    if len(sys.argv) < 3:
+        print("Too few arguments")
+        print("Usage: python assembler.py input_file1 input_file2 ... output_path")
+        exit(1)
     symbol = ""
     funct = {}
     data = {}
-
-    assembly_code = open("assemble_code/code2.asm").read()
     machine_code = []
-    assemble_risc_v(assembly_code)
-    print(machine_code)
 
-    generate_ins_coe_file(machine_code)
-    generate_data_coe_file(data)
+    # cmd 运行 python assembler.py input_file1 input_file2 ... output_path
+    input_files = sys.argv[1:-1]
+    output_path = sys.argv[-1]
+
+    os.makedirs(output_path, exist_ok=True)
+
+    main(input_files, output_path)
