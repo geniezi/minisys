@@ -1,6 +1,6 @@
 # minisys
 
-#### 汇编器
+## 汇编器
 可执行文件 `assembler/dist/assembler/assembler.exe`，使用方法：
 ```
 assembler.exe input_file1 input_file2 ... output_path
@@ -9,7 +9,7 @@ output_path: 输出路径，输出两个文件，分别为指令文件ins.coe和
 示例：assembler.exe ..\..\assemble_code\code1.asm ..\..\assemble_code\code2.asm ..\..\coe_result\
 ```
 
-#### 编译器
+## 编译器
 编译器一次仅能编译一个文件，当有多个文件时，需要多次调用编译器。
 
 可执行文件 `comp1/exe/MyCompiler.exe`，使用方法：
@@ -20,4 +20,4 @@ output_file: 输出文件（与上面不同，指定到文件名而非路径）
 示例：MyCompiler.exe ../source_code/source_code.c  ../result/result.asm
 ```
 
-#### 软件
+## 软件
