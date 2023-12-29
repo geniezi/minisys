@@ -10,6 +10,8 @@ output_path: 输出路径，输出两个文件，分别为指令文件ins.coe和
 ```
 
 #### 编译器
+编译器一次仅能编译一个文件，当有多个文件时，需要多次调用编译器。
+
 可执行文件 `comp1/exe/MyCompiler.exe`，使用方法：
 ```
 MyCompiler.exe input_file output_file
