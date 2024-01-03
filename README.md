@@ -16,10 +16,11 @@ output_path: 输出路径，输出两个文件，分别为指令文件ins.coe和
 ```
 MyCompiler.exe input_file output_file
 input_file: 输入文件（仅一个）
-output_file: 输出文件（与上面不同，指定到文件名而非路径）
-示例：MyCompiler.exe ../source_code/source_code.c  ../result/result.asm
+output_file: 输出文件路径 
+示例：MyCompiler.exe ../source_code/source_code.c  ../result/
+输出的文件名是输入文件和库文件.asm
 ```
 一次只能定义一个变量，例如 int a;/int a[10]; 不要 int a,b;
 函数名避开LABEL_开头的
-
+include 中用到的库文件是相对于源文件的地址
 ## 软件
