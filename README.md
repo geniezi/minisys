@@ -19,5 +19,7 @@ input_file: 输入文件（仅一个）
 output_file: 输出文件（与上面不同，指定到文件名而非路径）
 示例：MyCompiler.exe ../source_code/source_code.c  ../result/result.asm
 ```
+一次只能定义一个变量，例如 int a;/int a[10]; 不要 int a,b;
+函数名避开LABEL_开头的
 
 ## 软件
