@@ -32,11 +32,15 @@ static int _offset;              // record the offset of current _peek
 static unsigned int _numSymbol = 0;
 
 static hash_map<string, unsigned int, hash_compare<string, string_less> >* _symbolTable;
-
+void Lexerror(string er) {
+	fstream write;
+	write.open("compiler.log", ios::out);
+	write << er << endl;
+}
 bool read() {
 	if (_offset == -1) {
 		if (!_reFile.eof()) {
-			_reFile.getline(_buffer, 100);
+			_reFile.getline(_buffer, 1000);
 			++_line;
 		}
 		else
@@ -75,7 +79,7 @@ void outputTokenList(list<Token>& tokenList) {
 		result << "< " << token._lexecal.c_str() << " , " << token._attribute.c_str() << " , " << token._innerCode << " >\n";
 	}
 	result.close();
-	cout << "output token_list.txt\n";
+	
 }
 
 bool parseToken(const string& file, list<Token>& tokenList) {
@@ -88,7 +92,7 @@ bool parseToken(const string& file, list<Token>& tokenList) {
 	
 	_symbolTable = new hash_map<string, unsigned int, hash_compare<string, string_less> >();
 	
-	_buffer = new char[100];
+	_buffer = new char[1000];
 	_line = 0;
 	_offset = -1;
 	
@@ -98,6 +102,7 @@ bool parseToken(const string& file, list<Token>& tokenList) {
 	_reFile.open(file, ios::in);
 	if (_reFile.fail()) {
 		cout << file.c_str() << " cannot be open\n";
+		Lexerror(file + " cannot be open");
 		return false;
 	}
 	int ok = 1;
@@ -138,9 +143,7 @@ bool parseToken(const string& file, list<Token>& tokenList) {
 			else {
 				if (_peek == ' ' || _peek == '\r' || _peek == '\n') continue;
 				else {
-					fstream write;
-					write.open("compiler.log", ios::app);
-					write << "lexical analysis error at " << "line "<<_line << ",offset	" << _offset << endl;
+					Lexerror("lexical analysis error at line " + to_string(_line) + ",offset " + to_string(_offset == -1 ? strlen(_buffer) : _offset));
 					ok = 0;
 					break;
 				}

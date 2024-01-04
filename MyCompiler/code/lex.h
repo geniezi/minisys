@@ -23,6 +23,7 @@ int lexParse(const string file, list<Token>& tokenList) {
 	int ok = parseToken(file, tokenList);
 	if (ok) {
 		//getNumCount();
+		//calLine();
 		cout << "Lexical parsing complete!\n";
 	}
 	else cout << "Lexical parsing wrong!\n";

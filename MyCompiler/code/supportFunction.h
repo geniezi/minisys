@@ -13,6 +13,7 @@ using namespace std;
 extern vector<SymbolTable*> symbolTables;
 extern SymbolTable* globalTable; //全局变量的符号表
 SymbolTable* currentTable; //每个函数局部变量的符号表
+extern SymbolTable* constTable; //常量的符号表
 
 extern vector<Quadruple> middleCode; //中间代码以四元式形式表示
 int nextInstr = 0;
@@ -24,30 +25,30 @@ bool isdigit(string x) {
 	strtol(x.c_str(), &p1, 10);
 	return (*p1 == 0);
 }
-void error(string err) {
-	fstream write;
-	write.open("compiler.log", ios::app);
-	write << "Syntax-directed translation error: " +err<< endl;
-	exit(1);
-}
 // create newline in corresponding symbol table, and fill current variable's information
 string enter(strType name, strType type, unsigned int offset, bool placeFlag = true, const string value="0") {
 	if (name == "#") {
-		return currentTable->enter(name, type, offset, false);
+		return currentTable->enter(name, type, offset, true);
 	}
 	else if (currentTable->_funName == "global") {
-		if (globalTable->in(name)&&!isdigit(name))
+		if (globalTable->namein(name))
 		{
 			error("redeclaration of " + name);
 		}
-		return globalTable->enter(name, type, offset, false, value);
+		//string place = globalTable->enter(name, type, offset, false, name);
+		//if (type.find("array") != type.npos) return to_string(globalTable->at(place)._offset);
+		//else return place;
+		return globalTable->enter(name, type, offset, false, name);
 	}
 	else { // 加入函数局部变量的符号表
-		if (currentTable->in(name)&& !isdigit(name))
+		if (currentTable->namein(name))
 		{
 			error("redeclaration of " + name);
 		}
-		return currentTable->enter(name, type, offset, placeFlag);
+		//string place = currentTable->enter(name, type, offset, true, value);
+		//if (type.find("array") != type.npos) return to_string(-currentTable->at(place)._offset);
+		//else return place;
+		return currentTable->enter(name, type, offset, false, name);
 	}
 }
 
@@ -72,6 +73,7 @@ string getType(string name)
 	for (const auto& it : globalTable->_field) {
 		if (it._name == name) return it._type;
 	}
+	error("getType error");
 }
 void addFunLabel(int index, strType label) {
 	labelMap.insert(make_pair(index, label));
@@ -113,14 +115,15 @@ void setOutLiveVar(strType name) {
 void outputSymbolTable(SymbolTable* table, ofstream& out) {
 	out << endl << table->_funName << endl;
 	out << "return size = " << table->_returnSize << endl;
-	out << setw(6) << "name" << setw(8) << "place" << setw(6) << "type" << setw(6) << "offset" << setw(6) << "space" << endl;
+	out << setw(6) << "name" << setw(8) << "place" << setw(15) << "type" << setw(9) << "offset" << setw(8) << "space" << endl;
 	for (auto& _map : table->_field) {
 		out << setw(6) << _map._name
 			<< setw(8) << _map._place
-			<< setw(6) << _map._type
-			<< setw(6) << _map._offset
-			<< setw(6) << _map._space
-			<< endl;
+			<< setw(15) << _map._type
+			<< setw(9) << _map._offset
+			<< setw(8) << _map._space;
+		if (table == globalTable) out << setw(6) << _map.init_value;
+			out<< endl;
 	}
 }
 
@@ -129,35 +132,39 @@ string makeParam(strType name, strType type, unsigned int offset) {
 	return name + "," + type + "," + to_string(offset) + ";";
 }
 
+string addNum(string str) {
+	return constTable->enter(str, "num", 0, false);
+}
 static unsigned int maxTemp = 0;
 // generate a new temp variable, return its place
 // 把一个临时变量temp加入到符号表中
 string newtemp(string var) {
 	string name = "T" + to_string(maxTemp++);
-	return enter(name, currentTable->at(var)._type, currentTable->at(var)._space);
-}
-
-string addNum(string str) {
-	enter(str,"num", 0, false);
-	return str;
+	if (currentTable->in(var))
+		return enter(name, currentTable->at(var)._type, currentTable->at(var)._space);
+	else if (globalTable->in(var))
+		return enter(name, globalTable->at(var)._type, globalTable->at(var)._space);
+	else if (constTable->in(var))
+	{
+		if (currentTable == globalTable) return addNum("-"+var);
+		else return enter(name, "int", 4);
+	}
+	else if (var == "int"|| var=="#") return enter(name, "int", 4);
+	else if (var == "char") return enter(name, "char", 1);
+	else if (var == "bool") return enter(name, "bool", 1);
+	else error("no such type for " +var);
 }
 
 // look up variable name in symbol table
 // 检查某个变量名是否在符号表中已存在，若存在则返回
 string lookupPlace(strType name) {
 	if (name == "#") return name;
-	for (auto& it : currentTable->_field) {
-		if (it._name == name) {
-			return it._place;
-		}
+	else if (currentTable->namein(name)) return currentTable->nameat(name)._place;
+	else if (globalTable->namein(name)) {
+		return globalTable->nameat(name)._place;
 	}
-	for (auto& it : globalTable->_field) {
-		if (it._name == name) {
-			return name;
-		}
-	}
-	cerr << name << " is not in symbol table " << endl;
-	return name;
+	else if (constTable->in(name)) return name;
+	else error(name + " is not declared");
 }
 
 static unsigned int maxLabel = 0;
@@ -187,14 +194,19 @@ void emit(strType op, strType arg1, strType arg2, strType des) {
 		if (op == "MOV")
 		{
 			for (auto& it : globalTable->_field) {
-				if (it._place == arg1) {
-					it.init_value = des;
+				if (it._place == des) {
+					it.init_value = arg1;
 				}
 			}
 		}
+		else if (op == "neg"&&constTable->in(arg1)) {}
+		else if(op=="nop") {
+			middleCode.push_back(Quadruple(op, arg1, arg2, des));
+			++nextInstr;
+		}
 		else
 		{
-			error(" should not write code other than definition outside function");
+			error("should not write code other than definition outside function");
 		}
 		return;
 	}
@@ -227,11 +239,10 @@ string merge(const string& p1, const string& p2) {
 // insert label as the target label for each of the instructions p
 void backpatch(string p, string label) {
 	if (p.empty()) return; // 跳转链串为空
-
+	
 	// "LABEL_" + gen(nextInstr)
 	int labelIndex = atoi(label.substr(6).c_str()); //获取当前LABEL值
 	addLeader(labelIndex);
-
 	string sep = ";";
 	//查找与()中指定的字符串中任意一个字符都不相符的字符的位置地址
 	string::size_type pos_begin = p.find_first_not_of(sep);
@@ -250,11 +261,13 @@ void backpatch(string p, string label) {
 	// 记录该四元式的标号
 	labelMap.insert(make_pair(labelIndex, label));
 }
-
+void addToLabel(string t)
+{
+	labelMap.insert(make_pair(atoi(t.substr(6).c_str()), t));
+}
 // output middle code
-void outputMiddleCode() {	
-	ofstream middleCodeOut("middle_code.txt");
-	middleCodeOut << "                   " << setw(10) << "op" << setw(10) << "arg1" << setw(10) << "arg2" << setw(10) << "des" << endl;
+void outputMiddleCode(ofstream& middleCodeOut) {
+	middleCodeOut << "                  " << setw(10) << "op" << setw(10) << "arg1" << setw(10) << "arg2" << setw(10) << "des" << endl;
 	for (int i = 0; i < middleCode.size(); ++i) {
 		auto& code = middleCode.at(i);
 		// 输出LABEL没有则为空

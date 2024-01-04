@@ -13,23 +13,30 @@
 %left 'else'
 %%
 
-S : program {}
+S : program {emit("nop","","","");}
   ;
-program : stmts	{}
+program : stmts	{backpatch($1.nextlist,"LABEL_"+ gen(nextInstr));}
 	;
 stmts	: stmts	M stmt { backpatch($1.nextlist, $2.instr); $$.nextlist = $3.nextlist;}
-	| stmt { $$.nextlist = $1.nextlist; }
+	| stmt { backpatch($1.nextlist, "LABEL_"+ gen(nextInstr));}
 	;
-stmt	: '{' stmts  '}' { $$.nextlist = $2.nextlist; }
-	| fun_define  {	returnToGlobalTable(); }
+stmt	: includestmt {}
+	| '{' stmts  '}' { $$.nextlist = $2.nextlist; }
+	| fun_define  {	returnToGlobalTable(); $$.nextlist = $1.nextlist; }
 	| if_stmt { $$.nextlist = $1.nextlist; }
 	| while_stmt { $$.nextlist = $1.nextlist; }
 	| var_decl ';' { $$.nextlist = $1.nextlist; }
-	| static var_decl ';' { $$.nextlist = $2.nextlist; }
-	| expr_stmt ';' {}
-	| 'return' expr ';' { emit("return",$2.place,"",""); setOutLiveVar($2.place); }
+	| 'static' var_decl ';' { $$.nextlist = $2.nextlist; }
+	| expr_stmt ';' {$$.nextlist = $1.nextlist;}
+	| 'return' expr ';' { emit("return",$2.place,"",""); 
+		//setOutLiveVar($2.place); 
+	}
 	;
-fun_define   : fun_decl_head BlockLeader '{' stmts '}' { $$.name = $1.name; } ;
+includestmt : 'include' '"' 'filename' '"' { filelist.push_back($3.lexeme); }
+			| 'include' '<' 'filename' '>' { filelist.push_back($3.lexeme); }
+			;
+fun_define   : fun_decl_head BlockLeader '{' stmts '}' { $$.name = $1.name; $$.nextlist=$4.nextlist; } 
+			;
 fun_decl_head : type_spec 'id' '(' ')' { $$.name = $2.lexeme; 
 					 createSymbolTable($2.lexeme, $1.width); 
 					 addFunLabel(nextInstr, $2.lexeme);}
@@ -43,8 +50,8 @@ param_list : param_list ',' param { $$.itemlist = $1.itemlist || $3.itemlist; }
 	   | param { $$.itemlist = $1.itemlist; }
 	   ;
 param : type_spec 'id' { $$.itemlist = makeParam($2.lexeme,$1.type,$1.width); }
-      | type_spec 'id' '[' num ']' {
-			$$.itemlist = makeParam($2.lexeme,make_array($4.lexval,$1.type),$4.lexval * $1.width); 
+      | type_spec 'id' '[' 'num' ']' {
+			$$.itemlist = makeParam($2.lexeme,make_array(atoi($4.lexeme.c_str()),$1.type),atoi($4.lexeme.c_str()) * $1.width); 
 			}
       ;
 var_decl : type_spec 'id' {enter($2.lexeme,$1.type,$1.width); }
@@ -52,8 +59,8 @@ var_decl : type_spec 'id' {enter($2.lexeme,$1.type,$1.width); }
 		p = enter($2.lexeme,$1.type,$1.width); 
 		emit("MOV",$4.place,"",p); 
 		}
-	| type_spec 'id' '[' num ']' {
-		enter($2.lexeme,make_array($4.lexval,$1.type),$4.lexval * $1.width); 
+	| type_spec 'id' '[' 'num' ']' {
+		enter($2.lexeme,make_array(atoi($4.lexeme.c_str()),$1.type),atoi($4.lexeme.c_str()) * $1.width); 
 	}
 	;
 type_spec : 'int' { $$.type = "int";
@@ -76,23 +83,30 @@ type_spec : 'int' { $$.type = "int";
 		    }
 		;
 expr_stmt : 'id' '=' expr { 
-		p = lookupPlace($1.lexeme); 
-		if (p.empty()) error("undefined variable used"); 
-		emit("MOV",$3.place,"",p); };
+			p = lookupPlace($1.lexeme); 
+			if (p.empty()) error("undefined variable used"); 
+			emit("MOV",$3.place,"",p); 
+			}
+		  | 'id' '[' expr ']' '=' expr {
+			{
+				string ty=getType($1.lexeme);
+				if(ty.find("array")==ty.npos) error(ty+"cannot be converted to array");
+				emit("MOVaddr",lookupPlace($1.lexeme),$3.place,"");
+				emit("MOVoff","",$6.place,lookupPlace($1.lexeme));
+			}
+			}
+		  ;
 expr : expr '+' expr {
                 	$$.place = newtemp($1.place);
 			emit("add", $1.place, $3.place, $$.place);
-			$$.lexval = $1.lexval + $3.lexval;
                      }
      | expr '-' expr {
                 	$$.place = newtemp($1.place);
 			emit("sub", $1.place, $3.place, $$.place);
-			$$.lexval = $1.lexval - $3.lexval;
                      }
      | expr '*' expr {
                 	$$.place = newtemp($1.place);
 			emit("mul", $1.place, $3.place, $$.place);
-			$$.lexval = $1.lexval * $3.lexval;
                      }
      | expr '/' expr {
                 	$$.place = newtemp($1.place);
@@ -101,36 +115,29 @@ expr : expr '+' expr {
      | expr '%' expr {
                 	$$.place = newtemp($1.place);
 			emit("rem", $1.place, $3.place, $$.place);
-			$$.lexval = $1.lexval % $3.lexval;
                      }
      | expr '&' expr {
                 	$$.place = newtemp($1.place);
 			emit("and", $1.place, $3.place, $$.place);
-			$$.lexval = $1.lexval & $3.lexval;
                      }
      | expr '|' expr {
                 	$$.place = newtemp($1.place);
-			emit("or", $1.place, $3.place, $$.place);
-			$$.lexval = $1.lexval | $3.lexval;
+			emit("or", $1.place, $3.place, $$.place);			
                      }
      | expr '^' expr {
                 	$$.place = newtemp($1.place);
 			emit("xor", $1.place, $3.place, $$.place);
-			$$.lexval = $1.lexval ^ $3.lexval;
                      }
      | expr '>>' expr {
                 	$$.place = newtemp($1.place);
 			emit("srl", $1.place, $3.place, $$.place);
-			$$.lexval = $1.lexval >> $3.lexval;
                       }
      | expr '<<' expr {
                 	$$.place = newtemp($1.place);
 			emit("sll", $1.place, $3.place, $$.place);
-			$$.lexval = $1.lexval << $3.lexval;
                       }
      | '(' expr ')'  {
                 	$$.place = $2.place;
-					$$.lexval = $2.lexval;
                      }
      | 'id'   	     {
 			$$.place = lookupPlace($1.lexeme);
@@ -143,22 +150,25 @@ expr : expr '+' expr {
 			        }
 				emit("call", p, $1.lexeme,"");
 				enter("#","int",4);
-				$$.place = newtemp("#");
+				$$.place = newtemp("int");
 				emit("MOV","#","",$$.place); }
      | 'num' {
-		$$.place = addNum($1.lexeme);
 		$$.lexval = $1.lexeme;
+		$$.place = addNum($1.lexeme);
 	     }
-	| '-' 'num' {
-		$$.place = addNum($2.lexeme);
-		$$.lexval = - $2.lexeme;
+	| '-' expr {
+		$$.place = newtemp($2.place);
+		emit("neg",$2.place,"",$$.place);
 	}
 	| 'id' '[' expr ']' {
 		{
-			string ty=getType($$.lexeme);
-			if(ty.substr(0,6)!="array<") error(ty+"cannot be converted to array");
-			int p=$1.place.find('(');
-			$$.place = to_string(atoi($1.place.substr(0,p)) + $1.width * $3.lexval)+"(x8)";
+			string ty=getType($1.lexeme);
+			if(ty.find("array")==ty.npos) error(ty+"cannot be converted to array");
+			int p1=ty.find('<');
+			int p2=ty.find(',');
+			$$.place = newtemp(ty.substr(p1+1,p2-p1-1));
+			emit("MOVaddr",lookupPlace($1.lexeme)	,$3.place,"");
+			emit("MOVoff",$$.place,"",lookupPlace($1.lexeme));
 		}
 	}	
      ;
@@ -181,6 +191,7 @@ while_stmt : 'while' BlockLeader M '(' logic_expr ')' M stmt {
 								backpatch($5.truelist, $7.instr);
 								$$.nextlist = $5.falselist;
 								emit("j","","",$3.instr);
+								addtoLabel($3.instr);
 							     }
 	   ;
 logic_expr	: logic_expr '&&' M logic_expr {
@@ -210,7 +221,7 @@ logic_expr	: logic_expr '&&' M logic_expr {
 		| expr { 
 				$$.truelist = makelist(nextInstr);
 				$$.falselist = makelist(nextInstr+1);
-				emit("j!=", $1.addr, "0", "_");
+				emit("j!=", $1.place, "0", "_");
 				emit("j","","","_");
 			}
 		| 'true' {
@@ -224,7 +235,7 @@ logic_expr	: logic_expr '&&' M logic_expr {
 		;
 M : {$$.instr = "LABEL_" + gen(nextInstr);}
   ;
-N : { $$.instr = makelist(nextInstr);
+N : { $$.instr ="LABEL_" + makelist(nextInstr);
       emit("j","","","_");}
   ;
 BlockLeader : {
