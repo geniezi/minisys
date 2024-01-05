@@ -1039,13 +1039,14 @@ void SeuYacc::outputAction() {
 	out << "#include <stack>\n";
 	out << "#include <vector>\n";
 	out << "#include <stdlib.h>\n";
-	out << "using namespace std;";
+	out << "using namespace std;\n";
 	out << "extern unsigned int offset;\n";
 	out << "string p;\n";
 	// 放每个产生式队列
 	out << "extern deque<StackItem> st;\n";
 	// 放变量的栈
 	out << "extern stack<string> paramStack;\n";
+	out << "extern vector<string>filelist;\n";
 	// 建读取字符执行动作的自动函数performActionperformAction
 	out << "pair<unsigned int, string> performAction(unsigned int index, map<string, string>& reduceHead) {\n";
 	out << "\tsize_t stackSize = st.size() - 1;\n";
@@ -1062,7 +1063,7 @@ void SeuYacc::outputAction() {
 		//执行该产生式的动作
 		out << endl << _productionAction[index] << endl;
 		out << "\treturn pair<unsigned int, string>(" 
-			<< _productionVector[index]._bodyLength << ",\"" //����ʽ�Ҳ�����
+			<< _productionVector[index]._bodyLength << ",\"" 
 			<< _word[_productionVector[index]._head] << "\");\n\n";
 	}
 	out << "\tdefault: return pair<unsigned int, string>(0,\"\");\n";

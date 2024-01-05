@@ -27,10 +27,12 @@ return {return "return";}
 static {return "static";}
 #include {return "include";}
 break {return "break";}
+load_mem {return "load_mem";}
+set_mem {return "set_mem";} 
 {id} {return "id";}
 {number} {++numCount; return "num";}
 {filename} {return "filename";}
-{ws} {return "";}
+{ws} {return "ws";}
 "+" {return "+";}
 "-" {return "-";}
 "*" {return "*";}

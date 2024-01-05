@@ -870,6 +870,82 @@ void Assembly_addroff(const Quadruple& code) {
 void Assembly_nop() {
 	assemblyCode.push_back(Assembly("add", "x0", "x0", "x0"));
 }
+
+//B=load_mem(A)
+void Assembly_load(const Quadruple& code) {
+	int regA = Getvar(code._arg1)._inR;
+	if (code._typeArg1)
+	{
+		regA = getEmptyReg();
+		if (regA < 0) regA = storeToGetReg();
+		imm2reg(atoi(code._arg1.c_str()), regA);
+	}
+	else if (regA < 0)
+	{
+		regA = getEmptyReg();
+		if (regA < 0) regA = storeToGetReg();
+		assemblyCode.push_back(Assembly("lw", regA, code._arg1));
+		set<string> set; set.insert(code._arg1);
+		RValue->at(regA) = set;
+		RNextUse->at(regA) = code._nextArg1;
+		Getvar(code._arg1)._inR = regA;
+		Getvar(code._arg1)._inM = true;
+	}
+	int regB = Getvar(code._des)._inR;
+	if (regB < 0)
+	{
+		regB = getEmptyReg();
+		if (regB < 0) regB = storeToGetReg();
+	}
+	assemblyCode.push_back(Assembly("lw", regB, "0("+ transformToRegName(regA)+")"));
+	set<string> set; set.insert(code._des);
+	RValue->at(regB) = set;
+	RNextUse->at(regB) = code._nextDes;
+	Getvar(code._des)._inR = regB;
+	Getvar(code._des)._inM = false;
+}
+
+//set_mem(A,B);
+void Assembly_set(const Quadruple& code) {
+	int regA = Getvar(code._arg1)._inR;
+	if (code._typeArg1)
+	{
+		regA = getEmptyReg();
+		if (regA < 0) regA = storeToGetReg();
+		imm2reg(atoi(code._arg1.c_str()), regA);
+	}
+	else if (regA < 0)
+	{
+		regA = getEmptyReg();
+		if (regA < 0) regA = storeToGetReg();
+		assemblyCode.push_back(Assembly("lw", regA, code._arg1));
+		set<string> set; set.insert(code._arg1);
+		RValue->at(regA) = set;
+		RNextUse->at(regA) = code._nextArg1;
+		Getvar(code._arg1)._inR = regA;
+		Getvar(code._arg1)._inM = true;
+	}
+	int regB = Getvar(code._arg2)._inR;
+	if (code._typeArg2)
+	{
+		regB = getEmptyReg();
+		if (regB < 0) regB = storeToGetReg();
+		imm2reg(atoi(code._arg2.c_str()), regB);
+	}
+	else if (regB < 0)
+	{
+		regB = getEmptyReg();
+		if (regB < 0) regB = storeToGetReg();
+		assemblyCode.push_back(Assembly("lw", regB, code._arg2));
+		set<string> set; set.insert(code._arg2);
+		RValue->at(regB) = set;
+		RNextUse->at(regB) = code._nextArg2;
+		Getvar(code._arg2)._inR = regB;
+		Getvar(code._arg2)._inM = true;
+	}
+	assemblyCode.push_back(Assembly("sw", regB, "0(" + transformToRegName(regA) + ")"));
+}
+
 // generate condition choose
 // 对不同的四元式进行case选择生成对应的生成代码
 void GenerateAssembly(const Quadruple& code) {
@@ -928,6 +1004,12 @@ void GenerateAssembly(const Quadruple& code) {
 	}
 	else if (code._type == 100) {
 		Assembly_nop();
+	}
+	else if (code._type == 97) {
+		Assembly_load(code);
+	}
+	else if (code._type == 96) {
+		Assembly_set(code);
 	}
 }
 

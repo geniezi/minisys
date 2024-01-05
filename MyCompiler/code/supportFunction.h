@@ -168,12 +168,12 @@ string lookupPlace(strType name) {
 	else error(name + " is not declared");
 }
 
-static unsigned int maxLabel = 0;
+/*static unsigned int maxLabel = 0;
 // generator a new label for object code
 // 在语法制导翻译的过程中，对应标号的中间代码可能尚未生成，因此将标签信息进行保存
 string newlabel() { 
 	return "Label_" + to_string(maxLabel++);
-}
+}*/
 
 // generator a array
 string make_array(int a, strType type) {

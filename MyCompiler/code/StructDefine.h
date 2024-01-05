@@ -20,8 +20,8 @@ const int REGISTER_NUM = 17;
 void error(string err) {
 	fstream write;
 	write.open("compiler.log", ios::out);
-	write << "Syntax-directed translation error: " + err + "at line:"<< errorline << endl;
-	cout << "Syntax-directed translation error: " + err + "at line:" << errorline <<endl;
+	write << "Syntax-directed translation error: " + err + " at line:"<< errorline << endl;
+	cout << "Syntax-directed translation error: " + err + " at line:" << errorline <<endl;
 	exit(1);
 }
 //typedef unsigned int ACTION_TYPE;
@@ -101,7 +101,8 @@ struct SymbolTable {
 			if (name.find("0x") != name.npos) ty = "hex";
 			else ty = "dec";
 			varState state(name, ty, _variableOffset, space,name);
-			state._place = name;
+			if (ty == "dec") state._place = name;
+			else state._place = to_string(stoi(name.c_str(), NULL, 16));
 			_field.push_back(state);
 			return state._place;
 		}
@@ -250,8 +251,11 @@ struct  Quadruple {
 		else if (_op == "MOVoff") {
 			_type = 98; // A = B.addr+(off)
 		}
-		else if (_op == "offMOV") {
-			_type = 97; // A .addr+(off)= B
+		else if (_op == "load") {
+			_type = 97; // load_mem(x)
+		}
+		else if (_op == "set") {
+			_type = 96; // set_mem(x,y)
 		}
 		else if (_op == "nop") {
 			_type = 100;
@@ -293,6 +297,26 @@ struct  Quadruple {
 		}
 	}
 };
+string transformToRegName(int reg) {
+	if (reg == 0) return "x5";
+	else if (reg == 1) return "x6";
+	else if (reg == 2) return "x7";
+	else if (reg == 3) return "x28";
+	else if (reg == 4) return "x29";
+	else if (reg == 5) return "x30";
+	else if (reg == 6) return "x31";
+	else if (reg == 7) return "x18";
+	else if (reg == 8) return "x19";
+	else if (reg == 9) return "x20";
+	else if (reg == 10) return "x21";
+	else if (reg == 11) return "x22";
+	else if (reg == 12) return "x23";
+	else if (reg == 13) return "x24";
+	else if (reg == 14) return "x25";
+	else if (reg == 15) return "x26";
+	else if (reg == 16) return "x27";
+	else return "x18";
+}
 
 // »ã±à´úÂë£¬±íÊ¾Ò»Ìõ»ã±àÓï¾ä _label : _op _des _arg _immediate
 struct Assembly {
@@ -369,26 +393,6 @@ struct Assembly {
 		 : _op(op), _arg(arg), _des(des) ,_arg2(arg2){
 	 }
 	// ¼Ä´æÆ÷Ñ°Ö·£¬¸ù¾ÝÐòºÅÑ¡Ôñ²»Í¬µÄ¼Ä´æÆ÷
-	string transformToRegName(int reg) {
-		if (reg == 0) return "x5";
-		else if (reg == 1) return "x6";
-		else if (reg == 2) return "x7";
-		else if (reg == 3) return "x28";
-		else if (reg == 4) return "x29";
-		else if (reg == 5) return "x30";
-		else if (reg == 6) return "x31";
-		else if (reg == 7) return "x18";
-		else if (reg == 8) return "x19";
-		else if (reg == 9) return "x20";
-		else if (reg == 10) return "x21";
-		else if (reg == 11) return "x22";
-		else if (reg == 12) return "x23";
-		else if (reg == 13) return "x24";
-		else if (reg == 14) return "x25";
-		else if (reg == 15) return "x26";
-		else if (reg == 16) return "x27";
-		else return "x18";
-	}
 };
 
 #endif //_STRUCT_DEFINE_H

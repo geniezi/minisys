@@ -28,9 +28,8 @@ stmt	: includestmt {}
 	| var_decl ';' { $$.nextlist = $1.nextlist; }
 	| 'static' var_decl ';' { $$.nextlist = $2.nextlist; }
 	| expr_stmt ';' {$$.nextlist = $1.nextlist;}
-	| 'return' expr ';' { emit("return",$2.place,"",""); 
-		//setOutLiveVar($2.place); 
-	}
+	| 'return' expr ';' { emit("return",$2.place,"",""); }
+	| 'set_mem' '(' expr ',' expr ')' ';' { emit("set",$3.place,$5.place,""); }
 	;
 includestmt : 'include' '"' 'filename' '"' { filelist.push_back($3.lexeme); }
 			| 'include' '<' 'filename' '>' { filelist.push_back($3.lexeme); }
@@ -171,6 +170,10 @@ expr : expr '+' expr {
 			emit("MOVoff",$$.place,"",lookupPlace($1.lexeme));
 		}
 	}	
+	| 'load_mem' '(' expr ')' {
+		$$.place = newtemp("int");
+		emit("load",$3.place,"",$$.place);
+	}
      ;
 arg_list  : arg_list ',' expr { paramStack.push($3.place); }
           |  expr  { paramStack.push($1.place);	}
@@ -191,7 +194,7 @@ while_stmt : 'while' BlockLeader M '(' logic_expr ')' M stmt {
 								backpatch($5.truelist, $7.instr);
 								$$.nextlist = $5.falselist;
 								emit("j","","",$3.instr);
-								addtoLabel($3.instr);
+								addToLabel($3.instr);
 							     }
 	   ;
 logic_expr	: logic_expr '&&' M logic_expr {
