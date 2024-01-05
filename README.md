@@ -22,9 +22,9 @@ output_file: 输出文件路径 （注意是路径！）
 ```
 一次只能定义一个变量，例如 int a;/int a[10]; 不要 int a,b;  
 函数名避开LABEL_开头的  
-#include 中用到的库文件是相对于源文件的相对地址，统一用左斜杠分割，绝对地址暂不支持
+#include 中用到的库文件是相对于源文件的相对地址，统一用左斜杠分割，绝对地址暂不支持  
 使用//注释的时候 记得要在 //后面空一格 例如“// int x;"  
 目前不允许空while循环 空if  
-读写内存专用函数 load_mem(addr),set_mem(addr,val)，addr支持表达式、变量、常量，val也如此。  
+读写内存专用函数 load_mem(addr),set_mem(addr,val)，addr和val 支持表达式、变量、常量  
 
 ## 软件
