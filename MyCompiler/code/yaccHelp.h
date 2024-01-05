@@ -115,9 +115,13 @@ bool yaccReduce(list<Token> _tokenList,string filename,int file_t) {
 	symbolTables.push_back(constTable);
 	symbolTables.push_back(globalTable);
 
-	for (const auto& map : labelMap) {
-		if(middleCode.size()>map.first) middleCode.at(map.first)._label = map.second;
+	for (const auto& it : labelMap) {
+		if(middleCode.size()>it.first) middleCode.at(it.first)._label = it.second;
 	}
+	for (const auto& it : funLabel) {
+		if (middleCode.size() > it.first) middleCode.at(it.first)._fun = it.second;
+	}
+
 	ofstream middleCodeOut("middle_code.txt", file_t == 0 ? ios::out : ios::app);
 	middleCodeOut << filename << "-------------------------------------------------\n";
 	outputMiddleCode(middleCodeOut);

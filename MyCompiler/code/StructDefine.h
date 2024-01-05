@@ -101,8 +101,26 @@ struct SymbolTable {
 			if (name.find("0x") != name.npos) ty = "hex";
 			else ty = "dec";
 			varState state(name, ty, _variableOffset, space,name);
-			if (ty == "dec") state._place = name;
-			else state._place = to_string(stoi(name.c_str(), NULL, 16));
+			if (ty == "dec")
+			{
+				try {
+					state._place = to_string(stoi(name.c_str()));
+				}
+				catch (exception& e) {
+					error(name+" out of int range");
+				}
+			}
+			else
+			{
+				try {
+					state._place = to_string(stoi(name.c_str(), nullptr, 16));
+				}
+				catch (exception& e) {
+					if(name.size()>11||name.size()==11&&name[0]!='-') error(name + " out of int range");
+					char tmp[] = "0xffffffff";
+					state._place = to_string(stoll(name.c_str(), nullptr, 16)- stoll(tmp, nullptr, 16)-1);
+				}
+			}
 			_field.push_back(state);
 			return state._place;
 		}
@@ -194,6 +212,7 @@ bool isNum( string str) {
 struct  Quadruple {
 	int _type; // 类型码
 	 string _label;  //optional (e.g. loop:)
+	 string _fun;
 	 string _op;
 	 string _des, _arg1, _arg2;
 
@@ -325,6 +344,7 @@ struct Assembly {
 	 string _arg;	// 源操作数1
 	 string _label;	// 标签，对应中间代码中的标号
 	 string _arg2;	// 源操作数2
+	 string _fun;
 	 Assembly(const  string& op, const string des, const string arg) : _op(op)
 	 {
 		 _des = des;

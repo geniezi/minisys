@@ -25,7 +25,7 @@ vector<int>* RNextUse;						// RNextUse中填写R寄存器中变量的待用信息，为所存变量
 
 vector<Assembly> assemblyCode;				// 存储所有的汇编代码
 map<size_t, string> AssemblyLabelMap;	// 记录汇编代码的标签信息，key为汇编代码的标号，value为对应此标号的标签
-
+map<size_t, string> AssemblyFunMap;
 typedef set<string> VarSetType;
 varState& Getvar(string place)
 {
@@ -597,12 +597,12 @@ void Assembly_jrop(const Quadruple& code) {
 	string jrop = "";
 	if (code._op == "j==")
 	{
-		assemblyCode.push_back(Assembly("beq", code._des, RegForB, RegForC));
+		assemblyCode.push_back(Assembly("beq", RegForB, RegForC, code._des));
 		return;
 	}
 	else if (code._op == "j!=")
 	{
-		assemblyCode.push_back(Assembly("bne", code._des, RegForB, RegForC));
+		assemblyCode.push_back(Assembly("bne", RegForB, RegForC, code._des));
 		return;
 	}
 	else if (code._op == "j<") {
@@ -685,10 +685,10 @@ void Assembly_call(const Quadruple& code) {
 void Assembly_function_prework(const Quadruple& code) {
 	// PUSH BP
 	assemblyCode.push_back(Assembly("addi", "x2", "x2", -4));
-	assemblyCode[assemblyCode.size()-1]._label = code._label;
+	//assemblyCode[assemblyCode.size()-1]._label = code._label;
 	assemblyCode.push_back(Assembly("sw", "x8", "0(x2)"));		
 	// PUSH reg
-	if (code._label != "main") {
+	if (code._fun != "main") {
 			//save ra
 			assemblyCode.push_back(Assembly("addi", "x2", "x2", -4));
 			assemblyCode.push_back(Assembly("sw", "x1", "0(x2)"));
@@ -711,7 +711,7 @@ void Assembly_function_prework(const Quadruple& code) {
 	
 	assemblyCode.push_back(Assembly("add", "x8", "x2", "x0"));	// MOV BP SP
 	for (const auto& table : symbolTables) {
-		if (table->_funName == code._label) {
+		if (table->_funName == code._fun) {
 			assemblyCode.push_back(Assembly("addi", "x2","x2", "-"+to_string(table->_variableOffset)));	// SUB SP 'offset'
 			break;
 		}
@@ -948,29 +948,12 @@ void Assembly_set(const Quadruple& code) {
 
 // generate condition choose
 // 对不同的四元式进行case选择生成对应的生成代码
-void GenerateAssembly(const Quadruple& code) {
-	if (!code._label.empty()) {
-
-		if (code._label.substr(0, 6) != "LABEL_") {
-			//assemblyCode.push_back(Assembly(code._label, "", "", ""));
+void GenerateAssembly(const Quadruple& code,int ind) {
+	/*
+		if (code._fun!= "") {
 			Assembly_function_prework(code);
 		}
-		/*else if (code._label == "main") {
-			// prework for function entrance
-			//assemblyCode.push_back(Assembly(code._label, "", "", ""));
-			assemblyCode.push_back(Assembly("add", "x8", "x2","x0"));	// MOV BP SP
-			for (const auto& table : symbolTables) {
-				if (table->_funName == code._label) {
-					//int RegForResult = getEmptyReg();
-					//if (RegForResult < 0) RegForResult = storeToGetReg();
-					//assemblyCode.push_back(Assembly("addi", RegForResult, "x0", to_string(table->_variableOffset)));
-					//assemblyCode.push_back(Assembly("sub", "x2", "x2", RegForResult));	
-					assemblyCode.push_back(Assembly("addi", "x2", "x2", to_string(-table->_variableOffset)));// SUB SP 'offset'
-					break;
-				}
-			}
-		}*/
-	}
+	*/
 	// different handle by type of code
 	if (10 <= code._type && code._type <= 19) {
 		Assembly_A_BopC(code);
@@ -1020,7 +1003,7 @@ void outputAssemblyCode(string filename) {
 	jlabel.clear();
 	int i = 0;
 	for (const auto& code : assemblyCode) {
-		if (code._label.substr(0, 6) == "LABEL_")
+		if (code._label != "")
 		{
 			jlabel[code._label] = i;
 		}
@@ -1032,19 +1015,9 @@ void outputAssemblyCode(string filename) {
 	for (auto& var : globalTable->_field) {
 		//out << setw(5) << var._name;
 		// init value
-		if (var._type == "int") {
-			out << "    .word";
-			out << setw(10) << var._name;
-			out << setw(10) <<var.init_value;
-		}
-		/*else if (var._type == "float") {
-			out << setw(5) << "    .float ";
-			out << setw(5) << "0x00000000";
-		}
-		else if (var._type == "double") {
-			out << setw(5) << "    .double ";
-			out << setw(5) << "0x0";
-		}*/
+		out << "    .word";
+		out << setw(20) << var._name;
+		out << setw(11) << var.init_value;
 		out << endl;
 	}
 
@@ -1052,8 +1025,8 @@ void outputAssemblyCode(string filename) {
 	out << endl<<".text" << endl;
 	int index = 0;
 	for (const auto& code : assemblyCode) {
-		if (!code._label.empty()&& code._label.substr(0,6)!="LABEL_") {
-			out << setw(13) << code._label + " : ";
+		if (!code._fun.empty()) {
+			out << setw(13) << code._fun + " : ";
 		}
 		else out << "             ";
 		out << code._op << " ";
@@ -1091,7 +1064,7 @@ void tranlateIntoAssembly(string filename) {
 	RValue = new vector<set<string>>(REGISTER_NUM);
 	RNextUse = new vector<int>(REGISTER_NUM);
 	AssemblyLabelMap.clear();
-
+	AssemblyFunMap.clear();
 	for (auto& tab : symbolTables) {
 
 		table = tab;
@@ -1179,13 +1152,18 @@ void tranlateIntoAssembly(string filename) {
 			fill_n(RNextUse->begin(), REGISTER_NUM, -1);
 
 			string label = middleCode.at(block._begin)._label;
+			string fun = middleCode.at(block._begin)._fun;
 			//if (!label.empty() && label != "main") {
-			if (!label.empty()){
+			if (!fun.empty())
+			{
+				AssemblyFunMap.insert(make_pair(assemblyCode.size(), fun));
+				Assembly_function_prework(middleCode.at(block._begin));
+			}
+			if (!label.empty()) {
 				AssemblyLabelMap.insert(make_pair(assemblyCode.size(), label));
 			}
-
 			for (int i = block._begin; i < block._end; ++i)
-				GenerateAssembly(middleCode.at(i));
+				GenerateAssembly(middleCode.at(i),i);
 
 			// save live variables
 			for (int reg = 0; reg < REGISTER_NUM; ++reg) {
@@ -1207,7 +1185,10 @@ void tranlateIntoAssembly(string filename) {
 	// add label
 	for (const auto& map : AssemblyLabelMap) {
 		assemblyCode.at(map.first)._label = map.second;
+	}for (const auto& map : AssemblyFunMap) {
+		assemblyCode.at(map.first)._fun = map.second;
 	}
+
 	outputAssemblyCode(filename);
 
 

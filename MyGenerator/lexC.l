@@ -11,7 +11,7 @@ ws {blank}+;
 digit [0~9];
 letter [A~Za~z];
 id ({letter}|_)({letter}|{digit}|_)*;
-number {digit}+(.{digit}+)?(E[+-]?{digit}+)?|0x({digit}|a|b|c|d|e|f)+;
+number {digit}+(.{digit}+)?(E[+-]?{digit}+)?|0x({digit}|a|b|c|d|e|f|A|B|C|D|E|F)+;
 path ({letter}|{digit}|.|_)*/;
 filename {path}*{id}.({letter}|{digit}|_)*;
 %%
@@ -29,6 +29,8 @@ static {return "static";}
 break {return "break";}
 load_mem {return "load_mem";}
 set_mem {return "set_mem";} 
+true {return "true";} 
+false {return "false";} 
 {id} {return "id";}
 {number} {++numCount; return "num";}
 {filename} {return "filename";}

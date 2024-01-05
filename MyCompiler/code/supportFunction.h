@@ -19,7 +19,7 @@ extern SymbolTable* constTable; //常量的符号表
 extern vector<Quadruple> middleCode; //中间代码以四元式形式表示
 int nextInstr = 0;
 map<int, string> labelMap; //labelMap为记录中间代码标签的数据结构。Key为中间代码的标号，value为对应该标号的标签。
-
+map<int, string> funLabel;
 typedef const string& strType;
 bool isdigit(string x) {
 	char* p1;
@@ -77,7 +77,7 @@ string getType(string name)
 	error("getType error");
 }
 void addFunLabel(int index, strType label) {
-	labelMap.insert(make_pair(index, label));
+	funLabel.insert(make_pair(index, label));
 }
 // 声明函数时把函数实参加入符号表
 void addToSymbolTable(strType itemlist) {

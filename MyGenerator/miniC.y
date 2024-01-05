@@ -30,6 +30,7 @@ stmt	: includestmt {}
 	| expr_stmt ';' {$$.nextlist = $1.nextlist;}
 	| 'return' expr ';' { emit("return",$2.place,"",""); }
 	| 'set_mem' '(' expr ',' expr ')' ';' { emit("set",$3.place,$5.place,""); }
+	| ';' { }
 	;
 includestmt : 'include' '"' 'filename' '"' { filelist.push_back($3.lexeme); }
 			| 'include' '<' 'filename' '>' { filelist.push_back($3.lexeme); }
@@ -224,6 +225,7 @@ logic_expr	: logic_expr '&&' M logic_expr {
 		| expr { 
 				$$.truelist = makelist(nextInstr);
 				$$.falselist = makelist(nextInstr+1);
+				addNum("0");
 				emit("j!=", $1.place, "0", "_");
 				emit("j","","","_");
 			}
