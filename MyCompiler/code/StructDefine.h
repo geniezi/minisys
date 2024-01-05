@@ -7,19 +7,21 @@
 #include <vector>
 #include <set>
 #include <iostream>
+#include <windows.h>
+
 using namespace std;
 #define SHIFT 1
 #define REDUCTION 2
 #define GOTO_STATE 3
 #define ERROR 4
 #define ACCEPT 5
-
+extern int errorline;
 const int REGISTER_NUM = 17;
 void error(string err) {
 	fstream write;
 	write.open("compiler.log", ios::out);
-	write << "Syntax-directed translation error: " + err << endl;
-	cout << "Syntax-directed translation error: " + err<<endl;
+	write << "Syntax-directed translation error: " + err + "at line:"<< errorline << endl;
+	cout << "Syntax-directed translation error: " + err + "at line:" << errorline <<endl;
 	exit(1);
 }
 //typedef unsigned int ACTION_TYPE;
@@ -252,7 +254,7 @@ struct  Quadruple {
 			_type = 97; // A .addr+(off)= B
 		}
 		else if (_op == "nop") {
-			_type == 100;
+			_type = 100;
 		}
 		else if (_op[0] == 'j') {
 			if (_op.size() == 1) {

@@ -3,7 +3,7 @@
 
 // define statement for use hash_map
 #define _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS
-
+#include <windows.h>
 #include "Token.h"
 #include "actionLex.h"
 #include "tableLex.h"
@@ -32,6 +32,7 @@ static int _offset;              // record the offset of current _peek
 static unsigned int _numSymbol = 0;
 
 static hash_map<string, unsigned int, hash_compare<string, string_less> >* _symbolTable;
+//static map<string, unsigned int>* _symbolTable;
 void Lexerror(string er) {
 	fstream write;
 	write.open("compiler.log", ios::out);
@@ -53,7 +54,7 @@ bool read() {
 	}
 	else {
 		_peek = _buffer[_offset];
-		if (_peek == '\t') _peek = ' ';
+	//	if (_peek == '\t') _peek = ' ';
 	}
 	return true;
 }
@@ -89,9 +90,10 @@ bool parseToken(const string& file, list<Token>& tokenList) {
 	// 最小化DFA终结态的初始化，将所有状态加入终结态
 	set<unsigned int> _minDFAfinalStateSet;
 	initFinalSet(_minDFAfinalStateSet);
-	
+	_numSymbol = 0;
 	_symbolTable = new hash_map<string, unsigned int, hash_compare<string, string_less> >();
-	
+
+	//_symbolTable = new map<string, unsigned int>();
 	_buffer = new char[1000];
 	_line = 0;
 	_offset = -1;
@@ -134,14 +136,21 @@ bool parseToken(const string& file, list<Token>& tokenList) {
 					(*_symbolTable)[_lexeme] = _numSymbol++;
 				}
 				// 记录一个token
-				tokenList.push_back(Token(_lexeme, performAction(_state), _innerCode, _line, _offset==-1?strlen(_buffer):_offset));
+				if(performAction(_state)!="ws")
+					tokenList.push_back(Token(_lexeme, performAction(_state), _innerCode, _line, _offset==-1?strlen(_buffer):_offset));
 				// 重置从初始状态找下一个token
 				_state = 0;
 				_lexeme = "";
-				if (_peek != ' ' || _peek == '\r' || _peek == '\n') retract();
+				if (_peek != ' ' && _peek != '\t' && _peek != '\n') retract();
+				//retract();
 			}
 			else {
-				if (_peek == ' ' || _peek == '\r' || _peek == '\n') continue;
+				if (_peek == ' ' || _peek == '\t' || _peek == '\n')
+				{
+					_state = 0;
+					_lexeme = "";
+					continue;
+				}
 				else {
 					Lexerror("lexical analysis error at line " + to_string(_line) + ",offset " + to_string(_offset == -1 ? strlen(_buffer) : _offset));
 					ok = 0;

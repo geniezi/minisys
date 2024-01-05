@@ -12,7 +12,7 @@ digit [0~9];
 letter [A~Za~z];
 id ({letter}|_)({letter}|{digit}|_)*;
 number {digit}+(.{digit}+)?(E[+-]?{digit}+)?|0x({digit}|a|b|c|d|e|f)+;
-path /({letter}|{digit}|.|_)*;
+path ({letter}|{digit}|.|_)*/;
 filename {path}*{id}.({letter}|{digit}|_)*;
 %%
 char {return "char";}
@@ -30,7 +30,7 @@ break {return "break";}
 {id} {return "id";}
 {number} {++numCount; return "num";}
 {filename} {return "filename";}
-{ws} {;}
+{ws} {return "";}
 "+" {return "+";}
 "-" {return "-";}
 "*" {return "*";}

@@ -1,6 +1,7 @@
 #ifndef _YACC_HELP_H
 #define _YACC_HELP_H
 
+#include <windows.h>
 #include "Token.h"
 #include "actionYacc.h"
 #include "tableYacc.h"
@@ -25,7 +26,7 @@ SymbolTable* constTable;
 stack< string> paramStack;
 vector<string> filelist;
 vector<Quadruple> middleCode;
-
+int errorline;
 void errorReduce( list<Token>::iterator token) {
 	fstream write;
 	write.open("compiler.log",  ios::out);
@@ -42,7 +43,7 @@ bool yaccReduce(list<Token> _tokenList,string filename,int file_t) {
 	nextInstr = 0;
 	labelMap.clear();
 	while (!st.empty()) st.pop_back();
-	ofstream sequence("reduce_sequence.txt");
+	ofstream sequence("reduce_sequence.txt",file_t==0?ios::out:ios::app);
 	sequence << filename << "--------------------------------\n";
 	// 根据tableYacc建立分析表（当前状态读取字符采取怎样的动作）
 	initTable(_parseTable);
@@ -66,6 +67,7 @@ bool yaccReduce(list<Token> _tokenList,string filename,int file_t) {
 			map["lexeme"] = token->_lexecal;
 			st.push_back(StackItem(tableItem._index, token->_attribute, map));
 			// let a be the next input symbol
+			errorline = token->_line;
 			++token;
 		}
 		else if (tableItem._action == REDUCTION) {

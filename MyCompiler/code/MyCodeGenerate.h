@@ -14,6 +14,7 @@
 #include <iterator>
 #include <fstream>
 #include <string>
+#include <windows.h>
 using namespace std;
 
 // reg descripter table

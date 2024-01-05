@@ -1,7 +1,7 @@
 #include "lex.h"
 #include "yaccHelp.h"
 #include <windows.h>
-#include <filesystem>
+
 using namespace std;
 vector<string>asmfile;
 int main(int argc, char *argv[]) {
@@ -10,26 +10,31 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	list<Token> tokenlist;
-	string filename = argv[1];;
-	string _path = argv[2];
+	string filename = argv[1];
+	string base = "";
+	int pos = filename.find_last_of('/');
+	if(pos!=filename.npos) base = filename.substr(0, pos+1);
+	string out_path = argv[2];
 	filelist.push_back(filename);
 	for (int i = 0; i < filelist.size(); i++) {
 		tokenlist.clear();
-		std::filesystem::path pathA(filelist[i]);
-		//filename = filelist[i];
-		//int p = filename.find('.');
-		//int q = filename.find_last_of('/');
-		//if (q == filename.npos) q = -1;
-		cout << pathA.filename() << " begin\n";
-		asmfile.push_back(pathA.filename() + ".asm");
-		int ok = lexParse(filename, tokenlist);
+		filename = filelist[i];
+		int p = filename.find_last_of('.');
+		int q = filename.find_last_of('/');
+		if (q == filename.npos) q = -1;
+		string nname = filename.substr(q + 1, p - q - 1) + ".asm";
+		cout << nname << " begin\n";
+		asmfile.push_back(out_path+"/"+nname);
+		if (i != 0) nname = base + "./" + filename;
+		else nname = filename;
+		int ok = lexParse(nname, tokenlist);
 		if (ok) ok = yaccReduce(tokenlist, asmfile[asmfile.size() - 1], i);
 		if (ok) cout << "compile success" << endl;
-		else cout << "error";
+		else cout << "error\n";
 	}
-	string am = "dist\\assembler\\assembler.exe ";
-	for (int i = 0; i < filelist.size(); i++) am = am + asmfile[i] + " ";
-	am += _path;
+	string am = "..\\..\\assembler\\dist\\assembler\\assembler.exe ";
+	for (int i = 0; i < filelist.size(); i++) am = am +asmfile[i] + " ";
+	am += out_path;
 	system(am.c_str());
 	return 0;
 }
@@ -46,10 +51,10 @@ int main(int argc, char *argv[]) {
 		int ok = lexParse(filename, tokenlist);
 		if (ok) ok = yaccReduce(tokenlist, asmfile[asmfile.size()-1],i);
 		if (ok) cout << "compile success" << endl;
-		else cout << "error";
+		else cout << "error\n";
 	}
-	string am = "dist\\assembler\\assembler.exe ";
-	for (int i = 0; i < filelist.size(); i++) am = am + asmfile[i] + " ";
+	string am = "..\\..\\assembler\\dist\\assembler\\assembler.exe ";
+	for (int i = 0; i < filelist.size(); i++) am = am + "./result" + "/" + asmfile[i] + " ";
 	am = am + "./result";
 	cout << am << endl;
 	system(am.c_str());

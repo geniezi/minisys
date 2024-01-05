@@ -1103,6 +1103,8 @@ void SeuLex::outputMinDFA() {
 			if (tmp == '\n') x = "\\n";
 			else if (tmp == '\r') x = "\\r";
 			else if (tmp == '\t') x = "\\t";
+			else if (tmp == '\'') x = "\\'";
+			else if (tmp == '\"') x = "\\\"";
 			out << "\ttran.insert(make_pair(\'" << x << "\'," << edge.second << "));\n";
 		}
 		out << "\t_minDFAStateTranfer->push_back(tran);\n";

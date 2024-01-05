@@ -7,6 +7,7 @@
 #include <iostream>
 #include <iomanip>
 #include "StructDefine.h"
+#include <windows.h>
 
 using namespace std;
 
