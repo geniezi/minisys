@@ -150,8 +150,8 @@ int storeToGetReg() {
 void imm2reg(int imm,int reg)
 {
 	int x_l = imm & ((1 << 13) - 1);
-	int x_u = (imm - x_l)>>12;
-	if (imm >> 11 & 1) x_u++;
+	int x_u = imm>>12;
+	if (imm >> 12 & 1) x_u++;
 	if (x_u==0)
 	{
 		assemblyCode.push_back(Assembly("addi", reg, "x0", x_l));
@@ -169,8 +169,8 @@ void imm2reg(int imm,int reg)
 void imm2reg(int imm, string reg)
 {
 	int x_l = imm & ((1 << 13) - 1);
-	int x_u = (imm - x_l) >> 12;
-	if (imm >> 11 & 1) x_u++;
+	int x_u = imm>>12;
+	if (imm >> 12 & 1) x_u++;
 	if (x_u == 0)
 	{
 		assemblyCode.push_back(Assembly("addi", reg, "x0", x_l));

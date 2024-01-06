@@ -1,7 +1,9 @@
 #include "lex.h"
 #include "yaccHelp.h"
 #include <windows.h>
-
+#include <sys/stat.h>
+#include <stdio.h>
+#include <direct.h>
 using namespace std;
 vector<string>asmfile;
 int main(int argc, char *argv[]) {
@@ -15,6 +17,10 @@ int main(int argc, char *argv[]) {
 	int pos = filename.find_last_of('/');
 	if(pos!=filename.npos) base = filename.substr(0, pos+1);
 	string out_path = argv[2];
+	struct stat st;
+	if (stat(out_path.c_str(), &st) != 0) {
+		cout<<"create new folder "<<out_path<<" "<<_mkdir(out_path.c_str())<<endl;
+	}
 	filelist.push_back(filename);
 	for (int i = 0; i < filelist.size(); i++) {
 		tokenlist.clear();
