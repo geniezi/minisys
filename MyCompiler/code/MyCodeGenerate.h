@@ -46,7 +46,7 @@ void fillVarState(int beginIndex, int endIndex, const VarSetType& outLiveVar, Va
 	// 遍历数据块中其他的四元式
 	for (int i = endIndex - 1; beginIndex <= i; --i) {
 		auto& code = middleCode.at(i);
-		if (code._type == 7) continue; // call N funName
+		if (code._type == 47) continue; // call N funName
 		if (code._arg1 == "#") { //当前函数结束
 			code._liveDes = Getvar(code._des)._live;
 			code._nextDes = Getvar(code._des)._nextUse;
@@ -198,7 +198,7 @@ void Assembly_A_BopC(const Quadruple& code) {
 		RValue->at(RegForA) = set;
 		RNextUse->at(RegForA) = code._nextDes;
 		Getvar(code._des)._inR = RegForA;
-		Getvar(code._des)._inM = false;
+		Getvar(code._des)._inM = true;
 	}
 	if (RegForB < 0) {
 		if (code._typeArg1)
@@ -247,6 +247,7 @@ void Assembly_A_BopC(const Quadruple& code) {
 		}
 	}
 	assemblyCode.push_back(Assembly(code._op, RegForA, RegForB, RegForC));
+	Getvar(code._des)._inM = false;
 	/*if (code._typeArg1) {
 		// B 为常量
 		if (RegForC < 0) {
@@ -437,6 +438,7 @@ void Assembly_A_opB(const Quadruple& code) {
 		Getvar(code._arg1)._inM = true;
 	}
 	assemblyCode.push_back(Assembly("sub", RegForA,"x0", RegForB));
+	Getvar(code._des)._inM = false;
 	/*int RegForB = Getvar(code._arg1)._inR;
 	if (RegForB < 0) {
 		// B不在register中
@@ -952,7 +954,7 @@ void Assembly_set(const Quadruple& code) {
 
 // generate condition choose
 // 对不同的四元式进行case选择生成对应的生成代码
-void GenerateAssembly(const Quadruple& code,int ind) {
+void GenerateAssembly(const Quadruple& code) {
 	/*
 		if (code._fun!= "") {
 			Assembly_function_prework(code);
@@ -977,7 +979,7 @@ void GenerateAssembly(const Quadruple& code,int ind) {
 	else if (code._type == 6) {
 		Assembly_param(code);
 	}
-	else if (code._type == 7) {
+	else if (code._type == 47) {
 		Assembly_call(code);
 	}
 	else if (code._type == 8) {
@@ -1086,8 +1088,11 @@ void tranlateIntoAssembly(string filename) {
 		map<int, BasicBlock> flowGragh;
 
 		deque<int> leaders(table->_leaders.begin(), table->_leaders.end());
-		leaders.push_back(table->_endIndex);
-
+		if(table->_leaders.count(table->_endIndex)==0) leaders.push_back(table->_endIndex);
+		/*sort(leaders.begin(), leaders.end());
+		int n = unique(leaders.begin(), leaders.end())- leaders.begin();
+		n = leaders.size() - n;
+		for (int i = 1; i <= n; i++) leaders.pop_back();*/
 		for (auto& leader : leaders) {
 			// use the beginIndex as block index
 			flowGragh.insert(make_pair(leader, BasicBlock(leader)));
@@ -1166,21 +1171,38 @@ void tranlateIntoAssembly(string filename) {
 			if (!label.empty()) {
 				AssemblyLabelMap.insert(make_pair(assemblyCode.size(), label));
 			}
-			for (int i = block._begin; i < block._end; ++i)
-				GenerateAssembly(middleCode.at(i),i);
-
-			// save live variables
-			for (int reg = 0; reg < REGISTER_NUM; ++reg) {
-				for (auto& var : RValue->at(reg)) {
-					if (block._outLiveVar.find(var) != block._outLiveVar.end()
-						&& Getvar(var)._inM == false) {
-						assemblyCode.push_back(Assembly("sw", reg, var));	// MOV var reg -> SW reg 0(var)
-						Getvar(var)._inM = true;
+			for (int i = block._begin; i < block._end-1; ++i)
+				GenerateAssembly(middleCode.at(i));
+			if (middleCode.at(block._end - 1)._type >= 40 && middleCode.at(block._end - 1)._type <= 46)
+			{
+				// save live variables
+				for (int reg = 0; reg < REGISTER_NUM; ++reg) {
+					for (auto& var : RValue->at(reg)) {
+						if (block._outLiveVar.find(var) != block._outLiveVar.end()
+							&& Getvar(var)._inM == false) {
+							assemblyCode.push_back(Assembly("sw", reg, var));	// MOV var reg -> SW reg 0(var)
+							Getvar(var)._inM = true;
+						}
+						Getvar(var)._inR = -1;
 					}
-					Getvar(var)._inR = -1;
+				}
+				GenerateAssembly(middleCode.at(block._end - 1));
+			}
+			else
+			{
+				GenerateAssembly(middleCode.at(block._end - 1));
+				// save live variables
+				for (int reg = 0; reg < REGISTER_NUM; ++reg) {
+					for (auto& var : RValue->at(reg)) {
+						if (block._outLiveVar.find(var) != block._outLiveVar.end()
+							&& Getvar(var)._inM == false) {
+							assemblyCode.push_back(Assembly("sw", reg, var));	// MOV var reg -> SW reg 0(var)
+							Getvar(var)._inM = true;
+						}
+						Getvar(var)._inR = -1;
+					}
 				}
 			}
-			
 		}
 	}
 	// reserve label

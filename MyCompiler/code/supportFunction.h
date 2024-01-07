@@ -185,6 +185,7 @@ string gen(int a) {
 }
 // 加入函数基本块开始入口，leaders为该函数所有基本块的入口序号
 void addLeader(int leaderIndex) {
+	//cout << leaderIndex << endl;
 	currentTable->_leaders.insert(leaderIndex);
 }
 
@@ -214,13 +215,9 @@ void emit(strType op, strType arg1, strType arg2, strType des) {
 	middleCode.push_back(Quadruple(op, arg1, arg2, des));
 	++nextInstr;
 	// 最后一个四元式操作类型为跳转
-	if (middleCode.back()._type == 20) {
-		addLeader(nextInstr);
-		addLeader(nextInstr-1);
-	}
 	// j rop B C LABEL_xxx
-	else if (20 < middleCode.back()._type && middleCode.back()._type < 27) {
-		addLeader(nextInstr); //不该-1
+	if (40 <= middleCode.back()._type && middleCode.back()._type < 47) {
+		addLeader(nextInstr); 
 	}
 	
 }
@@ -272,7 +269,8 @@ void outputMiddleCode(ofstream& middleCodeOut) {
 	for (int i = 0; i < middleCode.size(); ++i) {
 		auto& code = middleCode.at(i);
 		// 输出LABEL没有则为空
-		middleCodeOut << setw(13) << code._label + " : "; 
+		if(code._fun!="") middleCodeOut << setw(13) << code._fun + " : ";
+		else middleCodeOut << setw(13) << code._label + " : "; 
 		middleCodeOut << setw(3) << i << ") ";
 		middleCodeOut << setw(10) << code._op;
 		middleCodeOut << setw(10) << code._arg1;

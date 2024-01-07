@@ -16,12 +16,12 @@ pair<unsigned int, string> performAction(unsigned int index, map<string, string>
 	size_t stackSize = st.size() - 1;
 	switch(index) {
 	case 0 ://S->program 
-emit("nop","","","");
-
+		emit("nop","","","");
+		//addLeader(nextInstr);
 	return pair<unsigned int, string>(1,"S");
 
 	case 1 ://program->stmts 
-backpatch(st[stackSize - 1 + 1]._map["nextlist"],"LABEL_"+ gen(nextInstr));
+		backpatch(st[stackSize - 1 + 1]._map["nextlist"],"LABEL_"+ gen(nextInstr));
 
 	return pair<unsigned int, string>(1,"program");
 

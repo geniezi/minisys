@@ -13,7 +13,7 @@
 %left 'else'
 %%
 
-S : program {emit("nop","","","");}
+S : program {emit("nop","","",""); }
   ;
 program : stmts	{backpatch($1.nextlist,"LABEL_"+ gen(nextInstr));}
 	;
@@ -180,22 +180,22 @@ arg_list  : arg_list ',' expr { paramStack.push($3.place); }
           |  expr  { paramStack.push($1.place);	}
 	  | { }
 	  ;
-if_stmt : 'if' BlockLeader '(' logic_expr ')' M stmt {
-							backpatch($4.truelist, $6.instr);
-							$$.nextlist = merge($4.falselist, $7.nextlist);
+if_stmt : 'if' '(' logic_expr ')' M stmt {
+							backpatch($3.truelist, $5.instr);
+							$$.nextlist = merge($3.falselist, $6.nextlist);
 						     }
-	| 'if' BlockLeader '(' logic_expr ')' M stmt N 'else' M stmt {
-									backpatch($4.truelist, $6.instr);
-									backpatch($4.falselist, $10.instr);
-									$$.nextlist = merge(merge($7.nextlist, $8.instr), $11.nextlist);
+	| 'if' '(' logic_expr ')' M stmt N 'else' M stmt {
+									backpatch($3.truelist, $5.instr);
+									backpatch($3.falselist, $9.instr);
+									$$.nextlist = merge(merge($6.nextlist, $7.instr), $10.nextlist);
 								     }
 	;
-while_stmt : 'while' BlockLeader M '(' logic_expr ')' M stmt {
-								backpatch($8.nextlist, $3.instr);
-								backpatch($5.truelist, $7.instr);
-								$$.nextlist = $5.falselist;
-								emit("j","","",$3.instr);
-								addToLabel($3.instr);
+while_stmt : 'while' M '(' logic_expr ')' M stmt {
+								backpatch($7.nextlist, $2.instr);
+								backpatch($4.truelist, $6.instr);
+								$$.nextlist = $4.falselist;
+								emit("j","","",$2.instr);
+								addToLabel($2.instr);
 							     }
 	   ;
 logic_expr	: logic_expr '&&' M logic_expr {
