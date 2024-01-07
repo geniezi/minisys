@@ -1,7 +1,7 @@
 #include "../Driver/digits_driver.c"
 #include "../Driver/keyboard_driver.c"
 
-int Fibonacci(int n)//Recursive implementation
+int Fibonacci(int n)// Recursive implementation
 {
 	if (n == 1 || n == 2)
 	{

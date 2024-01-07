@@ -6,15 +6,18 @@ void display_digit(int loc, int num) {
   if (loc < 0) loc = 0;
   if (loc > 7) loc = 7;
   // deliver data
-  $0xFFFFFC00 = num;
-  $0xFFFFFC04 = loc;
+  // $0xFFFFFC00 = num;
+  // $0xFFFFFC04 = loc;
+  set_mem($0xFFFFFC00,num)
+  set_mem($0xFFFFFC04,loc)
   return;
 }
 
 void clear_digits(void) {
   __asm("nop");
   __asm("nop");
-  $0xFFFFFC04 = 8;
+  // $0xFFFFFC04 = 8;
+  set_mem($0xFFFFFC04,8)
   return;
 }
 
