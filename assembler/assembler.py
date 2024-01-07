@@ -209,7 +209,7 @@ def assemble_risc_v(assembly_code):
         if flag == 1:
             parts = line.strip().split()
             data[parts[1]] = parts[2]
-            continue;
+            continue
 
         if flag == 2:
             match = re.search(r'(.+) :', line)
@@ -275,7 +275,7 @@ def main(input_files, output_path):
     bios_code = linker.process_jal(funct, machine_code)
     print(machine_code)
 
-    linker.generate_ins_coe_file(bios_code, machine_code, output_path)
+    linker.generate_ins_coe_file(funct,bios_code, machine_code, output_path)
     linker.generate_data_coe_file(data, output_path)
 
 
