@@ -189,27 +189,18 @@ void Assembly_A_BopC(const Quadruple& code) {
 	int RegForC = Getvar(code._arg2)._inR;
 	int RegForB = Getvar(code._arg1)._inR;
 	int RegForA = Getvar(code._des)._inR;
-	if(RegForA<0)
-	{
-		RegForA = getEmptyReg(); // 分配空寄存器
-		if (RegForA < 0) RegForA = storeToGetReg(); // 获得替换寄存器
-		set<string> set;
-		set.insert(code._des);
-		RValue->at(RegForA) = set;
-		RNextUse->at(RegForA) = code._nextDes;
-		Getvar(code._des)._inR = RegForA;
-		Getvar(code._des)._inM = true;
-	}
 	if (RegForB < 0) {
 		if (code._typeArg1)
 		{
 			RegForB = getEmptyReg();
 			if (RegForB < 0) RegForB = storeToGetReg();
-			set<string> set;
-			RValue->at(RegForB) = set;
-			RNextUse->at(RegForB) = -1;
 			int x=atoi(code._arg1.c_str());
 			imm2reg(x, RegForB);
+			set<string> set; set.insert(code._arg1);
+			RValue->at(RegForB) = set;
+			RNextUse->at(RegForB) = -1;
+			Getvar(code._arg1)._inR = RegForB;
+			Getvar(code._arg1)._inM = true;
 		}
 		else
 		{
@@ -228,23 +219,36 @@ void Assembly_A_BopC(const Quadruple& code) {
 		{
 			RegForC = getEmptyReg();
 			if (RegForC < 0) RegForC = storeToGetReg();
-			set<string> set;
-			RValue->at(RegForC) = set;
-			RNextUse->at(RegForC) = -1;
 			int x = atoi(code._arg2.c_str());
 			imm2reg(x, RegForC);
+			set<string> set; set.insert(code._arg2);
+			RValue->at(RegForC) = set;
+			RNextUse->at(RegForC) = -1;
+			Getvar(code._arg2)._inR = RegForC;
+			Getvar(code._arg2)._inM = true;
 		}
 		else
 		{
 			RegForC = getEmptyReg();
 			if (RegForC < 0) RegForC = storeToGetReg();
-			set<string> set; set.insert(code._arg1);
+			set<string> set; set.insert(code._arg2);
 			RValue->at(RegForC) = set;
 			RNextUse->at(RegForC) = -1;
-			Getvar(code._arg1)._inR = RegForC;
-			Getvar(code._arg1)._inM = true;
-			assemblyCode.push_back(Assembly("lw", RegForC, code._arg1));
+			Getvar(code._arg2)._inR = RegForC;
+			Getvar(code._arg2)._inM = true;
+			assemblyCode.push_back(Assembly("lw", RegForC, code._arg2));
 		}
+	}
+	if (RegForA < 0)
+	{
+		RegForA = getEmptyReg(); // 分配空寄存器
+		if (RegForA < 0) RegForA = storeToGetReg(); // 获得替换寄存器
+		set<string> set;
+		set.insert(code._des);
+		RValue->at(RegForA) = set;
+		RNextUse->at(RegForA) = code._nextDes;
+		Getvar(code._des)._inR = RegForA;
+		Getvar(code._des)._inM = false;
 	}
 	assemblyCode.push_back(Assembly(code._op, RegForA, RegForB, RegForC));
 	Getvar(code._des)._inM = false;
@@ -411,6 +415,11 @@ void Assembly_A_opB(const Quadruple& code) {
 		if (RegForB < 0) RegForB = storeToGetReg();
 		int x = atoi(code._arg1.c_str());
 		imm2reg(x, RegForB);
+		set<string> set; set.insert(code._arg1);
+		RValue->at(RegForB) = set;
+		RNextUse->at(RegForB) = code._nextArg1;
+		Getvar(code._arg1)._inR = RegForB;
+		Getvar(code._arg1)._inM = true;
 	}
 	else
 	{
@@ -431,11 +440,11 @@ void Assembly_A_opB(const Quadruple& code) {
 		RegForA = getEmptyReg();
 		if (RegForA < 0) RegForA = storeToGetReg();
 		assemblyCode.push_back(Assembly("lw", RegForA, code._des));
-		set<string> set; set.insert(code._arg1);
+		set<string> set; set.insert(code._des);
 		RValue->at(RegForA) = set;
 		RNextUse->at(RegForA) = code._nextDes;
-		Getvar(code._arg1)._inR = RegForA;
-		Getvar(code._arg1)._inM = true;
+		Getvar(code._des)._inR = RegForA;
+		Getvar(code._des)._inM = true;
 	}
 	assemblyCode.push_back(Assembly("sub", RegForA,"x0", RegForB));
 	Getvar(code._des)._inM = false;
@@ -487,7 +496,7 @@ void Assembly_A_opB(const Quadruple& code) {
 	Getvar(code._des)._inM = false;*/
 }
 
-// code : A = B
+// code : B = A
 void Assembly_A_B(const Quadruple& code) {
 
 	if (code._typeArg1) {
@@ -532,6 +541,11 @@ void Assembly_A_B(const Quadruple& code) {
 		RegForB = getEmptyReg();
 		if (RegForB < 0) RegForB = storeToGetReg();
 		assemblyCode.push_back(Assembly("lw", RegForB,  code._arg1));	// MOV RegForB code._arg1 -> LW RegForB 0(code._arg1)
+		set<string> set; set.insert(code._arg1);
+		RValue->at(RegForB) = set;
+		RNextUse->at(RegForB) = code._nextArg1;
+		Getvar(code._arg1)._inR = RegForB;
+		Getvar(code._arg1)._inM = true;
 	}
 	//对于B的值在寄存器中的情况不需要生成汇编代码，直接插入A并更新A._inR
 	RValue->at(RegForB).insert(code._des);
@@ -555,6 +569,11 @@ void Assembly_jrop(const Quadruple& code) {
 	int judgment = 0;
 	int RegForResult = getEmptyReg();
 	if (RegForResult < 0) RegForResult = storeToGetReg();
+	addNum("1");
+	set<string> sset; sset.insert("1");
+	RValue->at(RegForResult) = sset;
+	RNextUse->at(RegForResult) = -1;
+
 	if (code._op == "j<" || code._op == "j>=")  judgment = 1;
 	if (code._op == "j>" || code._op == "j<=")  judgment = 2;
 
@@ -574,6 +593,11 @@ void Assembly_jrop(const Quadruple& code) {
 		}
 		else {
 			imm2reg(atoi(code._arg1.c_str()),RegForB);
+			set<string> set; set.insert(code._arg1);
+			RValue->at(RegForB) = set;
+			RNextUse->at(RegForB) = code._nextArg1;
+			Getvar(code._arg1)._inR = RegForB;
+			Getvar(code._arg1)._inM = true;
 		}
 	}	
 
@@ -593,12 +617,18 @@ void Assembly_jrop(const Quadruple& code) {
 		}
 		else {
 			imm2reg(atoi(code._arg2.c_str()), RegForC);
+			set<string> set; set.insert(code._arg2);
+			RValue->at(RegForC) = set;
+			RNextUse->at(RegForC) = code._nextArg2;
+			Getvar(code._arg2)._inR = RegForC;
+			Getvar(code._arg2)._inM = true;
 		}
 	}
 	if (judgment == 1)
 		assemblyCode.push_back(Assembly("slt", RegForResult, RegForB, RegForC));	// slt code._arg1 code._arg2
 	else if (judgment == 2)
 		assemblyCode.push_back(Assembly("slt", RegForResult, RegForC, RegForB));
+
 	
 	string jrop = "";
 	if (code._op == "j==")
@@ -672,11 +702,13 @@ void Assembly_call(const Quadruple& code) {
 			if (table->in(it)) {
 				if (table->at(it)._inM == false) {
 					assemblyCode.push_back(Assembly("sw", reg, table->at(it)._place));
+					table->at(it)._inM == true;
 				}
 			}
 			else if (globalTable->in(it)) {
 				if (globalTable->at(it)._inM == false) {
 					assemblyCode.push_back(Assembly("sw", reg, globalTable->at(it)._place));
+					globalTable->at(it)._inM == true;
 				}
 			}
 		}
@@ -777,6 +809,7 @@ void Assembly_return(const Quadruple& code) {
 			if (globalTable->in(it)) {
 				if (globalTable->at(it)._inM == false) {
 					assemblyCode.push_back(Assembly("sw", reg, globalTable->at(it)._place));
+					globalTable->at(it)._inM == true;
 				}
 			}
 		}
@@ -799,6 +832,11 @@ void Assembly_addr(const Quadruple& code) {
 		reg = getEmptyReg();
 		if (reg < 0) reg = storeToGetReg();
 		imm2reg(atoi(code._arg2.c_str()), reg);
+		set<string> set; set.insert(code._arg2);
+		RValue->at(reg) = set;
+		RNextUse->at(reg) = code._nextArg2;
+		Getvar(code._arg2)._inR = reg;
+		Getvar(code._arg2)._inM = true;
 	}
 	else
 	{
@@ -811,6 +849,7 @@ void Assembly_addr(const Quadruple& code) {
 			RValue->at(reg) = set;
 			RNextUse->at(reg) = code._nextArg2;
 			Getvar(code._arg2)._inR = reg;
+			Getvar(code._arg2)._inM = true;
 			assemblyCode.push_back(Assembly("lw", reg, code._arg2));
 		}
 	}
@@ -847,6 +886,7 @@ void Assembly_addroff(const Quadruple& code) {
 			RValue->at(reg) = set;
 			RNextUse->at(reg) = code._nextArg2;
 			Getvar(code._arg2)._inR = reg;
+			Getvar(code._arg2)._inM = true;
 			assemblyCode.push_back(Assembly("lw", reg, code._arg2));
 		}
 		assemblyCode.push_back(Assembly("sw", reg, "0(x9)"));
@@ -885,6 +925,11 @@ void Assembly_load(const Quadruple& code) {
 		regA = getEmptyReg();
 		if (regA < 0) regA = storeToGetReg();
 		imm2reg(atoi(code._arg1.c_str()), regA);
+		set<string> set; set.insert(code._arg1);
+		RValue->at(regA) = set;
+		RNextUse->at(regA) = code._nextArg1;
+		Getvar(code._arg1)._inR = regA;
+		Getvar(code._arg1)._inM = true;
 	}
 	else if (regA < 0)
 	{
@@ -908,7 +953,7 @@ void Assembly_load(const Quadruple& code) {
 	RValue->at(regB) = set;
 	RNextUse->at(regB) = code._nextDes;
 	Getvar(code._des)._inR = regB;
-	Getvar(code._des)._inM = false;
+	Getvar(code._des)._inM = true;
 }
 
 //set_mem(A,B);
@@ -919,6 +964,11 @@ void Assembly_set(const Quadruple& code) {
 		regA = getEmptyReg();
 		if (regA < 0) regA = storeToGetReg();
 		imm2reg(atoi(code._arg1.c_str()), regA);
+		set<string> set; set.insert(code._arg1);
+		RValue->at(regA) = set;
+		RNextUse->at(regA) = code._nextArg1;
+		Getvar(code._arg1)._inR = regA;
+		Getvar(code._arg1)._inM = true;
 	}
 	else if (regA < 0)
 	{
@@ -937,6 +987,11 @@ void Assembly_set(const Quadruple& code) {
 		regB = getEmptyReg();
 		if (regB < 0) regB = storeToGetReg();
 		imm2reg(atoi(code._arg2.c_str()), regB);
+		set<string> set; set.insert(code._arg2);
+		RValue->at(regB) = set;
+		RNextUse->at(regB) = code._nextArg2;
+		Getvar(code._arg2)._inR = regB;
+		Getvar(code._arg2)._inM = true;
 	}
 	else if (regB < 0)
 	{
