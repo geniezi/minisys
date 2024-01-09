@@ -103,11 +103,10 @@ void fillVarState(int beginIndex, int endIndex, const VarSetType& outLiveVar, Va
 
 // 获取空的寄存器标号
 int getEmptyReg() {
-	auto availReg = find(RValue->begin(), RValue->end(), set<string>());	// auto& -> auto
-	if (availReg != RValue->end()) {
-		return availReg - RValue->begin();
+	for (int i = 0; i < REGISTER_NUM; i++) {
+		if (RValue->at(i).empty()) return i;
 	}
-	else return -1;
+	return -1;
 }
 
 // 对于没有空寄存器情况找寄存器进行替换算法
@@ -1074,7 +1073,6 @@ void outputAssemblyCode(string filename) {
 	// output static data assemble code
 	out << ".data" << endl;
 	for (auto& var : globalTable->_field) {
-		//out << setw(5) << var._name;
 		// init value
 		out << "    .word";
 		out << setw(20) << var._name;
@@ -1130,24 +1128,11 @@ void tranlateIntoAssembly(string filename) {
 
 		table = tab;
 		if (table->_beginIndex == table->_endIndex) continue;
-		//if (tab->_funName != "global" && tab->_funName != "main")
-		//	assemblyCode.push_back(Assembly(tab->_funName + " :", "", "", ""));
-
-		// set DS to DATA segment
-		//if (tab->_funName == "main") {
-			//AssemblyLabelMap.insert(make_pair(assemblyCode.size(), tab->_funName));
-			// assemblyCode.push_back(Assembly("MOV", "AX", "@DATA"));
-			// assemblyCode.push_back(Assembly("MOV", "DS", "AX"));
-		//}
-
 		map<int, BasicBlock> flowGragh;
 
 		deque<int> leaders(table->_leaders.begin(), table->_leaders.end());
 		if(table->_leaders.count(table->_endIndex)==0) leaders.push_back(table->_endIndex);
-		/*sort(leaders.begin(), leaders.end());
-		int n = unique(leaders.begin(), leaders.end())- leaders.begin();
-		n = leaders.size() - n;
-		for (int i = 1; i <= n; i++) leaders.pop_back();*/
+
 		for (auto& leader : leaders) {
 			// use the beginIndex as block index
 			flowGragh.insert(make_pair(leader, BasicBlock(leader)));
@@ -1226,6 +1211,7 @@ void tranlateIntoAssembly(string filename) {
 			if (!label.empty()) {
 				AssemblyLabelMap.insert(make_pair(assemblyCode.size(), label));
 			}
+			//cout << block._begin << " " << block._end << endl;
 			for (int i = block._begin; i < block._end-1; ++i)
 				GenerateAssembly(middleCode.at(i));
 			if (middleCode.at(block._end - 1)._type >= 40 && middleCode.at(block._end - 1)._type <= 46)

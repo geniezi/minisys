@@ -185,7 +185,6 @@ string gen(int a) {
 }
 // 加入函数基本块开始入口，leaders为该函数所有基本块的入口序号
 void addLeader(int leaderIndex) {
-	//cout << leaderIndex << endl;
 	currentTable->_leaders.insert(leaderIndex);
 }
 

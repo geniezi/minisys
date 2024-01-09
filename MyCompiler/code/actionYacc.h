@@ -16,12 +16,12 @@ pair<unsigned int, string> performAction(unsigned int index, map<string, string>
 	size_t stackSize = st.size() - 1;
 	switch(index) {
 	case 0 ://S->program 
-		emit("nop","","","");
-		//addLeader(nextInstr);
+emit("nop","","","");
+ 
 	return pair<unsigned int, string>(1,"S");
 
 	case 1 ://program->stmts 
-		backpatch(st[stackSize - 1 + 1]._map["nextlist"],"LABEL_"+ gen(nextInstr));
+backpatch(st[stackSize - 1 + 1]._map["nextlist"],"LABEL_"+ gen(nextInstr));
 
 	return pair<unsigned int, string>(1,"program");
 
@@ -332,27 +332,27 @@ enter(st[stackSize - 2 + 2]._map["lexeme"],st[stackSize - 2 + 1]._map["type"],at
  
 	return pair<unsigned int, string>(0,"arg_list");
 
-	case 55 ://if_stmt->if BlockLeader ( logic_expr ) M stmt 
-							backpatch(st[stackSize - 7 + 4]._map["truelist"], st[stackSize - 7 + 6]._map["instr"]);
-							reduceHead["nextlist"] = merge(st[stackSize - 7 + 4]._map["falselist"], st[stackSize - 7 + 7]._map["nextlist"]);
+	case 55 ://if_stmt->if ( logic_expr ) M stmt 
+							backpatch(st[stackSize - 6 + 3]._map["truelist"], st[stackSize - 6 + 5]._map["instr"]);
+							reduceHead["nextlist"] = merge(st[stackSize - 6 + 3]._map["falselist"], st[stackSize - 6 + 6]._map["nextlist"]);
 						     
-	return pair<unsigned int, string>(7,"if_stmt");
+	return pair<unsigned int, string>(6,"if_stmt");
 
-	case 56 ://if_stmt->if BlockLeader ( logic_expr ) M stmt N else M stmt 
-									backpatch(st[stackSize - 11 + 4]._map["truelist"], st[stackSize - 11 + 6]._map["instr"]);
-									backpatch(st[stackSize - 11 + 4]._map["falselist"], st[stackSize - 11 + 10]._map["instr"]);
-									reduceHead["nextlist"] = merge(merge(st[stackSize - 11 + 7]._map["nextlist"], st[stackSize - 11 + 8]._map["instr"]), st[stackSize - 11 + 11]._map["nextlist"]);
+	case 56 ://if_stmt->if ( logic_expr ) M stmt N else M stmt 
+									backpatch(st[stackSize - 10 + 3]._map["truelist"], st[stackSize - 10 + 5]._map["instr"]);
+									backpatch(st[stackSize - 10 + 3]._map["falselist"], st[stackSize - 10 + 9]._map["instr"]);
+									reduceHead["nextlist"] = merge(merge(st[stackSize - 10 + 6]._map["nextlist"], st[stackSize - 10 + 7]._map["instr"]), st[stackSize - 10 + 10]._map["nextlist"]);
 								     
-	return pair<unsigned int, string>(11,"if_stmt");
+	return pair<unsigned int, string>(10,"if_stmt");
 
-	case 57 ://while_stmt->while BlockLeader M ( logic_expr ) M stmt 
-								backpatch(st[stackSize - 8 + 8]._map["nextlist"], st[stackSize - 8 + 3]._map["instr"]);
-								backpatch(st[stackSize - 8 + 5]._map["truelist"], st[stackSize - 8 + 7]._map["instr"]);
-								reduceHead["nextlist"] = st[stackSize - 8 + 5]._map["falselist"];
-								emit("j","","",st[stackSize - 8 + 3]._map["instr"]);
-								addToLabel(st[stackSize - 8 + 3]._map["instr"]);
+	case 57 ://while_stmt->while M ( logic_expr ) M stmt 
+								backpatch(st[stackSize - 7 + 7]._map["nextlist"], st[stackSize - 7 + 2]._map["instr"]);
+								backpatch(st[stackSize - 7 + 4]._map["truelist"], st[stackSize - 7 + 6]._map["instr"]);
+								reduceHead["nextlist"] = st[stackSize - 7 + 4]._map["falselist"];
+								emit("j","","",st[stackSize - 7 + 2]._map["instr"]);
+								addToLabel(st[stackSize - 7 + 2]._map["instr"]);
 							     
-	return pair<unsigned int, string>(8,"while_stmt");
+	return pair<unsigned int, string>(7,"while_stmt");
 
 	case 58 ://logic_expr->logic_expr && M logic_expr 
 				backpatch(st[stackSize - 4 + 1]._map["truelist"], st[stackSize - 4 + 3]._map["instr"]);
@@ -515,9 +515,9 @@ string getProduction(unsigned int index) {
 		case 52 :return "arg_list->arg_list , expr ";
 		case 53 :return "arg_list->expr ";
 		case 54 :return "arg_list->";
-		case 55 :return "if_stmt->if BlockLeader ( logic_expr ) M stmt ";
-		case 56 :return "if_stmt->if BlockLeader ( logic_expr ) M stmt N else M stmt ";
-		case 57 :return "while_stmt->while BlockLeader M ( logic_expr ) M stmt ";
+		case 55 :return "if_stmt->if ( logic_expr ) M stmt ";
+		case 56 :return "if_stmt->if ( logic_expr ) M stmt N else M stmt ";
+		case 57 :return "while_stmt->while M ( logic_expr ) M stmt ";
 		case 58 :return "logic_expr->logic_expr && M logic_expr ";
 		case 59 :return "logic_expr->logic_expr || M logic_expr ";
 		case 60 :return "logic_expr->! logic_expr ";
