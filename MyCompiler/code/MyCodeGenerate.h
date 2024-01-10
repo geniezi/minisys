@@ -577,6 +577,7 @@ void Assembly_jrop(const Quadruple& code) {
 	if (code._op == "j>" || code._op == "j<=")  judgment = 2;
 
 	int RegForB = Getvar(code._arg1)._inR;
+
 	if (RegForB < 0) {
 		// IN_R[B] != Ri
 		RegForB = getEmptyReg();
@@ -710,6 +711,7 @@ void Assembly_call(const Quadruple& code) {
 					globalTable->at(it)._inM == true;
 				}
 			}
+			Getvar(it)._inR = -1;
 		}
 		RValue->at(reg).clear();
 		RNextUse->at(reg) = -1;
@@ -811,6 +813,7 @@ void Assembly_return(const Quadruple& code) {
 					globalTable->at(it)._inM == true;
 				}
 			}
+			Getvar(it)._inR = -1;
 		}
 		RValue->at(reg).clear();
 		RNextUse->at(reg) = -1;
@@ -1202,7 +1205,6 @@ void tranlateIntoAssembly(string filename) {
 
 			string label = middleCode.at(block._begin)._label;
 			string fun = middleCode.at(block._begin)._fun;
-			//if (!label.empty() && label != "main") {
 			if (!fun.empty())
 			{
 				AssemblyFunMap.insert(make_pair(assemblyCode.size(), fun));
@@ -1224,10 +1226,14 @@ void tranlateIntoAssembly(string filename) {
 							assemblyCode.push_back(Assembly("sw", reg, var));	// MOV var reg -> SW reg 0(var)
 							Getvar(var)._inM = true;
 						}
-						Getvar(var)._inR = -1;
 					}
 				}
 				GenerateAssembly(middleCode.at(block._end - 1));
+				for (int reg = 0; reg < REGISTER_NUM; ++reg) {
+					for (auto& var : RValue->at(reg)) {
+						Getvar(var)._inR = -1;
+					}
+				}
 			}
 			else
 			{
