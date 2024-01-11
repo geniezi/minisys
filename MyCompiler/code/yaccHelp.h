@@ -80,7 +80,12 @@ bool yaccReduce(list<Token> _tokenList,string filename,int file_t) {
 			// let state t now be on top of stack
 			const auto& tableitem = _parseTable.find(st.back()._state)->second;
 			auto found = tableitem.find(item.second);
-			if (found == tableitem.end()) errorReduce(token);
+			if (found == tableitem.end())
+			{
+				errorReduce(token);
+				ok = 0;
+				return false;
+			}
 			unsigned int goto_state = found->second._index;
 			// push GOTO[t, A] onto stack
 			st.push_back(StackItem(goto_state, item.second, reduceHead));

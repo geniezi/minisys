@@ -39,7 +39,8 @@ void Lexerror(string er) {
 	write << er << endl;
 }
 bool read() {
-	if (_offset == -1) {
+	if (_offset == strlen(_buffer)|| _offset==-2) {
+		_offset = -1;
 		if (!_reFile.eof()) {
 			_reFile.getline(_buffer, 1000);
 			++_line;
@@ -49,8 +50,7 @@ bool read() {
 	}
 	++_offset;
 	if (_offset == strlen(_buffer)) {
-		_offset = -1;
-		_peek = ' ';
+		_peek = '\n';
 	}
 	else {
 		_peek = _buffer[_offset];
@@ -61,8 +61,8 @@ bool read() {
 
 // content : retract the char back to stream
 void retract() {
-	if (_offset == -1) _offset = strlen(_buffer);
 	_offset -= 1;
+	//_peek = _buffer[_offset];
 }
 
 // return : innerCode in _symbolTable
@@ -96,7 +96,7 @@ bool parseToken(const string& file, list<Token>& tokenList) {
 	//_symbolTable = new map<string, unsigned int>();
 	_buffer = new char[1000];
 	_line = 0;
-	_offset = -1;
+	_offset = -2;
 	
 	unsigned int _state = 0;
 	string _lexeme = "";
@@ -125,7 +125,7 @@ bool parseToken(const string& file, list<Token>& tokenList) {
 				{
 					_state = 0;
 					_lexeme = "";
-					_offset = -1;
+					_offset = -2;
 					continue;
 				}
 				//cout << _lexeme << endl;
@@ -137,22 +137,23 @@ bool parseToken(const string& file, list<Token>& tokenList) {
 				}
 				// 记录一个token
 				if(performAction(_state)!="ws")
-					tokenList.push_back(Token(_lexeme, performAction(_state), _innerCode, _line, _offset==-1?strlen(_buffer):_offset));
+					tokenList.push_back(Token(_lexeme, performAction(_state), _innerCode, _line, _offset==-2?strlen(_buffer):_offset));
 				// 重置从初始状态找下一个token
 				_state = 0;
 				_lexeme = "";
-				if (_peek != ' ' && _peek != '\t' && _peek != '\n') retract();
-				//retract();
+				//if (_peek != ' ' && _peek != '\t' && _peek != '\n') retract();
+				retract();
 			}
 			else {
 				if (_peek == ' ' || _peek == '\t' || _peek == '\n')
 				{
+					cout << "omit error\n";
 					_state = 0;
 					_lexeme = "";
 					continue;
 				}
 				else {
-					Lexerror("lexical analysis error at line " + to_string(_line) + ",offset " + to_string(_offset == -1 ? strlen(_buffer) : _offset));
+					Lexerror("lexical analysis error at line " + to_string(_line) + ",offset " + to_string(_offset == -2 ? strlen(_buffer) : _offset));
 					ok = 0;
 					break;
 				}

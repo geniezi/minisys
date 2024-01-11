@@ -78,9 +78,7 @@ struct SymbolTable {
 
 	// function
 	SymbolTable(const  string& name) : _funName(name) {
-		//RValue.resize(REGISTER_NUM);
-		//RNextUse.resize(REGISTER_NUM);
-		// fill_n(RNextUse.begin(), REGISTER_NUM, -1);
+		
 	}
 	// add local variable into symbol table
 	 string enter(const  string& name, const string& type, unsigned int space, bool placeFlag = true, const string value="") {

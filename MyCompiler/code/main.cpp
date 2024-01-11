@@ -36,7 +36,11 @@ int main(int argc, char *argv[]) {
 		int ok = lexParse(nname, tokenlist);
 		if (ok) ok = yaccReduce(tokenlist, asmfile[asmfile.size() - 1], i);
 		if (ok) cout << "compile success" << endl;
-		else cout << "error\n";
+		else
+		{
+			cout << "error\n";
+			return 0;
+		}
 	}
 	string am = "..\\..\\assembler\\dist\\assembler\\assembler.exe ";
 	for (int i = 0; i < filelist.size(); i++) am = am +asmfile[i] + " ";

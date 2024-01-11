@@ -261,6 +261,7 @@ void backpatch(string p, string label) {
 void addToLabel(string t)
 {
 	labelMap.insert(make_pair(atoi(t.substr(6).c_str()), t));
+	addLeader(atoi(t.substr(6).c_str()));
 }
 // output middle code
 void outputMiddleCode(ofstream& middleCodeOut) {

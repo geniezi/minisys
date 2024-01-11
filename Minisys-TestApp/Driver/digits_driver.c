@@ -8,16 +8,15 @@ void display_digit(int loc, int num) {
   // deliver data
   // $0xFFFFFC00 = num;
   // $0xFFFFFC04 = loc;
-  set_mem($0xFFFFFC00,num)
-  set_mem($0xFFFFFC04,loc)
+  set_mem(0xFFFFFC00,num);
+  set_mem(0xFFFFFC04,loc);
   return;
 }
 
-void clear_digits(void) {
-  __asm("nop");
-  __asm("nop");
+void clear_digits() {
+  int x=8;
   // $0xFFFFFC04 = 8;
-  set_mem($0xFFFFFC04,8)
+  set_mem(0xFFFFFC04,x);
   return;
 }
 

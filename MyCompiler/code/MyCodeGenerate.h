@@ -36,18 +36,16 @@ varState& Getvar(string place)
 // live_nextuse algorithm 变量活跃与待用信息计算
 void fillVarState(int beginIndex, int endIndex, const VarSetType& outLiveVar, VarSetType& inLiveVar) {
 	// table init with outLiveVar
-
 	// 出口活跃变量_live属性设置为活跃true
 	for (auto& var : outLiveVar) {
 		Getvar(var)._live = true;
 		Getvar(var)._nextUse = endIndex;
 	}
-
 	// 遍历数据块中其他的四元式
 	for (int i = endIndex - 1; beginIndex <= i; --i) {
 		auto& code = middleCode.at(i);
 		if (code._type == 47) continue; // call N funName
-		if (code._arg1 == "#") { //当前函数结束
+		if (code._arg1 == "#") { //处理返回值
 			code._liveDes = Getvar(code._des)._live;
 			code._nextDes = Getvar(code._des)._nextUse;
 			Getvar(code._des)._live = false;
@@ -57,33 +55,24 @@ void fillVarState(int beginIndex, int endIndex, const VarSetType& outLiveVar, Va
 		bool desExsitFlag = !(code._des.empty() || code._op[0] == 'j');
 		bool arg1ExsitFlag = !code._arg1.empty();
 		bool arg2ExsitFlag = !code._arg2.empty();
-
-		// 将符号表中变量A, B, C的Live与Next - Use填到变量A, B, C的附加信息两栏内
-
 		// fill code var state live from symbol table
 		if (desExsitFlag) code._liveDes = Getvar(code._des)._live;
 		if (arg1ExsitFlag) code._liveArg1 = Getvar(code._arg1)._live;
 		if (arg2ExsitFlag) code._liveArg2 = Getvar(code._arg2)._live;
-
 		// fill code var state next use from symbol table
 		if (desExsitFlag) code._nextDes = Getvar(code._des)._nextUse;
 		if (arg1ExsitFlag) code._nextArg1 = Getvar(code._arg1)._nextUse;
 		if (arg2ExsitFlag) code._nextArg2 = Getvar(code._arg2)._nextUse;
-
 		// erase des state in symbol table
-		// 清除符号表中A的Live和Next - Use项
 		if (desExsitFlag) {
 			Getvar(code._des)._live = false;
 			Getvar(code._des)._nextUse = -1;
 		}
-
 		// set arg1,arg2 state in symbol table
-		// 将符号表中B, C的Live置为true, Next - Use置为i
 		if (arg1ExsitFlag) {
 			Getvar(code._arg1)._live = true;
 			Getvar(code._arg1)._nextUse = i;
 		}
-
 		if (arg2ExsitFlag) {
 			Getvar(code._arg2)._live = true;
 			Getvar(code._arg2)._nextUse = i;
@@ -115,30 +104,40 @@ int storeToGetReg() {
 	int furthestUseCode = -1;
 	int regReturn = -1;
 	for (int Reg = 0; Reg < REGISTER_NUM; ++Reg) {
-		// find one reg whose var has copy in memory and will be uesd furthest
-		int varNotInM = 0;
+		int ok = 1;
 		for (const auto& var : RValue->at(Reg)) {
 			if (Getvar(var)._inM == false)
-				++varNotInM;
+				ok = 0;
 		}
-		// 腾出寄存器Ri
-		if (0 < varNotInM && furthestUseCode < RNextUse->at(Reg)) {
+		if (ok)
+		{
 			regReturn = Reg;
-			furthestUseCode = RNextUse->at(Reg);
+			break;
 		}
 	}
 	if (regReturn < 0) {
-		// when all var not in memoty
-		// need optimize
-		// do not optimize
-		regReturn = 0;
+		for (int Reg = 0; Reg < REGISTER_NUM; ++Reg) {
+			// find one reg whose var has copy in memory and will be uesd furthest
+			int varNotInM = 0;
+			for (const auto& var : RValue->at(Reg)) {
+				if (Getvar(var)._inM == false)
+					++varNotInM;
+			}
+			// 腾出寄存器Ri
+			if (0 < varNotInM && furthestUseCode < RNextUse->at(Reg)) {
+				regReturn = Reg;
+				furthestUseCode = RNextUse->at(Reg);
+			}
+		}
+		if (regReturn < 0) {
+			// when all var not in memoty
+				regReturn = 0;
+		}
 	}
-
 	// store var not in memory
 	for (auto& var : RValue->at(regReturn)) {
 		if (Getvar(var)._inM == false) {
-			// 仅当Ri的内容在内存中无副本时生成
-			assemblyCode.push_back(Assembly("sw", regReturn, var));	// MOV regReturn var -> ADDI regReturn var 0
+			assemblyCode.push_back(Assembly("sw", regReturn, var));	
 		}
 		Getvar(var)._inR = -1;	//不在任何寄存器中
 		Getvar(var)._inM = true; //在内存中有副本
@@ -184,10 +183,7 @@ void imm2reg(int imm, string reg)
 // code : A = B op C
 // _des, _arg1, _arg2
 void Assembly_A_BopC(const Quadruple& code) {
-
-	int RegForC = Getvar(code._arg2)._inR;
 	int RegForB = Getvar(code._arg1)._inR;
-	int RegForA = Getvar(code._des)._inR;
 	if (RegForB < 0) {
 		if (code._typeArg1)
 		{
@@ -213,6 +209,7 @@ void Assembly_A_BopC(const Quadruple& code) {
 			assemblyCode.push_back(Assembly("lw", RegForB, code._arg1));
 		}
 	}
+	int RegForC = Getvar(code._arg2)._inR;
 	if (RegForC < 0) {
 		if (code._typeArg2)
 		{
@@ -238,6 +235,7 @@ void Assembly_A_BopC(const Quadruple& code) {
 			assemblyCode.push_back(Assembly("lw", RegForC, code._arg2));
 		}
 	}
+	int RegForA = Getvar(code._des)._inR;
 	if (RegForA < 0)
 	{
 		RegForA = getEmptyReg(); // 分配空寄存器
@@ -548,14 +546,14 @@ void Assembly_A_B(const Quadruple& code) {
 	}
 	//对于B的值在寄存器中的情况不需要生成汇编代码，直接插入A并更新A._inR
 	RValue->at(RegForB).insert(code._des);
+	RNextUse->at(RegForB) = min(RNextUse->at(RegForB), code._nextDes);
+	RValue->at(Getvar(code._des)._inR).erase(code._des);
 	Getvar(code._des)._inR = RegForB;
 	Getvar(code._des)._inM = false;
 	if (code._liveArg1 == false) {
 		RValue->at(RegForB).erase(code._arg1);
 		Getvar(code._arg1)._inR = -1;
 	}
-	// 为防止指令标签位置出错，生成“nop”指令以进行过渡
-	//assemblyCode.push_back(Assembly("addi", "x0", "x0", 0));
 }
 
 // code : j LABEL_xxx
@@ -1132,22 +1130,20 @@ void tranlateIntoAssembly(string filename) {
 		table = tab;
 		if (table->_beginIndex == table->_endIndex) continue;
 		map<int, BasicBlock> flowGragh;
-
 		deque<int> leaders(table->_leaders.begin(), table->_leaders.end());
-		if(table->_leaders.count(table->_endIndex)==0) leaders.push_back(table->_endIndex);
-
+		if (table->_leaders.count(table->_endIndex) == 0) leaders.push_back(table->_endIndex);
 		for (auto& leader : leaders) {
 			// use the beginIndex as block index
 			flowGragh.insert(make_pair(leader, BasicBlock(leader)));
 		}
+		//for (auto& leader : leaders) {cout << leader << ",";}
+		//cout << endl;
 
 		int beginIndex = leaders.front();
 		auto cur = leaders.begin(); ++cur;	
 		int endIndex = beginIndex;
 		while (cur != leaders.end() ) {
-
 			endIndex = *cur;
-
 			auto& block = flowGragh.at(beginIndex);
 			block._end = endIndex;
 			auto& code = middleCode.at(endIndex - 1);
@@ -1174,11 +1170,9 @@ void tranlateIntoAssembly(string filename) {
 				block._successors.push_back(endIndex);
 				flowGragh.at(endIndex)._predecessors.push_back(beginIndex);
 			}
-
 			beginIndex = endIndex;
 			++cur;
 		}
-
 		// fill outLiveVar and inLiveVar info
 		for (auto blockIndex = leaders.rbegin() + 1; blockIndex != leaders.rend(); ++blockIndex) {	// auto& -> auto
 
@@ -1193,7 +1187,6 @@ void tranlateIntoAssembly(string filename) {
 				flowGragh.at(predecessor)._outLiveVar = newVars;
 			}
 		}
-
 		// generate assembly codes for each basic block
 		for (auto blockIndex = leaders.begin(); blockIndex != leaders.end() - 1; ++blockIndex) {	// auto& -> auto
 
@@ -1213,7 +1206,7 @@ void tranlateIntoAssembly(string filename) {
 			if (!label.empty()) {
 				AssemblyLabelMap.insert(make_pair(assemblyCode.size(), label));
 			}
-			//cout << block._begin << " " << block._end << endl;
+		//	cout << block._begin << " " << block._end << endl;
 			for (int i = block._begin; i < block._end-1; ++i)
 				GenerateAssembly(middleCode.at(i));
 			if (middleCode.at(block._end - 1)._type >= 40 && middleCode.at(block._end - 1)._type <= 46)

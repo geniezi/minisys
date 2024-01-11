@@ -29,6 +29,7 @@ stmt	: includestmt {}
 	| 'static' var_decl ';' { $$.nextlist = $2.nextlist; }
 	| expr_stmt ';' {$$.nextlist = $1.nextlist;}
 	| 'return' expr ';' { emit("return",$2.place,"",""); }
+	| 'return' ';' { emit("return","","",""); }
 	| 'set_mem' '(' expr ',' expr ')' ';' { emit("set",$3.place,$5.place,""); }
 	| ';' { }
 	;

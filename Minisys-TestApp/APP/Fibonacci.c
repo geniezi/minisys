@@ -22,8 +22,8 @@ int main()
     n = read_keyboard();
 	ret = Fibonacci(n);
     while(delayer>=0){
-	delayer=delayer-1;
-    smart_display_digit(ret);
+		delayer=delayer-1;
+		smart_display_digit(ret);
     }
     }
 	return 0;
