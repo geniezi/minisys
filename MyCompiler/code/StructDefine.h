@@ -20,8 +20,8 @@ const int REGISTER_NUM = 17;
 void error(string err) {
 	fstream write;
 	write.open("compiler.log", ios::out);
-	write << "Syntax-directed translation error: " + err + " at line:"<< errorline << endl;
-	cout << "Syntax-directed translation error: " + err + " at line:" << errorline <<endl;
+	write << "Syntax-directed translation error: " + err << endl;
+	cout << "Syntax-directed translation error: " + err  <<endl;
 	exit(1);
 }
 //typedef unsigned int ACTION_TYPE;

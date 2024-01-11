@@ -16,19 +16,17 @@ pair<unsigned int, string> performAction(unsigned int index, map<string, string>
 	size_t stackSize = st.size() - 1;
 	switch(index) {
 	case 0 ://S->program 
-emit("nop","","","");
  
 	return pair<unsigned int, string>(1,"S");
 
 	case 1 ://program->stmts 
 backpatch(st[stackSize - 1 + 1]._map["nextlist"],"LABEL_"+ gen(nextInstr));
-
 	return pair<unsigned int, string>(1,"program");
 
 	case 2 ://stmts->stmts M stmt 
  backpatch(st[stackSize - 3 + 1]._map["nextlist"], st[stackSize - 3 + 2]._map["instr"]);
  reduceHead["nextlist"] = st[stackSize - 3 + 3]._map["nextlist"];
-
+	
 	return pair<unsigned int, string>(3,"stmts");
 
 	case 3 ://stmts->stmt 
@@ -46,6 +44,7 @@ backpatch(st[stackSize - 1 + 1]._map["nextlist"],"LABEL_"+ gen(nextInstr));
 	return pair<unsigned int, string>(3,"stmt");
 
 	case 6 ://stmt->fun_define 
+	emit("nop", "", "", "");
 	returnToGlobalTable();
  reduceHead["nextlist"] = st[stackSize - 1 + 1]._map["nextlist"];
  
@@ -86,39 +85,44 @@ reduceHead["nextlist"] = st[stackSize - 2 + 1]._map["nextlist"];
  
 	return pair<unsigned int, string>(2,"stmt");
 
-	case 14 ://stmt->set_mem ( expr , expr ) ; 
+	case 14 ://stmt->call_stmt ; 
+reduceHead["nextlist"] = st[stackSize - 2 + 1]._map["nextlist"];
+ 
+	return pair<unsigned int, string>(2,"stmt");
+
+	case 15 ://stmt->set_mem ( expr , expr ) ; 
  emit("set",st[stackSize - 7 + 3]._map["place"],st[stackSize - 7 + 5]._map["place"],"");
  
 	return pair<unsigned int, string>(7,"stmt");
 
-	case 15 ://stmt->; 
+	case 16 ://stmt->; 
  
 	return pair<unsigned int, string>(1,"stmt");
 
-	case 16 ://includestmt->include " filename " 
+	case 17 ://includestmt->include " filename " 
  filelist.push_back(st[stackSize - 4 + 3]._map["lexeme"]);
  
 	return pair<unsigned int, string>(4,"includestmt");
 
-	case 17 ://includestmt->include < filename > 
+	case 18 ://includestmt->include < filename > 
  filelist.push_back(st[stackSize - 4 + 3]._map["lexeme"]);
  
 	return pair<unsigned int, string>(4,"includestmt");
 
-	case 18 ://fun_define->fun_decl_head BlockLeader { stmts } 
+	case 19 ://fun_define->fun_decl_head BlockLeader { stmts } 
  reduceHead["name"] = st[stackSize - 5 + 1]._map["name"];
  reduceHead["nextlist"]=st[stackSize - 5 + 4]._map["nextlist"];
  
 	return pair<unsigned int, string>(5,"fun_define");
 
-	case 19 ://fun_decl_head->type_spec id ( ) 
+	case 20 ://fun_decl_head->type_spec id ( ) 
  reduceHead["name"] = st[stackSize - 4 + 2]._map["lexeme"];
  					 createSymbolTable(st[stackSize - 4 + 2]._map["lexeme"], atoi(st[stackSize - 4 + 1]._map["width"].c_str()));
  					 addFunLabel(nextInstr, st[stackSize - 4 + 2]._map["lexeme"]);
 
 	return pair<unsigned int, string>(4,"fun_decl_head");
 
-	case 20 ://fun_decl_head->type_spec id ( param_list ) 
+	case 21 ://fun_decl_head->type_spec id ( param_list ) 
  			reduceHead["name"] = st[stackSize - 5 + 2]._map["lexeme"];
  			createSymbolTable(st[stackSize - 5 + 2]._map["lexeme"], atoi(st[stackSize - 5 + 1]._map["width"].c_str()));
  			addToSymbolTable(st[stackSize - 5 + 4]._map["itemlist"]);
@@ -126,86 +130,86 @@ reduceHead["nextlist"] = st[stackSize - 2 + 1]._map["nextlist"];
 
 	return pair<unsigned int, string>(5,"fun_decl_head");
 
-	case 21 ://param_list->param_list , param 
+	case 22 ://param_list->param_list , param 
  reduceHead["itemlist"] = st[stackSize - 3 + 1]._map["itemlist"]  +  st[stackSize - 3 + 3]._map["itemlist"];
  
 	return pair<unsigned int, string>(3,"param_list");
 
-	case 22 ://param_list->param 
+	case 23 ://param_list->param 
  reduceHead["itemlist"] = st[stackSize - 1 + 1]._map["itemlist"];
  
 	return pair<unsigned int, string>(1,"param_list");
 
-	case 23 ://param->type_spec id 
+	case 24 ://param->type_spec id 
  reduceHead["itemlist"] = makeParam(st[stackSize - 2 + 2]._map["lexeme"],st[stackSize - 2 + 1]._map["type"],atoi(st[stackSize - 2 + 1]._map["width"].c_str()));
  
 	return pair<unsigned int, string>(2,"param");
 
-	case 24 ://param->type_spec id [ num ] 
+	case 25 ://param->type_spec id [ num ] 
 			reduceHead["itemlist"] = makeParam(st[stackSize - 5 + 2]._map["lexeme"],make_array(atoi(st[stackSize - 5 + 4]._map["lexeme"].c_str()),st[stackSize - 5 + 1]._map["type"]),atoi(st[stackSize - 5 + 4]._map["lexeme"].c_str()) * atoi(st[stackSize - 5 + 1]._map["width"].c_str()));
  			
 	return pair<unsigned int, string>(5,"param");
 
-	case 25 ://var_decl->type_spec id 
+	case 26 ://var_decl->type_spec id 
 enter(st[stackSize - 2 + 2]._map["lexeme"],st[stackSize - 2 + 1]._map["type"],atoi(st[stackSize - 2 + 1]._map["width"].c_str()));
  
 	return pair<unsigned int, string>(2,"var_decl");
 
-	case 26 ://var_decl->type_spec id = expr 
+	case 27 ://var_decl->type_spec id = expr 
 		p = enter(st[stackSize - 4 + 2]._map["lexeme"],st[stackSize - 4 + 1]._map["type"],atoi(st[stackSize - 4 + 1]._map["width"].c_str()));
  		emit("MOV",st[stackSize - 4 + 4]._map["place"],"",p);
  		
 	return pair<unsigned int, string>(4,"var_decl");
 
-	case 27 ://var_decl->type_spec id [ num ] 
+	case 28 ://var_decl->type_spec id [ num ] 
 		enter(st[stackSize - 5 + 2]._map["lexeme"],make_array(atoi(st[stackSize - 5 + 4]._map["lexeme"].c_str()),st[stackSize - 5 + 1]._map["type"]),atoi(st[stackSize - 5 + 4]._map["lexeme"].c_str()) * atoi(st[stackSize - 5 + 1]._map["width"].c_str()));
  	
 	return pair<unsigned int, string>(5,"var_decl");
 
-	case 28 ://type_spec->int 
+	case 29 ://type_spec->int 
  reduceHead["type"] = "int";
 		    reduceHead["width"] = "4";
 		   
 	return pair<unsigned int, string>(1,"type_spec");
 
-	case 29 ://type_spec->double 
+	case 30 ://type_spec->double 
 	reduceHead["type"] = "double";
 			reduceHead["width"] = "8";
 		      
 	return pair<unsigned int, string>(1,"type_spec");
 
-	case 30 ://type_spec->void 
+	case 31 ://type_spec->void 
  reduceHead["type"] = "void";
 		    reduceHead["width"] = "0";
 		    
 	return pair<unsigned int, string>(1,"type_spec");
 
-	case 31 ://type_spec->char 
+	case 32 ://type_spec->char 
  reduceHead["type"] = "char";
 		    reduceHead["width"] = "1";
 		    
 	return pair<unsigned int, string>(1,"type_spec");
 
-	case 32 ://type_spec->bool 
+	case 33 ://type_spec->bool 
  reduceHead["type"] = "bool";
 		    reduceHead["width"] = "1";
 		    
 	return pair<unsigned int, string>(1,"type_spec");
 
-	case 33 ://type_spec->float 
+	case 34 ://type_spec->float 
  reduceHead["type"] = "float";
 		    reduceHead["width"] = "4";
 		    
 	return pair<unsigned int, string>(1,"type_spec");
 
-	case 34 ://expr_stmt->id = expr 
+	case 35 ://expr_stmt->id = expr 
  			p = lookupPlace(st[stackSize - 3 + 1]._map["lexeme"]);
  			if (p.empty()) error("undefined variable used");
  			emit("MOV",st[stackSize - 3 + 3]._map["place"],"",p);
  			
 	return pair<unsigned int, string>(3,"expr_stmt");
 
-	case 35 ://expr_stmt->id [ expr ] = expr 
+	case 36 ://expr_stmt->id [ expr ] = expr 
 			{				string ty=getType(st[stackSize - 6 + 1]._map["lexeme"]);
 				if(ty.find("array")==ty.npos) error(ty+"cannot be converted to array");
 				emit("MOVaddr",lookupPlace(st[stackSize - 6 + 1]._map["lexeme"]),st[stackSize - 6 + 3]._map["place"],"");
@@ -213,77 +217,77 @@ enter(st[stackSize - 2 + 2]._map["lexeme"],st[stackSize - 2 + 1]._map["type"],at
 			}			
 	return pair<unsigned int, string>(6,"expr_stmt");
 
-	case 36 ://expr->expr + expr 
+	case 37 ://expr->expr + expr 
                 	reduceHead["place"] = newtemp(st[stackSize - 3 + 1]._map["place"]);
 			emit("add", st[stackSize - 3 + 1]._map["place"], st[stackSize - 3 + 3]._map["place"], reduceHead["place"]);
                      
 	return pair<unsigned int, string>(3,"expr");
 
-	case 37 ://expr->expr - expr 
+	case 38 ://expr->expr - expr 
                 	reduceHead["place"] = newtemp(st[stackSize - 3 + 1]._map["place"]);
 			emit("sub", st[stackSize - 3 + 1]._map["place"], st[stackSize - 3 + 3]._map["place"], reduceHead["place"]);
                      
 	return pair<unsigned int, string>(3,"expr");
 
-	case 38 ://expr->expr * expr 
+	case 39 ://expr->expr * expr 
                 	reduceHead["place"] = newtemp(st[stackSize - 3 + 1]._map["place"]);
 			emit("mul", st[stackSize - 3 + 1]._map["place"], st[stackSize - 3 + 3]._map["place"], reduceHead["place"]);
                      
 	return pair<unsigned int, string>(3,"expr");
 
-	case 39 ://expr->expr / expr 
+	case 40 ://expr->expr / expr 
                 	reduceHead["place"] = newtemp(st[stackSize - 3 + 1]._map["place"]);
 			emit("div", st[stackSize - 3 + 1]._map["place"], st[stackSize - 3 + 3]._map["place"], reduceHead["place"]);
                      
 	return pair<unsigned int, string>(3,"expr");
 
-	case 40 ://expr->expr % expr 
+	case 41 ://expr->expr % expr 
                 	reduceHead["place"] = newtemp(st[stackSize - 3 + 1]._map["place"]);
 			emit("rem", st[stackSize - 3 + 1]._map["place"], st[stackSize - 3 + 3]._map["place"], reduceHead["place"]);
                      
 	return pair<unsigned int, string>(3,"expr");
 
-	case 41 ://expr->expr & expr 
+	case 42 ://expr->expr & expr 
                 	reduceHead["place"] = newtemp(st[stackSize - 3 + 1]._map["place"]);
 			emit("and", st[stackSize - 3 + 1]._map["place"], st[stackSize - 3 + 3]._map["place"], reduceHead["place"]);
                      
 	return pair<unsigned int, string>(3,"expr");
 
-	case 42 ://expr->expr | expr 
+	case 43 ://expr->expr | expr 
                 	reduceHead["place"] = newtemp(st[stackSize - 3 + 1]._map["place"]);
 			emit("or", st[stackSize - 3 + 1]._map["place"], st[stackSize - 3 + 3]._map["place"], reduceHead["place"]);
 			                     
 	return pair<unsigned int, string>(3,"expr");
 
-	case 43 ://expr->expr ^ expr 
+	case 44 ://expr->expr ^ expr 
                 	reduceHead["place"] = newtemp(st[stackSize - 3 + 1]._map["place"]);
 			emit("xor", st[stackSize - 3 + 1]._map["place"], st[stackSize - 3 + 3]._map["place"], reduceHead["place"]);
                      
 	return pair<unsigned int, string>(3,"expr");
 
-	case 44 ://expr->expr >> expr 
+	case 45 ://expr->expr >> expr 
                 	reduceHead["place"] = newtemp(st[stackSize - 3 + 1]._map["place"]);
 			emit("srl", st[stackSize - 3 + 1]._map["place"], st[stackSize - 3 + 3]._map["place"], reduceHead["place"]);
                       
 	return pair<unsigned int, string>(3,"expr");
 
-	case 45 ://expr->expr << expr 
+	case 46 ://expr->expr << expr 
                 	reduceHead["place"] = newtemp(st[stackSize - 3 + 1]._map["place"]);
 			emit("sll", st[stackSize - 3 + 1]._map["place"], st[stackSize - 3 + 3]._map["place"], reduceHead["place"]);
                       
 	return pair<unsigned int, string>(3,"expr");
 
-	case 46 ://expr->( expr ) 
+	case 47 ://expr->( expr ) 
                 	reduceHead["place"] = st[stackSize - 3 + 2]._map["place"];
                      
 	return pair<unsigned int, string>(3,"expr");
 
-	case 47 ://expr->id 
+	case 48 ://expr->id 
 			reduceHead["place"] = lookupPlace(st[stackSize - 1 + 1]._map["lexeme"]);
             	     
 	return pair<unsigned int, string>(1,"expr");
 
-	case 48 ://expr->id ( arg_list ) 
+	case 49 ://expr->id ( arg_list ) 
 				p = gen(paramStack.size());
 				while (!paramStack.empty()) {				    emit("param", paramStack.top(),"","");
 				    paramStack.pop();
@@ -294,19 +298,19 @@ enter(st[stackSize - 2 + 2]._map["lexeme"],st[stackSize - 2 + 1]._map["type"],at
  
 	return pair<unsigned int, string>(4,"expr");
 
-	case 49 ://expr->num 
+	case 50 ://expr->num 
 		reduceHead["lexval"] = st[stackSize - 1 + 1]._map["lexeme"];
 		reduceHead["place"] = addNum(st[stackSize - 1 + 1]._map["lexeme"]);
 	     
 	return pair<unsigned int, string>(1,"expr");
 
-	case 50 ://expr->- expr 
+	case 51 ://expr->- expr 
 		reduceHead["place"] = newtemp(st[stackSize - 2 + 2]._map["place"]);
 		emit("neg",st[stackSize - 2 + 2]._map["place"],"",reduceHead["place"]);
 	
 	return pair<unsigned int, string>(2,"expr");
 
-	case 51 ://expr->id [ expr ] 
+	case 52 ://expr->id [ expr ] 
 		{			string ty=getType(st[stackSize - 4 + 1]._map["lexeme"]);
 			if(ty.find("array")==ty.npos) error(ty+"cannot be converted to array");
 			int p1=ty.find('<');
@@ -317,40 +321,48 @@ enter(st[stackSize - 2 + 2]._map["lexeme"],st[stackSize - 2 + 1]._map["type"],at
 		}	
 	return pair<unsigned int, string>(4,"expr");
 
-	case 52 ://expr->load_mem ( expr ) 
+	case 53 ://expr->load_mem ( expr ) 
 		reduceHead["place"] = newtemp("int");
 		emit("load",st[stackSize - 4 + 3]._map["place"],"",reduceHead["place"]);
 	
 	return pair<unsigned int, string>(4,"expr");
 
-	case 53 ://arg_list->arg_list , expr 
+	case 54 ://arg_list->arg_list , expr 
  paramStack.push(st[stackSize - 3 + 3]._map["place"]);
  
 	return pair<unsigned int, string>(3,"arg_list");
 
-	case 54 ://arg_list->expr 
+	case 55 ://arg_list->expr 
  paramStack.push(st[stackSize - 1 + 1]._map["place"]);
 	
 	return pair<unsigned int, string>(1,"arg_list");
 
-	case 55 ://arg_list->
+	case 56 ://arg_list->
  
 	return pair<unsigned int, string>(0,"arg_list");
 
-	case 56 ://if_stmt->if ( logic_expr ) M stmt 
+	case 57 ://call_stmt->id ( arg_list ) 
+		p = gen(paramStack.size());
+		while (!paramStack.empty()) {			emit("param", paramStack.top(),"","");
+			paramStack.pop();
+		}		emit("call", p, st[stackSize - 4 + 1]._map["lexeme"],"");
+	
+	return pair<unsigned int, string>(4,"call_stmt");
+
+	case 58 ://if_stmt->if ( logic_expr ) M stmt 
 							backpatch(st[stackSize - 6 + 3]._map["truelist"], st[stackSize - 6 + 5]._map["instr"]);
 							reduceHead["nextlist"] = merge(st[stackSize - 6 + 3]._map["falselist"], st[stackSize - 6 + 6]._map["nextlist"]);
 						     
 	return pair<unsigned int, string>(6,"if_stmt");
 
-	case 57 ://if_stmt->if ( logic_expr ) M stmt N else M stmt 
+	case 59 ://if_stmt->if ( logic_expr ) M stmt N else M stmt 
 									backpatch(st[stackSize - 10 + 3]._map["truelist"], st[stackSize - 10 + 5]._map["instr"]);
 									backpatch(st[stackSize - 10 + 3]._map["falselist"], st[stackSize - 10 + 9]._map["instr"]);
 									reduceHead["nextlist"] = merge(merge(st[stackSize - 10 + 6]._map["nextlist"], st[stackSize - 10 + 7]._map["instr"]), st[stackSize - 10 + 10]._map["nextlist"]);
-								     
+				
 	return pair<unsigned int, string>(10,"if_stmt");
 
-	case 58 ://while_stmt->while M ( logic_expr ) M stmt 
+	case 60 ://while_stmt->while M ( logic_expr ) M stmt 
 								backpatch(st[stackSize - 7 + 7]._map["nextlist"], st[stackSize - 7 + 2]._map["instr"]);
 								backpatch(st[stackSize - 7 + 4]._map["truelist"], st[stackSize - 7 + 6]._map["instr"]);
 								reduceHead["nextlist"] = st[stackSize - 7 + 4]._map["falselist"];
@@ -359,33 +371,33 @@ enter(st[stackSize - 2 + 2]._map["lexeme"],st[stackSize - 2 + 1]._map["type"],at
 							     
 	return pair<unsigned int, string>(7,"while_stmt");
 
-	case 59 ://logic_expr->logic_expr && M logic_expr 
+	case 61 ://logic_expr->logic_expr && M logic_expr 
 				backpatch(st[stackSize - 4 + 1]._map["truelist"], st[stackSize - 4 + 3]._map["instr"]);
 				reduceHead["truelist"] = st[stackSize - 4 + 4]._map["truelist"];
 				reduceHead["falselist"] = merge(st[stackSize - 4 + 1]._map["falselist"], st[stackSize - 4 + 4]._map["falselist"]);
 			
 	return pair<unsigned int, string>(4,"logic_expr");
 
-	case 60 ://logic_expr->logic_expr || M logic_expr 
+	case 62 ://logic_expr->logic_expr || M logic_expr 
 				backpatch(st[stackSize - 4 + 1]._map["falselist"], st[stackSize - 4 + 3]._map["instr"]);
 				reduceHead["truelist"] = merge(st[stackSize - 4 + 1]._map["truelist"], st[stackSize - 4 + 4]._map["truelist"]);
 				reduceHead["falselist"] = st[stackSize - 4 + 4]._map["falselist"];
 			
 	return pair<unsigned int, string>(4,"logic_expr");
 
-	case 61 ://logic_expr->! logic_expr 
+	case 63 ://logic_expr->! logic_expr 
 				reduceHead["truelist"] = st[stackSize - 2 + 2]._map["falselist"];
 				reduceHead["falselist"] = st[stackSize - 2 + 2]._map["truelist"];
 			
 	return pair<unsigned int, string>(2,"logic_expr");
 
-	case 62 ://logic_expr->( logic_expr ) 
+	case 64 ://logic_expr->( logic_expr ) 
 				reduceHead["truelist"] = st[stackSize - 3 + 2]._map["truelist"];
 				reduceHead["falselist"] = st[stackSize - 3 + 2]._map["falselist"];
 			
 	return pair<unsigned int, string>(3,"logic_expr");
 
-	case 63 ://logic_expr->expr rel expr 
+	case 65 ://logic_expr->expr rel expr 
 				reduceHead["truelist"] = makelist(nextInstr);
 				reduceHead["falselist"] = makelist(nextInstr+1);
 				emit("j"+st[stackSize - 3 + 2]._map["op"], st[stackSize - 3 + 1]._map["place"], st[stackSize - 3 + 3]._map["place"], "_");
@@ -393,7 +405,7 @@ enter(st[stackSize - 2 + 2]._map["lexeme"],st[stackSize - 2 + 1]._map["type"],at
 			
 	return pair<unsigned int, string>(3,"logic_expr");
 
-	case 64 ://logic_expr->expr 
+	case 66 ://logic_expr->expr 
  				reduceHead["truelist"] = makelist(nextInstr);
 				reduceHead["falselist"] = makelist(nextInstr+1);
 				addNum("0");
@@ -402,60 +414,60 @@ enter(st[stackSize - 2 + 2]._map["lexeme"],st[stackSize - 2 + 1]._map["type"],at
 			
 	return pair<unsigned int, string>(1,"logic_expr");
 
-	case 65 ://logic_expr->true 
+	case 67 ://logic_expr->true 
 				reduceHead["truelist"] = makelist(nextInstr);
 				emit("j","","","_");
 			
 	return pair<unsigned int, string>(1,"logic_expr");
 
-	case 66 ://logic_expr->false 
+	case 68 ://logic_expr->false 
 				reduceHead["falselist"] = makelist(nextInstr);
 				emit("j","","","_");
 			
 	return pair<unsigned int, string>(1,"logic_expr");
 
-	case 67 ://M->
+	case 69 ://M->
 reduceHead["instr"] = "LABEL_" + gen(nextInstr);
 
 	return pair<unsigned int, string>(0,"M");
 
-	case 68 ://N->
- reduceHead["instr"] ="LABEL_" + makelist(nextInstr);
+	case 70 ://N->
+ reduceHead["instr"] = makelist(nextInstr);
       emit("j","","","_");
 
 	return pair<unsigned int, string>(0,"N");
 
-	case 69 ://BlockLeader->
+	case 71 ://BlockLeader->
       addLeader(nextInstr);
     
 	return pair<unsigned int, string>(0,"BlockLeader");
 
-	case 70 ://rel->< 
+	case 72 ://rel->< 
 reduceHead["op"] = "<";
 
 	return pair<unsigned int, string>(1,"rel");
 
-	case 71 ://rel->> 
+	case 73 ://rel->> 
 reduceHead["op"] = ">";
 
 	return pair<unsigned int, string>(1,"rel");
 
-	case 72 ://rel-><= 
+	case 74 ://rel-><= 
 reduceHead["op"] = "<=";
 
 	return pair<unsigned int, string>(1,"rel");
 
-	case 73 ://rel-><= 
+	case 75 ://rel->>= 
 reduceHead["op"] = ">=";
 
 	return pair<unsigned int, string>(1,"rel");
 
-	case 74 ://rel->== 
+	case 76 ://rel->== 
 reduceHead["op"] = "==";
 
 	return pair<unsigned int, string>(1,"rel");
 
-	case 75 ://rel->!= 
+	case 77 ://rel->!= 
 reduceHead["op"] = "!=";
 
 	return pair<unsigned int, string>(1,"rel");
@@ -479,68 +491,70 @@ string getProduction(unsigned int index) {
 		case 11 :return "stmt->expr_stmt ; ";
 		case 12 :return "stmt->return expr ; ";
 		case 13 :return "stmt->return ; ";
-		case 14 :return "stmt->set_mem ( expr , expr ) ; ";
-		case 15 :return "stmt->; ";
-		case 16 :return "includestmt->include \" filename \" ";
-		case 17 :return "includestmt->include < filename > ";
-		case 18 :return "fun_define->fun_decl_head BlockLeader { stmts } ";
-		case 19 :return "fun_decl_head->type_spec id ( ) ";
-		case 20 :return "fun_decl_head->type_spec id ( param_list ) ";
-		case 21 :return "param_list->param_list , param ";
-		case 22 :return "param_list->param ";
-		case 23 :return "param->type_spec id ";
-		case 24 :return "param->type_spec id [ num ] ";
-		case 25 :return "var_decl->type_spec id ";
-		case 26 :return "var_decl->type_spec id = expr ";
-		case 27 :return "var_decl->type_spec id [ num ] ";
-		case 28 :return "type_spec->int ";
-		case 29 :return "type_spec->double ";
-		case 30 :return "type_spec->void ";
-		case 31 :return "type_spec->char ";
-		case 32 :return "type_spec->bool ";
-		case 33 :return "type_spec->float ";
-		case 34 :return "expr_stmt->id = expr ";
-		case 35 :return "expr_stmt->id [ expr ] = expr ";
-		case 36 :return "expr->expr + expr ";
-		case 37 :return "expr->expr - expr ";
-		case 38 :return "expr->expr * expr ";
-		case 39 :return "expr->expr / expr ";
-		case 40 :return "expr->expr % expr ";
-		case 41 :return "expr->expr & expr ";
-		case 42 :return "expr->expr | expr ";
-		case 43 :return "expr->expr ^ expr ";
-		case 44 :return "expr->expr >> expr ";
-		case 45 :return "expr->expr << expr ";
-		case 46 :return "expr->( expr ) ";
-		case 47 :return "expr->id ";
-		case 48 :return "expr->id ( arg_list ) ";
-		case 49 :return "expr->num ";
-		case 50 :return "expr->- expr ";
-		case 51 :return "expr->id [ expr ] ";
-		case 52 :return "expr->load_mem ( expr ) ";
-		case 53 :return "arg_list->arg_list , expr ";
-		case 54 :return "arg_list->expr ";
-		case 55 :return "arg_list->";
-		case 56 :return "if_stmt->if ( logic_expr ) M stmt ";
-		case 57 :return "if_stmt->if ( logic_expr ) M stmt N else M stmt ";
-		case 58 :return "while_stmt->while M ( logic_expr ) M stmt ";
-		case 59 :return "logic_expr->logic_expr && M logic_expr ";
-		case 60 :return "logic_expr->logic_expr || M logic_expr ";
-		case 61 :return "logic_expr->! logic_expr ";
-		case 62 :return "logic_expr->( logic_expr ) ";
-		case 63 :return "logic_expr->expr rel expr ";
-		case 64 :return "logic_expr->expr ";
-		case 65 :return "logic_expr->true ";
-		case 66 :return "logic_expr->false ";
-		case 67 :return "M->";
-		case 68 :return "N->";
-		case 69 :return "BlockLeader->";
-		case 70 :return "rel->< ";
-		case 71 :return "rel->> ";
-		case 72 :return "rel-><= ";
-		case 73 :return "rel-><= ";
-		case 74 :return "rel->== ";
-		case 75 :return "rel->!= ";
+		case 14 :return "stmt->call_stmt ; ";
+		case 15 :return "stmt->set_mem ( expr , expr ) ; ";
+		case 16 :return "stmt->; ";
+		case 17 :return "includestmt->include \" filename \" ";
+		case 18 :return "includestmt->include < filename > ";
+		case 19 :return "fun_define->fun_decl_head BlockLeader { stmts } ";
+		case 20 :return "fun_decl_head->type_spec id ( ) ";
+		case 21 :return "fun_decl_head->type_spec id ( param_list ) ";
+		case 22 :return "param_list->param_list , param ";
+		case 23 :return "param_list->param ";
+		case 24 :return "param->type_spec id ";
+		case 25 :return "param->type_spec id [ num ] ";
+		case 26 :return "var_decl->type_spec id ";
+		case 27 :return "var_decl->type_spec id = expr ";
+		case 28 :return "var_decl->type_spec id [ num ] ";
+		case 29 :return "type_spec->int ";
+		case 30 :return "type_spec->double ";
+		case 31 :return "type_spec->void ";
+		case 32 :return "type_spec->char ";
+		case 33 :return "type_spec->bool ";
+		case 34 :return "type_spec->float ";
+		case 35 :return "expr_stmt->id = expr ";
+		case 36 :return "expr_stmt->id [ expr ] = expr ";
+		case 37 :return "expr->expr + expr ";
+		case 38 :return "expr->expr - expr ";
+		case 39 :return "expr->expr * expr ";
+		case 40 :return "expr->expr / expr ";
+		case 41 :return "expr->expr % expr ";
+		case 42 :return "expr->expr & expr ";
+		case 43 :return "expr->expr | expr ";
+		case 44 :return "expr->expr ^ expr ";
+		case 45 :return "expr->expr >> expr ";
+		case 46 :return "expr->expr << expr ";
+		case 47 :return "expr->( expr ) ";
+		case 48 :return "expr->id ";
+		case 49 :return "expr->id ( arg_list ) ";
+		case 50 :return "expr->num ";
+		case 51 :return "expr->- expr ";
+		case 52 :return "expr->id [ expr ] ";
+		case 53 :return "expr->load_mem ( expr ) ";
+		case 54 :return "arg_list->arg_list , expr ";
+		case 55 :return "arg_list->expr ";
+		case 56 :return "arg_list->";
+		case 57 :return "call_stmt->id ( arg_list ) ";
+		case 58 :return "if_stmt->if ( logic_expr ) M stmt ";
+		case 59 :return "if_stmt->if ( logic_expr ) M stmt N else M stmt ";
+		case 60 :return "while_stmt->while M ( logic_expr ) M stmt ";
+		case 61 :return "logic_expr->logic_expr && M logic_expr ";
+		case 62 :return "logic_expr->logic_expr || M logic_expr ";
+		case 63 :return "logic_expr->! logic_expr ";
+		case 64 :return "logic_expr->( logic_expr ) ";
+		case 65 :return "logic_expr->expr rel expr ";
+		case 66 :return "logic_expr->expr ";
+		case 67 :return "logic_expr->true ";
+		case 68 :return "logic_expr->false ";
+		case 69 :return "M->";
+		case 70 :return "N->";
+		case 71 :return "BlockLeader->";
+		case 72 :return "rel->< ";
+		case 73 :return "rel->> ";
+		case 74 :return "rel-><= ";
+		case 75 :return "rel->>= ";
+		case 76 :return "rel->== ";
+		case 77 :return "rel->!= ";
 		default: return "";
 	}
 }

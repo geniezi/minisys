@@ -13,7 +13,7 @@
 %left 'else'
 %%
 
-S : program {emit("nop","","",""); }
+S : program { }
   ;
 program : stmts	{backpatch($1.nextlist,"LABEL_"+ gen(nextInstr));}
 	;
@@ -22,7 +22,7 @@ stmts	: stmts	M stmt { backpatch($1.nextlist, $2.instr); $$.nextlist = $3.nextli
 	;
 stmt	: includestmt {}
 	| '{' stmts  '}' { $$.nextlist = $2.nextlist; }
-	| fun_define  {	returnToGlobalTable(); $$.nextlist = $1.nextlist; }
+	| fun_define  {	emit("nop","","",""); returnToGlobalTable(); $$.nextlist = $1.nextlist; }
 	| if_stmt { $$.nextlist = $1.nextlist; }
 	| while_stmt { $$.nextlist = $1.nextlist; }
 	| var_decl ';' { $$.nextlist = $1.nextlist; }
@@ -30,6 +30,7 @@ stmt	: includestmt {}
 	| expr_stmt ';' {$$.nextlist = $1.nextlist;}
 	| 'return' expr ';' { emit("return",$2.place,"",""); }
 	| 'return' ';' { emit("return","","",""); }
+	| call_stmt ';' {$$.nextlist = $1.nextlist; }
 	| 'set_mem' '(' expr ',' expr ')' ';' { emit("set",$3.place,$5.place,""); }
 	| ';' { }
 	;
@@ -181,6 +182,15 @@ arg_list  : arg_list ',' expr { paramStack.push($3.place); }
           |  expr  { paramStack.push($1.place);	}
 	  | { }
 	  ;
+call_stmt : 'id' '(' arg_list ')' {
+		p = gen(paramStack.size());
+		while (!paramStack.empty()) {
+			emit("param", paramStack.top(),"","");
+			paramStack.pop();
+		}
+		emit("call", p, $1.lexeme,"");
+	}
+	;
 if_stmt : 'if' '(' logic_expr ')' M stmt {
 							backpatch($3.truelist, $5.instr);
 							$$.nextlist = merge($3.falselist, $6.nextlist);
@@ -241,7 +251,7 @@ logic_expr	: logic_expr '&&' M logic_expr {
 		;
 M : {$$.instr = "LABEL_" + gen(nextInstr);}
   ;
-N : { $$.instr ="LABEL_" + makelist(nextInstr);
+N : { $$.instr = makelist(nextInstr);
       emit("j","","","_");}
   ;
 BlockLeader : {
@@ -251,7 +261,7 @@ BlockLeader : {
 rel : '<' {$$.op = "<";}
     | '>' {$$.op = ">";}
     | '<='{$$.op = "<=";}
-    | '<='{$$.op = ">=";}
+    | '>='{$$.op = ">=";}
     | '=='{$$.op = "==";}
     | '!='{$$.op = "!=";}
     ;

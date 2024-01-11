@@ -44,7 +44,7 @@ void fillVarState(int beginIndex, int endIndex, const VarSetType& outLiveVar, Va
 	// 遍历数据块中其他的四元式
 	for (int i = endIndex - 1; beginIndex <= i; --i) {
 		auto& code = middleCode.at(i);
-		if (code._type == 47) continue; // call N funName
+		if (code._type == 7) continue; // call N funName
 		if (code._arg1 == "#") { //处理返回值
 			code._liveDes = Getvar(code._des)._live;
 			code._nextDes = Getvar(code._des)._nextUse;
@@ -53,7 +53,7 @@ void fillVarState(int beginIndex, int endIndex, const VarSetType& outLiveVar, Va
 			continue;
 		}
 		bool desExsitFlag = !(code._des.empty() || code._op[0] == 'j');
-		bool arg1ExsitFlag = !code._arg1.empty();
+		bool arg1ExsitFlag = !(code._arg1.empty());
 		bool arg2ExsitFlag = !code._arg2.empty();
 		// fill code var state live from symbol table
 		if (desExsitFlag) code._liveDes = Getvar(code._des)._live;
@@ -546,8 +546,11 @@ void Assembly_A_B(const Quadruple& code) {
 	}
 	//对于B的值在寄存器中的情况不需要生成汇编代码，直接插入A并更新A._inR
 	RValue->at(RegForB).insert(code._des);
-	RNextUse->at(RegForB) = min(RNextUse->at(RegForB), code._nextDes);
-	RValue->at(Getvar(code._des)._inR).erase(code._des);
+	if (Getvar(code._des)._inR >= 0)
+	{
+		RNextUse->at(RegForB) = min(RNextUse->at(RegForB), code._nextDes);
+		RValue->at(Getvar(code._des)._inR).erase(code._des);
+	}
 	Getvar(code._des)._inR = RegForB;
 	Getvar(code._des)._inM = false;
 	if (code._liveArg1 == false) {
@@ -567,10 +570,11 @@ void Assembly_jrop(const Quadruple& code) {
 	int RegForResult = getEmptyReg();
 	if (RegForResult < 0) RegForResult = storeToGetReg();
 	addNum("1");
+	Getvar("1")._inM = true;
+	Getvar("1")._inR = RegForResult;
 	set<string> sset; sset.insert("1");
 	RValue->at(RegForResult) = sset;
 	RNextUse->at(RegForResult) = -1;
-
 	if (code._op == "j<" || code._op == "j>=")  judgment = 1;
 	if (code._op == "j>" || code._op == "j<=")  judgment = 2;
 
@@ -598,7 +602,7 @@ void Assembly_jrop(const Quadruple& code) {
 			Getvar(code._arg1)._inM = true;
 		}
 	}	
-
+	
 	int RegForC = Getvar(code._arg2)._inR;
 	if (RegForC < 0) {
 		// IN_R[C] != Ri
@@ -778,7 +782,6 @@ void Assembly_return(const Quadruple& code) {
 				assemblyCode.push_back(Assembly("lw", "x10", code._arg1));	// MOV AX code._arg1
 			}
 		}
-		
 	}
 	// MOV SP BP
 	assemblyCode.push_back(Assembly("add", "x2", "x8","x0"));	
@@ -953,7 +956,7 @@ void Assembly_load(const Quadruple& code) {
 	RValue->at(regB) = set;
 	RNextUse->at(regB) = code._nextDes;
 	Getvar(code._des)._inR = regB;
-	Getvar(code._des)._inM = true;
+	Getvar(code._des)._inM = false;
 }
 
 //set_mem(A,B);
@@ -1173,6 +1176,7 @@ void tranlateIntoAssembly(string filename) {
 			beginIndex = endIndex;
 			++cur;
 		}
+		//cout << "blocks ok\n";
 		// fill outLiveVar and inLiveVar info
 		for (auto blockIndex = leaders.rbegin() + 1; blockIndex != leaders.rend(); ++blockIndex) {	// auto& -> auto
 
@@ -1187,6 +1191,7 @@ void tranlateIntoAssembly(string filename) {
 				flowGragh.at(predecessor)._outLiveVar = newVars;
 			}
 		}
+		//cout << "fill ok\n";
 		// generate assembly codes for each basic block
 		for (auto blockIndex = leaders.begin(); blockIndex != leaders.end() - 1; ++blockIndex) {	// auto& -> auto
 
@@ -1206,9 +1211,12 @@ void tranlateIntoAssembly(string filename) {
 			if (!label.empty()) {
 				AssemblyLabelMap.insert(make_pair(assemblyCode.size(), label));
 			}
-		//	cout << block._begin << " " << block._end << endl;
-			for (int i = block._begin; i < block._end-1; ++i)
+			//cout << block._begin << " -> " << block._end-1 << endl;
+			for (int i = block._begin; i < block._end - 1; ++i) {
 				GenerateAssembly(middleCode.at(i));
+				//cout << i << endl;
+			}
+				
 			if (middleCode.at(block._end - 1)._type >= 40 && middleCode.at(block._end - 1)._type <= 46)
 			{
 				// save live variables

@@ -13,6 +13,7 @@ using namespace std;
 SeuYacc::SeuYacc(const string grammerFile, const string parsingFile) {
 	_outputFile.open(parsingFile);
 	if (readGrammer(grammerFile)) {
+		cout << "reading yacc ok\n";
 		initTransition();
 		cout << "transition ok\n";
 		initParseTable();
@@ -206,7 +207,6 @@ bool SeuYacc::readGrammer(const string grammerFile) {
 
 	if (_buffer != nullptr) delete[] _buffer;
 	_sourcefile.close();
-	cout << "reading yacc ok\n";
 	return true;
 }
 
