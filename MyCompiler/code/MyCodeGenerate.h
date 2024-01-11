@@ -567,14 +567,6 @@ void Assembly_j(const Quadruple& code) {
 // code : j rop B C LABEL_xxx
 void Assembly_jrop(const Quadruple& code) {
 	int judgment = 0;
-	int RegForResult = getEmptyReg();
-	if (RegForResult < 0) RegForResult = storeToGetReg();
-	addNum("1");
-	Getvar("1")._inM = true;
-	Getvar("1")._inR = RegForResult;
-	set<string> sset; sset.insert("1");
-	RValue->at(RegForResult) = sset;
-	RNextUse->at(RegForResult) = -1;
 	if (code._op == "j<" || code._op == "j>=")  judgment = 1;
 	if (code._op == "j>" || code._op == "j<=")  judgment = 2;
 
@@ -626,12 +618,24 @@ void Assembly_jrop(const Quadruple& code) {
 			Getvar(code._arg2)._inM = true;
 		}
 	}
+	int RegForResult = getEmptyReg();
 	if (judgment == 1)
-		assemblyCode.push_back(Assembly("slt", RegForResult, RegForB, RegForC));	// slt code._arg1 code._arg2
+	{
+		if (RegForResult < 0) RegForResult = storeToGetReg();
+		set<string> sset; sset.insert("1");
+		RValue->at(RegForResult) = sset;
+		RNextUse->at(RegForResult) = -1;
+		assemblyCode.push_back(Assembly("slt", RegForResult, RegForB, RegForC));
+	}
 	else if (judgment == 2)
+	{
+		if (RegForResult < 0) RegForResult = storeToGetReg();
+		set<string> sset; sset.insert("1");
+		RValue->at(RegForResult) = sset;
+		RNextUse->at(RegForResult) = -1;
 		assemblyCode.push_back(Assembly("slt", RegForResult, RegForC, RegForB));
-
-	
+	}
+		
 	string jrop = "";
 	if (code._op == "j==")
 	{
@@ -923,7 +927,7 @@ void Assembly_nop() {
 //B=load_mem(A)
 void Assembly_load(const Quadruple& code) {
 	int regA = Getvar(code._arg1)._inR;
-	if (code._typeArg1)
+	if (code._typeArg1 && regA < 0)
 	{
 		regA = getEmptyReg();
 		if (regA < 0) regA = storeToGetReg();
@@ -962,7 +966,7 @@ void Assembly_load(const Quadruple& code) {
 //set_mem(A,B);
 void Assembly_set(const Quadruple& code) {
 	int regA = Getvar(code._arg1)._inR;
-	if (code._typeArg1)
+	if (code._typeArg1 && regA < 0)
 	{
 		regA = getEmptyReg();
 		if (regA < 0) regA = storeToGetReg();
@@ -1254,8 +1258,8 @@ void tranlateIntoAssembly(string filename) {
 		}
 	}
 	// reserve label
-	AssemblyLabelMap.insert(make_pair(assemblyCode.size(), middleCode[nextInstr-1]._label));
-	assemblyCode.push_back(Assembly("add", "x0", "x0", "x0")); 
+	//AssemblyLabelMap.insert(make_pair(assemblyCode.size(), middleCode[nextInstr-1]._label));
+	//assemblyCode.push_back(Assembly("add", "x0", "x0", "x0")); 
 	// add label
 	for (const auto& map : AssemblyLabelMap) {
 		assemblyCode.at(map.first)._label = map.second;
