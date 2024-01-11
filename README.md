@@ -26,5 +26,5 @@ output_file: 输出文件路径 （注意是路径！）
 使用//注释的时候 记得要在 //后面空一格 例如“// int x;"  
 目前不允许空while循环 空if,至少写一个分号;  
 读写内存专用函数 load_mem(addr),set_mem(addr,val)，addr和val 支持表达式、变量、常量  
-
+函数必须要有return语句，void也要写return;语句
 ## 软件
