@@ -272,10 +272,10 @@ def main(input_files, output_path):
         assemble_risc_v(assembly_code)
     assemble_risc_v(bios)
 
-    bios_code = linker.process_jal(funct, machine_code)
-    print(machine_code)
+    bios_code,machine_code_new = linker.process_jal(funct, machine_code)
+    print(machine_code_new)
 
-    linker.generate_ins_coe_file(funct,bios_code, machine_code, output_path)
+    linker.generate_ins_coe_file(funct, bios_code, machine_code_new, output_path)
     linker.generate_data_coe_file(data, output_path)
 
 
