@@ -1,0 +1,19 @@
+﻿  main.cpp
+D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\structDefine.h(16,1): warning C4005: “ERROR”: 宏重定义
+D:\Windows Kits\10\Include\10.0.18362.0\um\wingdi.h(118): message : 参见“ERROR”的前一个定义
+D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\structDefine.h(107,23): warning C4101: “e”: 未引用的局部变量
+D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\structDefine.h(116,23): warning C4101: “e”: 未引用的局部变量
+D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\supportFunction.h(269,20): warning C4018: “<”: 有符号/无符号不匹配
+D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\MyCodeGenerate.h(711,25): warning C4553: “==”: 未使用表达式结果；是否打算使用“=”?
+D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\MyCodeGenerate.h(717,31): warning C4553: “==”: 未使用表达式结果；是否打算使用“=”?
+D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\MyCodeGenerate.h(818,31): warning C4553: “==”: 未使用表达式结果；是否打算使用“=”?
+D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\yaccHelp.h(124,23): warning C4018: “>”: 有符号/无符号不匹配
+D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\yaccHelp.h(127,25): warning C4018: “>”: 有符号/无符号不匹配
+D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\main.cpp(25,20): warning C4018: “<”: 有符号/无符号不匹配
+D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\main.cpp(46,20): warning C4018: “<”: 有符号/无符号不匹配
+  正在生成代码
+  59 of 2451 functions ( 2.4%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    16 functions had inline decision re-evaluated but remain unchanged
+  已完成代码的生成
+  MyCompiler.vcxproj -> D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\Release\MyCompiler.exe
