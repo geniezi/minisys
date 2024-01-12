@@ -12,8 +12,8 @@ D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\yaccHelp.h(127
 D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\main.cpp(25,20): warning C4018: “<”: 有符号/无符号不匹配
 D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\main.cpp(46,20): warning C4018: “<”: 有符号/无符号不匹配
   正在生成代码
-  59 of 2451 functions ( 2.4%) were compiled, the rest were copied from previous compilation.
+  3 of 2451 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    16 functions had inline decision re-evaluated but remain unchanged
+    11 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   MyCompiler.vcxproj -> D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\Release\MyCompiler.exe

@@ -1041,7 +1041,7 @@ void GenerateAssembly(const Quadruple& code) {
 	else if (code._type == 6) {
 		Assembly_param(code);
 	}
-	else if (code._type == 47) {
+	else if (code._type == 7) {
 		Assembly_call(code);
 	}
 	else if (code._type == 8) {
@@ -1218,7 +1218,7 @@ void tranlateIntoAssembly(string filename) {
 			//cout << block._begin << " -> " << block._end-1 << endl;
 			for (int i = block._begin; i < block._end - 1; ++i) {
 				GenerateAssembly(middleCode.at(i));
-				//cout << i << endl;
+			//	cout << i << endl;
 			}
 				
 			if (middleCode.at(block._end - 1)._type >= 40 && middleCode.at(block._end - 1)._type <= 46)
@@ -1242,6 +1242,7 @@ void tranlateIntoAssembly(string filename) {
 			}
 			else
 			{
+
 				GenerateAssembly(middleCode.at(block._end - 1));
 				// save live variables
 				for (int reg = 0; reg < REGISTER_NUM; ++reg) {
