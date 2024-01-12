@@ -41,12 +41,12 @@ bool yaccReduce(list<Token> _tokenList,string filename,int file_t) {
 	globalTable = nullptr;
 	constTable = nullptr;
 	nextInstr = 0;
-	labelMap.clear();
+	labelMap.clear(); funLabel.clear();
 	while (!st.empty()) st.pop_back();
 	ofstream sequence("reduce_sequence.txt",file_t==0?ios::out:ios::app);
 	sequence << filename << "--------------------------------\n";
 	// 根据tableYacc建立分析表（当前状态读取字符采取怎样的动作）
-	initTable(_parseTable);
+	//initTable(_parseTable);
 	globalTable = new SymbolTable("global");
 	constTable = new SymbolTable("const");
 	globalTable->_beginIndex = nextInstr;
@@ -72,7 +72,7 @@ bool yaccReduce(list<Token> _tokenList,string filename,int file_t) {
 		}
 		else if (tableItem._action == REDUCTION) {
 			// ACTION[s, a] = reduce A->beta
-			map< string,  string> reduceHead;
+			map< string, string> reduceHead; reduceHead.clear();
 			// pair <length of production, production head>
 			pair<unsigned int,  string> item = performAction(tableItem._index, reduceHead);
 			// pop |beta| symbols off the stack
@@ -94,7 +94,7 @@ bool yaccReduce(list<Token> _tokenList,string filename,int file_t) {
 		}
 		else if (tableItem._action == ACCEPT) {
 			// parsing is done
-			map< string, string> reduceHead;
+			map< string, string> reduceHead; reduceHead.clear();
 			pair<unsigned int, string> item = performAction(tableItem._index, reduceHead);
 			for (size_t i = 0; i < item.first; ++i) st.pop_back();
 			sequence << getProduction(tableItem._index) <<  endl;
@@ -126,7 +126,6 @@ bool yaccReduce(list<Token> _tokenList,string filename,int file_t) {
 	for (const auto& it : funLabel) {
 		if (middleCode.size() > it.first) middleCode.at(it.first)._fun = it.second;
 	}
-
 	ofstream middleCodeOut("middle_code.txt", file_t == 0 ? ios::out : ios::app);
 	middleCodeOut << filename << "-------------------------------------------------\n";
 	outputMiddleCode(middleCodeOut);

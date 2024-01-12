@@ -32,7 +32,7 @@ set_mem {return "set_mem";}
 true {return "true";} 
 false {return "false";} 
 {id} {return "id";}
-{number} {++numCount; return "num";}
+{number} {return "num";}
 {filename} {return "filename";}
 {ws} {return "ws";}
 "+" {return "+";}
@@ -66,19 +66,9 @@ false {return "false";}
 "}" {return "}";}
 "[" {return "[";}
 "]" {return "]";}
-";" {++line;return ";";}
+";" {return ";";}
 "," {return ",";}
 "//" {return "//";}
 """ {return "\"";}
 "'" {return "\'";}
 %%
-void calLine() {
-	std::cout << "number of semicolon : " << line << std::endl;
-}
-void getNumCount() {
-    std::cout << "count of num : " << numCount << std::endl;
-}
-void main() {
-	calLine();
-	getNumCount();
-}

@@ -124,8 +124,8 @@ void initFinalSet(set<unsigned int>& finalSet) {
 string performAction(unsigned int state) {
 	switch(state) {
 	case 1 :return "ws";
-	case 2 :++numCount; return "num";
-	case 3 :++numCount; return "num";
+	case 2 :return "num";
+	case 3 :return "num";
 	case 4 :return "id";
 	case 5 :return "id";
 	case 6 :return "id";
@@ -156,7 +156,7 @@ string performAction(unsigned int state) {
 	case 33 :return "}";
 	case 34 :return "[";
 	case 35 :return "]";
-	case 36 :++line;return ";";
+	case 36 :return ";";
 	case 37 :return ",";
 	case 38 :return "\"";
 	case 39 :return "\'";
@@ -190,9 +190,9 @@ string performAction(unsigned int state) {
 	case 73 :return "<<";
 	case 74 :return ">=";
 	case 75 :return ">>";
-	case 76 :++numCount; return "num";
-	case 78 :++numCount; return "num";
-	case 79 :++numCount; return "num";
+	case 76 :return "num";
+	case 78 :return "num";
+	case 79 :return "num";
 	case 80 :return "id";
 	case 81 :return "id";
 	case 82 :return "id";
@@ -207,7 +207,7 @@ string performAction(unsigned int state) {
 	case 91 :return "id";
 	case 92 :return "id";
 	case 93 :return "id";
-	case 95 :++numCount; return "num";
+	case 95 :return "num";
 	case 96 :return "bool";
 	case 97 :return "id";
 	case 98 :return "char";

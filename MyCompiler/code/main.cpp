@@ -1,4 +1,4 @@
-#include "lex.h"
+#include "lexHelp.h"
 #include "yaccHelp.h"
 #include <windows.h>
 #include <sys/stat.h>
@@ -11,6 +11,10 @@ int main(int argc, char *argv[]) {
 		cout << "please input the source file name" << endl;
 		return 1;
 	}
+	initTable(_parseTable);
+	_minDFAStateTranfer = new vector<map<char, unsigned int> >();
+	initMinDFAStateTranfer(_minDFAStateTranfer);
+	initFinalSet(_minDFAfinalStateSet);
 	list<Token> tokenlist;
 	string filename = argv[1];
 	string base = "";
@@ -33,19 +37,25 @@ int main(int argc, char *argv[]) {
 		asmfile.push_back(out_path+"/"+nname);
 		if (i != 0) nname = base + "./" + filename;
 		else nname = filename;
-		int ok = lexParse(nname, tokenlist);
+		int ok = parseToken(nname, tokenlist,i);
 		if (ok) ok = yaccReduce(tokenlist, asmfile[asmfile.size() - 1], i);
 		if (ok) cout << "compile success" << endl;
 		else
 		{
 			cout << "error\n";
-			return 0;
+			return 1;
 		}
 	}
+	fstream write;
+	write.open("compiler.log", ios::out);
+	write <<"±àÒë³É¹¦"<< endl;
+	write.close();
+
 	string am = "..\\..\\assembler\\dist\\assembler\\assembler.exe ";
 	for (int i = 0; i < filelist.size(); i++) am = am +asmfile[i] + " ";
 	am += out_path;
 	system(am.c_str());
+	delete _minDFAStateTranfer; _minDFAStateTranfer = nullptr;
 	return 0;
 }
 /*int main() {

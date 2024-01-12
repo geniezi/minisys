@@ -44,6 +44,7 @@ void fillVarState(int beginIndex, int endIndex, const VarSetType& outLiveVar, Va
 	// 遍历数据块中其他的四元式
 	for (int i = endIndex - 1; beginIndex <= i; --i) {
 		auto& code = middleCode.at(i);
+		//cout << i << "--\n";
 		if (code._type == 7) continue; // call N funName
 		if (code._arg1 == "#") { //处理返回值
 			code._liveDes = Getvar(code._des)._live;

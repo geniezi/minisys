@@ -144,18 +144,12 @@ expr : expr '+' expr {
      | 'id'   	     {
 			$$.place = lookupPlace($1.lexeme);
             	     }
-     | 'id' '(' arg_list ')' {
-				p = gen(paramStack.size());
-				while (!paramStack.empty()) {
-				    emit("param", paramStack.top(),"","");
-				    paramStack.pop();
-			        }
-				emit("call", p, $1.lexeme,"");
-				enter("#","int",4);
-				$$.place = newtemp("int");
-				emit("MOV","#","",$$.place); }
+     | call_stmt {
+			if($1.type=="void") error("void value not ignored as it ought to be");
+			$$.place = newtemp($1.place);
+			emit("MOV",$1.place,"",$$.place); 
+			}
      | 'num' {
-		$$.lexval = $1.lexeme;
 		$$.place = addNum($1.lexeme);
 	     }
 	| '-' expr {
@@ -183,12 +177,21 @@ arg_list  : arg_list ',' expr { paramStack.push($3.place); }
 	  | { }
 	  ;
 call_stmt : 'id' '(' arg_list ')' {
-		p = gen(paramStack.size());
-		while (!paramStack.empty()) {
-			emit("param", paramStack.top(),"","");
-			paramStack.pop();
-		}
-		emit("call", p, $1.lexeme,"");
+		{
+			p = gen(paramStack.size());
+			while (!paramStack.empty()) {
+				emit("param", paramStack.top(),"","");
+				paramStack.pop();
+			}
+			$$.type=getRetType($1.lexeme);
+			emit("call", p, $1.lexeme,"");
+			if($$.type!="void")
+			{
+				enter("#","int",4);
+				$$.place=newtemp($$.type);
+				emit("MOV","#","",$$.place);
+			}
+		}	
 	}
 	;
 if_stmt : 'if' '(' logic_expr ')' M stmt {

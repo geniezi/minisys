@@ -21,12 +21,13 @@ pair<unsigned int, string> performAction(unsigned int index, map<string, string>
 
 	case 1 ://program->stmts 
 backpatch(st[stackSize - 1 + 1]._map["nextlist"],"LABEL_"+ gen(nextInstr));
+
 	return pair<unsigned int, string>(1,"program");
 
 	case 2 ://stmts->stmts M stmt 
  backpatch(st[stackSize - 3 + 1]._map["nextlist"], st[stackSize - 3 + 2]._map["instr"]);
  reduceHead["nextlist"] = st[stackSize - 3 + 3]._map["nextlist"];
-	
+
 	return pair<unsigned int, string>(3,"stmts");
 
 	case 3 ://stmts->stmt 
@@ -44,8 +45,8 @@ backpatch(st[stackSize - 1 + 1]._map["nextlist"],"LABEL_"+ gen(nextInstr));
 	return pair<unsigned int, string>(3,"stmt");
 
 	case 6 ://stmt->fun_define 
-	emit("nop", "", "", "");
-	returnToGlobalTable();
+	emit("nop","","","");
+ returnToGlobalTable();
  reduceHead["nextlist"] = st[stackSize - 1 + 1]._map["nextlist"];
  
 	return pair<unsigned int, string>(1,"stmt");
@@ -287,16 +288,12 @@ enter(st[stackSize - 2 + 2]._map["lexeme"],st[stackSize - 2 + 1]._map["type"],at
             	     
 	return pair<unsigned int, string>(1,"expr");
 
-	case 49 ://expr->id ( arg_list ) 
-				p = gen(paramStack.size());
-				while (!paramStack.empty()) {				    emit("param", paramStack.top(),"","");
-				    paramStack.pop();
-			        }				emit("call", p, st[stackSize - 4 + 1]._map["lexeme"],"");
-				enter("#","int",4);
-				reduceHead["place"] = newtemp("int");
-				emit("MOV","#","",reduceHead["place"]);
- 
-	return pair<unsigned int, string>(4,"expr");
+	case 49 ://expr->call_stmt 
+			if(st[stackSize - 1 + 1]._map["type"]=="void") error("void value not ignored as it ought to be");
+			reduceHead["place"] = newtemp(st[stackSize - 2 + 2]._map["place"]);
+			emit("MOV",st[stackSize - 1 + 1]._map["place"],"",reduceHead["place"]);
+ 			
+	return pair<unsigned int, string>(1,"expr");
 
 	case 50 ://expr->num 
 		reduceHead["lexval"] = st[stackSize - 1 + 1]._map["lexeme"];
@@ -342,11 +339,19 @@ enter(st[stackSize - 2 + 2]._map["lexeme"],st[stackSize - 2 + 1]._map["type"],at
 	return pair<unsigned int, string>(0,"arg_list");
 
 	case 57 ://call_stmt->id ( arg_list ) 
-		p = gen(paramStack.size());
-		while (!paramStack.empty()) {			emit("param", paramStack.top(),"","");
-			paramStack.pop();
-		}		emit("call", p, st[stackSize - 4 + 1]._map["lexeme"],"");
-	
+		{			p = gen(paramStack.size());
+			while (!paramStack.empty()) {				emit("param", paramStack.top(),"","");
+				paramStack.pop();
+			}			
+			reduceHead["type"]=getRetType(st[stackSize - 4 + 1]._map["lexeme"]);
+			emit("call", p, st[stackSize - 4 + 1]._map["lexeme"],"");
+			if(reduceHead["type"]!="void")			
+			{				
+				enter("#","int",4);
+				reduceHead["place"]=newtemp(reduceHead["type"]);
+				emit("MOV","#","", reduceHead["place"]);
+			}		
+	}		
 	return pair<unsigned int, string>(4,"call_stmt");
 
 	case 58 ://if_stmt->if ( logic_expr ) M stmt 
@@ -359,7 +364,7 @@ enter(st[stackSize - 2 + 2]._map["lexeme"],st[stackSize - 2 + 1]._map["type"],at
 									backpatch(st[stackSize - 10 + 3]._map["truelist"], st[stackSize - 10 + 5]._map["instr"]);
 									backpatch(st[stackSize - 10 + 3]._map["falselist"], st[stackSize - 10 + 9]._map["instr"]);
 									reduceHead["nextlist"] = merge(merge(st[stackSize - 10 + 6]._map["nextlist"], st[stackSize - 10 + 7]._map["instr"]), st[stackSize - 10 + 10]._map["nextlist"]);
-				
+								     
 	return pair<unsigned int, string>(10,"if_stmt");
 
 	case 60 ://while_stmt->while M ( logic_expr ) M stmt 
@@ -526,7 +531,7 @@ string getProduction(unsigned int index) {
 		case 46 :return "expr->expr << expr ";
 		case 47 :return "expr->( expr ) ";
 		case 48 :return "expr->id ";
-		case 49 :return "expr->id ( arg_list ) ";
+		case 49 :return "expr->call_stmt ";
 		case 50 :return "expr->num ";
 		case 51 :return "expr->- expr ";
 		case 52 :return "expr->id [ expr ] ";

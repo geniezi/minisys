@@ -73,23 +73,22 @@ unsigned int lookup(const string& str) {
 	else return _numSymbol;
 }
 
-void outputTokenList(list<Token>& tokenList) {
-	ofstream result;
-	result.open("token_list.txt", ios::out);
+void outputTokenList(list<Token>& tokenList, ofstream& result) {
+	
 	for (auto token : tokenList) {
 		result << "< " << token._lexecal.c_str() << " , " << token._attribute.c_str() << " , " << token._innerCode << " >\n";
 	}
-	result.close();
-	
 }
 
-bool parseToken(const string& file, list<Token>& tokenList) {
+vector<map<char, unsigned int> >* _minDFAStateTranfer;
+set<unsigned int> _minDFAfinalStateSet;
+bool parseToken(const string& file, list<Token>& tokenList,int file_t) {
 	// 最小化DFA各个状态的初始化
-	vector<map<char, unsigned int> >* _minDFAStateTranfer = new vector<map<char, unsigned int> >();
-	initMinDFAStateTranfer(_minDFAStateTranfer);
+	//_minDFAStateTranfer = new vector<map<char, unsigned int> >();
+	//initMinDFAStateTranfer(_minDFAStateTranfer);
 	// 最小化DFA终结态的初始化，将所有状态加入终结态
-	set<unsigned int> _minDFAfinalStateSet;
-	initFinalSet(_minDFAfinalStateSet);
+	
+	//initFinalSet(_minDFAfinalStateSet);
 	_numSymbol = 0;
 	_symbolTable = new hash_map<string, unsigned int, hash_compare<string, string_less> >();
 
@@ -160,14 +159,21 @@ bool parseToken(const string& file, list<Token>& tokenList) {
 			}
 		}
 	};
-
-	outputTokenList(tokenList);
+	ofstream result;
+	result.open("token_list.txt", file_t == 0 ? ios::out : ios::app);
+	result << file << "--------------------------------\n";
+	outputTokenList(tokenList, result);
+	result.close();
 
 	delete _symbolTable; _symbolTable = nullptr;
-	delete _minDFAStateTranfer;_minDFAStateTranfer = nullptr;
+	
 	delete[] _buffer; _buffer = nullptr;
 
 	_reFile.close();
+	if (ok) {
+		cout << "Lexical parsing complete!\n";
+	}
+	else cout << "Lexical parsing wrong!\n";
 	return ok;
 }
 
