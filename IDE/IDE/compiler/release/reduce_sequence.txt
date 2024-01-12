@@ -1,0 +1,584 @@
+D:/SEU/IDE/coe_result//Marquee.asm--------------------------------
+includestmt->include " filename " 
+stmt->includestmt 
+stmts->stmt 
+M->
+includestmt->include " filename " 
+stmt->includestmt 
+stmts->stmts M stmt 
+M->
+includestmt->include " filename " 
+stmt->includestmt 
+stmts->stmts M stmt 
+M->
+includestmt->include " filename " 
+stmt->includestmt 
+stmts->stmts M stmt 
+M->
+type_spec->int 
+fun_decl_head->type_spec id ( ) 
+BlockLeader->
+type_spec->int 
+var_decl->type_spec id 
+stmt->var_decl ; 
+stmts->stmt 
+M->
+type_spec->int 
+var_decl->type_spec id 
+stmt->var_decl ; 
+stmts->stmts M stmt 
+M->
+type_spec->int 
+var_decl->type_spec id 
+stmt->var_decl ; 
+stmts->stmts M stmt 
+M->
+type_spec->int 
+expr->num 
+var_decl->type_spec id = expr 
+stmt->var_decl ; 
+stmts->stmts M stmt 
+M->
+expr->id 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+expr->num 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+expr->num 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+M->
+expr->id 
+rel->>= 
+expr->num 
+logic_expr->expr rel expr 
+M->
+expr->id 
+arg_list->expr 
+expr->id 
+arg_list->arg_list , expr 
+call_stmt->id ( arg_list ) 
+stmt->call_stmt ; 
+stmts->stmt 
+M->
+expr->id 
+expr->num 
+expr->expr - expr 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+stmt->{ stmts } 
+while_stmt->while M ( logic_expr ) M stmt 
+stmt->while_stmt 
+stmts->stmts M stmt 
+M->
+stmt->; 
+stmts->stmts M stmt 
+M->
+expr->id 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+expr->num 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+expr->num 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+M->
+expr->id 
+rel->>= 
+expr->num 
+logic_expr->expr rel expr 
+M->
+expr->id 
+arg_list->expr 
+expr->id 
+arg_list->arg_list , expr 
+call_stmt->id ( arg_list ) 
+stmt->call_stmt ; 
+stmts->stmt 
+M->
+expr->id 
+expr->num 
+expr->expr - expr 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+stmt->{ stmts } 
+while_stmt->while M ( logic_expr ) M stmt 
+stmt->while_stmt 
+stmts->stmts M stmt 
+M->
+stmt->; 
+stmts->stmts M stmt 
+M->
+expr->id 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+expr->num 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+expr->num 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+M->
+expr->id 
+rel->>= 
+expr->num 
+logic_expr->expr rel expr 
+M->
+expr->id 
+arg_list->expr 
+expr->id 
+arg_list->arg_list , expr 
+call_stmt->id ( arg_list ) 
+stmt->call_stmt ; 
+stmts->stmt 
+M->
+expr->id 
+expr->num 
+expr->expr - expr 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+stmt->{ stmts } 
+while_stmt->while M ( logic_expr ) M stmt 
+stmt->while_stmt 
+stmts->stmts M stmt 
+M->
+stmt->; 
+stmts->stmts M stmt 
+M->
+expr->id 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+expr->num 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+expr->num 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+M->
+expr->id 
+rel->>= 
+expr->num 
+logic_expr->expr rel expr 
+M->
+expr->id 
+arg_list->expr 
+expr->id 
+arg_list->arg_list , expr 
+call_stmt->id ( arg_list ) 
+stmt->call_stmt ; 
+stmts->stmt 
+M->
+expr->id 
+expr->num 
+expr->expr - expr 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+stmt->{ stmts } 
+while_stmt->while M ( logic_expr ) M stmt 
+stmt->while_stmt 
+stmts->stmts M stmt 
+M->
+stmt->; 
+stmts->stmts M stmt 
+M->
+expr->id 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+expr->num 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+expr->num 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+M->
+expr->id 
+rel->>= 
+expr->num 
+logic_expr->expr rel expr 
+M->
+expr->id 
+arg_list->expr 
+expr->id 
+arg_list->arg_list , expr 
+call_stmt->id ( arg_list ) 
+stmt->call_stmt ; 
+stmts->stmt 
+M->
+expr->id 
+expr->num 
+expr->expr - expr 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+stmt->{ stmts } 
+while_stmt->while M ( logic_expr ) M stmt 
+stmt->while_stmt 
+stmts->stmts M stmt 
+M->
+stmt->; 
+stmts->stmts M stmt 
+M->
+expr->id 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+expr->num 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+expr->num 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+M->
+expr->id 
+rel->>= 
+expr->num 
+logic_expr->expr rel expr 
+M->
+expr->id 
+arg_list->expr 
+expr->id 
+arg_list->arg_list , expr 
+call_stmt->id ( arg_list ) 
+stmt->call_stmt ; 
+stmts->stmt 
+M->
+expr->id 
+expr->num 
+expr->expr - expr 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+stmt->{ stmts } 
+while_stmt->while M ( logic_expr ) M stmt 
+stmt->while_stmt 
+stmts->stmts M stmt 
+M->
+stmt->; 
+stmts->stmts M stmt 
+M->
+expr->num 
+stmt->return expr ; 
+stmts->stmts M stmt 
+fun_define->fun_decl_head BlockLeader { stmts } 
+stmt->fun_define 
+stmts->stmts M stmt 
+program->stmts 
+S->program 
+D:/SEU/IDE/coe_result//digits_driver.asm--------------------------------
+type_spec->void 
+type_spec->int 
+param->type_spec id 
+param_list->param 
+type_spec->int 
+param->type_spec id 
+param_list->param_list , param 
+fun_decl_head->type_spec id ( param_list ) 
+BlockLeader->
+expr->id 
+rel->< 
+expr->num 
+logic_expr->expr rel expr 
+M->
+expr->num 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+if_stmt->if ( logic_expr ) M stmt 
+stmt->if_stmt 
+stmts->stmt 
+M->
+expr->id 
+rel->> 
+expr->num 
+logic_expr->expr rel expr 
+M->
+expr->num 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+if_stmt->if ( logic_expr ) M stmt 
+stmt->if_stmt 
+stmts->stmts M stmt 
+M->
+expr->id 
+rel->< 
+expr->num 
+logic_expr->expr rel expr 
+M->
+expr->num 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+if_stmt->if ( logic_expr ) M stmt 
+stmt->if_stmt 
+stmts->stmts M stmt 
+M->
+expr->id 
+rel->> 
+expr->num 
+logic_expr->expr rel expr 
+M->
+expr->num 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+if_stmt->if ( logic_expr ) M stmt 
+stmt->if_stmt 
+stmts->stmts M stmt 
+M->
+expr->num 
+expr->id 
+stmt->set_mem ( expr , expr ) ; 
+stmts->stmts M stmt 
+M->
+expr->num 
+expr->id 
+stmt->set_mem ( expr , expr ) ; 
+stmts->stmts M stmt 
+M->
+stmt->return ; 
+stmts->stmts M stmt 
+fun_define->fun_decl_head BlockLeader { stmts } 
+stmt->fun_define 
+stmts->stmt 
+M->
+type_spec->void 
+fun_decl_head->type_spec id ( ) 
+BlockLeader->
+type_spec->int 
+expr->num 
+var_decl->type_spec id = expr 
+stmt->var_decl ; 
+stmts->stmt 
+M->
+expr->num 
+expr->id 
+stmt->set_mem ( expr , expr ) ; 
+stmts->stmts M stmt 
+M->
+stmt->return ; 
+stmts->stmts M stmt 
+fun_define->fun_decl_head BlockLeader { stmts } 
+stmt->fun_define 
+stmts->stmts M stmt 
+M->
+type_spec->void 
+type_spec->int 
+param->type_spec id 
+param_list->param 
+fun_decl_head->type_spec id ( param_list ) 
+BlockLeader->
+type_spec->int 
+var_decl->type_spec id 
+stmt->var_decl ; 
+stmts->stmt 
+M->
+type_spec->int 
+var_decl->type_spec id 
+stmt->var_decl ; 
+stmts->stmts M stmt 
+M->
+type_spec->int 
+var_decl->type_spec id 
+stmt->var_decl ; 
+stmts->stmts M stmt 
+M->
+expr->num 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+expr->id 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+M->
+expr->id 
+rel->>= 
+expr->num 
+logic_expr->expr rel expr 
+M->
+expr->id 
+rel->< 
+expr->num 
+logic_expr->expr rel expr 
+logic_expr->logic_expr && M logic_expr 
+M->
+expr->id 
+expr->num 
+expr->expr % expr 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmt 
+M->
+expr->id 
+expr->num 
+expr->expr / expr 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+expr->id 
+arg_list->expr 
+expr->id 
+arg_list->arg_list , expr 
+call_stmt->id ( arg_list ) 
+stmt->call_stmt ; 
+stmts->stmts M stmt 
+M->
+expr->id 
+expr->num 
+expr->expr + expr 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+stmt->{ stmts } 
+while_stmt->while M ( logic_expr ) M stmt 
+stmt->while_stmt 
+stmts->stmts M stmt 
+M->
+expr->num 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+expr->id 
+arg_list->expr 
+expr->num 
+arg_list->arg_list , expr 
+call_stmt->id ( arg_list ) 
+stmt->call_stmt ; 
+stmts->stmts M stmt 
+M->
+stmt->return ; 
+stmts->stmts M stmt 
+fun_define->fun_decl_head BlockLeader { stmts } 
+stmt->fun_define 
+stmts->stmts M stmt 
+program->stmts 
+S->program 
+D:/SEU/IDE/coe_result//keyboard_driver.asm--------------------------------
+type_spec->int 
+fun_decl_head->type_spec id ( ) 
+BlockLeader->
+type_spec->int 
+var_decl->type_spec id 
+stmt->var_decl ; 
+stmts->stmt 
+M->
+expr->num 
+expr->load_mem ( expr ) 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+expr->id 
+stmt->return expr ; 
+stmts->stmts M stmt 
+fun_define->fun_decl_head BlockLeader { stmts } 
+stmt->fun_define 
+stmts->stmt 
+M->
+type_spec->void 
+fun_decl_head->type_spec id ( ) 
+BlockLeader->
+expr->num 
+expr->num 
+stmt->set_mem ( expr , expr ) ; 
+stmts->stmt 
+M->
+stmt->return ; 
+stmts->stmts M stmt 
+fun_define->fun_decl_head BlockLeader { stmts } 
+stmt->fun_define 
+stmts->stmts M stmt 
+program->stmts 
+S->program 
+D:/SEU/IDE/coe_result//led_driver.asm--------------------------------
+type_spec->void 
+type_spec->int 
+param->type_spec id 
+param_list->param 
+type_spec->int 
+param->type_spec id 
+param_list->param_list , param 
+fun_decl_head->type_spec id ( param_list ) 
+BlockLeader->
+expr->num 
+expr->id 
+stmt->set_mem ( expr , expr ) ; 
+stmts->stmt 
+M->
+expr->num 
+expr->id 
+stmt->set_mem ( expr , expr ) ; 
+stmts->stmts M stmt 
+M->
+stmt->return ; 
+stmts->stmts M stmt 
+fun_define->fun_decl_head BlockLeader { stmts } 
+stmt->fun_define 
+stmts->stmt 
+program->stmts 
+S->program 
+D:/SEU/IDE/coe_result//switch_driver.asm--------------------------------
+type_spec->int 
+fun_decl_head->type_spec id ( ) 
+BlockLeader->
+type_spec->int 
+var_decl->type_spec id 
+stmt->var_decl ; 
+stmts->stmt 
+M->
+expr->num 
+expr->load_mem ( expr ) 
+expr_stmt->id = expr 
+stmt->expr_stmt ; 
+stmts->stmts M stmt 
+M->
+expr->id 
+stmt->return expr ; 
+stmts->stmts M stmt 
+fun_define->fun_decl_head BlockLeader { stmts } 
+stmt->fun_define 
+stmts->stmt 
+program->stmts 
+S->program 

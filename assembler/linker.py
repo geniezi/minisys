@@ -55,7 +55,7 @@ def process_jal(functs, machine_code):
                                                         instr[0] + instr[10:20] + instr[9] + instr[1:9])
                     binary_instr = binary_instr.replace(" ", "")
                     machine_code[i] = binary2hex(binary_instr, 8)
-    return result
+    return result, machine_code
 
 
 def generate_ins_coe_file(functs, bios_code, machine_code, output_path):
@@ -75,7 +75,7 @@ def generate_ins_coe_file(functs, bios_code, machine_code, output_path):
 
     for i in range(0, machine_code.__len__()):
         machine_code[i] = machine_code[i][4:8] + "," + machine_code[i][0:4]
-    binary_code = (',\n'.join(bios_code)) + ",\n" + (',\n'.join(machine_code[0:functs['bios']['start']-1])) + ","
+    binary_code = (',\n'.join(bios_code)) + ",\n" + (',\n'.join(machine_code[0:functs['bios']['start'] - 1])) + ","
     # print(binary_code)
 
     coe_file.write(binary_code)

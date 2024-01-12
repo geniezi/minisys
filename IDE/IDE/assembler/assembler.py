@@ -209,7 +209,7 @@ def assemble_risc_v(assembly_code):
         if flag == 1:
             parts = line.strip().split()
             data[parts[1]] = parts[2]
-            continue;
+            continue
 
         if flag == 2:
             match = re.search(r'(.+) :', line)
@@ -266,14 +266,16 @@ def assemble_risc_v(assembly_code):
 
 
 def main(input_files, output_path):
+    global bios
     for file_path in input_files:
         assembly_code = open(file_path).read()
         assemble_risc_v(assembly_code)
+    assemble_risc_v(bios)
 
-    linker.process_jal(funct, machine_code)
+    bios_code = linker.process_jal(funct, machine_code)
     print(machine_code)
 
-    linker.generate_ins_coe_file(machine_code, output_path)
+    linker.generate_ins_coe_file(funct,bios_code, machine_code, output_path)
     linker.generate_data_coe_file(data, output_path)
 
 
@@ -287,6 +289,34 @@ if __name__ == '__main__':
     funct = {}
     data = {}
     machine_code = []
+    bios = """.text
+    bios :  lui x2,0x10
+            lui x8,0x10
+            lui x3,0x1
+            addi x31,x31,0x1
+            addi x30,x30,0x100
+            addi x29,x29,-0x400
+            sw x31,0(x29)
+            sw x30,4(x29)
+            jal x0,4064
+            addi x30,x0,0x100
+            addi x29,x0,-0x400
+            addi x7,x0,11
+            addi x28,x0,3
+            csrrs x6,t834,x0
+            bne x6,x7,16
+            addi x31,x0,2
+            sw x31,0(x29)
+            jal x0,28
+            bne x6,x28,16
+            addi x31,x0,3
+            sw x31,0(x29)
+            jal x0,12
+            addi x31,x0,4
+            sw x31,0(x29)
+            mret
+
+"""
 
     # cmd 运行 python assembler.py input_file1 input_file2 ... output_path
     input_files = sys.argv[1:-1]

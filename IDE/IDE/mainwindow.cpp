@@ -232,6 +232,7 @@ void MainWindow::on_actionOpenFile_triggered()
            this->currentFilePath=filename;
            this->editorTop[0]->setText(this->currentFileName);
            this->hasOpenFile=true;
+           file.close();
     }
 }
 
@@ -486,91 +487,165 @@ void MainWindow::on_actionRun_triggered()
 
       }
     qDebug() <<"ccc"<< this->currentFilePath;
-    QString text = ui->textEdit->toPlainText();
-    QStringList  strs= text.split("#include",QString::SkipEmptyParts);
-    QStringList  cList;
+//    QString text = ui->textEdit->toPlainText();
+//    QStringList  strs= text.split("#include",QString::SkipEmptyParts);
+//    QStringList  cList;
     QStringList  asmList;
     QString str = QApplication::applicationDirPath();
-    qDebug() << str;
-    cList.append(this->currentFilePath);
-    int index=0;
-    asmList.append(str+"/asm_out/result"+QString::number(index)+ ".asm");
-    index++;
+//    qDebug() << str;
+//    cList.append(this->currentFilePath);
+//    int index=0;
+//    asmList.append(str+"/asm_out/result"+QString::number(index)+ ".asm");
+//    index++;
 
 
-    for (int i = 0;i < strs.size();i ++)
-    {
-        if(i+1!=strs.size())
-        {
+//    for (int i = 0;i < strs.size();i ++)
+//    {
+//        if(i+1!=strs.size())
+//        {
 
-           QString s = strs[i].simplified();
-           if(s.isEmpty())continue;
+//           QString s = strs[i].simplified();
+//           if(s.isEmpty())continue;
 //           qDebug() << s;
-           s.remove(QRegExp("^\\\""));
-           s.remove(QRegExp("\\\"$"));
-           QDir temDir(s);
-           QString absDir = temDir.absolutePath();
-           cList.append(absDir);
-           qDebug() << absDir;
-           asmList.append(str+"/asm_out/result"+QString::number(index)+ ".asm");
-           index++;
-        }
-        else
-        {
-            QString s = strs[i].simplified();
-            s=s.split("\"",QString::SkipEmptyParts)[0];
-            if(s.isEmpty()||s[0]!="\"")
-            {
-                break;
-            }
-            else
-            {
-                s.replace(QRegExp("^\""), "");
-                s.replace(QRegExp("\\$"), "");
-                QDir temDir(s);
-                QString absDir = temDir.absolutePath();
-                cList.append(absDir);
-                qDebug() << absDir;
-                asmList.append(str+"/asm_out/result"+QString::number(index)+ ".asm");
-                index++;
-            }
+//           s.remove(QRegExp("^\\\""));
+//           s.remove(QRegExp("\\\"$"));
+//           QDir temDir(s);
+//           QString absDir = temDir.absolutePath();
+//           cList.append(absDir);
+//           qDebug() << absDir;
+//           asmList.append(str+"/asm_out/result"+QString::number(index)+ ".asm");
+//           index++;
+//        }
+//        else
+//        {
+//            QString s = strs[i].simplified();
+//            s=s.split("\"",QString::SkipEmptyParts)[0];
+//            if(s.isEmpty()||s[0]!="\"")
+//            {
+//                break;
+//            }
+//            else
+//            {
+//                s.replace(QRegExp("^\""), "");
+//                s.replace(QRegExp("\\$"), "");
+//                QDir temDir(s);
+//                QString absDir = temDir.absolutePath();
+//                cList.append(absDir);
+//                qDebug() << absDir;
+//                asmList.append(str+"/asm_out/result"+QString::number(index)+ ".asm");
+//                index++;
+//            }
 
-        }
+//        }
 
 
-    }
+//    }
     QProcess compiler;
-    QDir c("../IDE/compiler/MyCompiler.exe");
+    QDir c("../IDE/compiler/release/MyCompiler.exe");
     QString c_cmd = c.absolutePath();
+//    c_cmd="../IDE/compiler/release/MyCompiler.exe";
     qDebug()<<c_cmd;
-    for(int i=0;i<index;i++)
-    {
+//    for(int i=0;i<index;i++)
+//    {
 
-        QStringList c_args;
-        c_args.append(cList[i]);
-        c_args.append(asmList[i]);
+//        QStringList c_args;
+//        c_args.append(cList[i]);
+//        c_args.append(asmList[i]);
 //        qDebug() << c_cmd;
 //        qDebug()<<c_args;
-        compiler.start(c_cmd,c_args);
-        compiler.waitForFinished();
-        qDebug() << "编译执行："<<i;
-    }
+//        compiler.start(c_cmd,c_args);
+//        compiler.waitForFinished();
+//        qDebug() << "编译执行："<<i;
+//    }
+    QStringList c_args;
+    qDebug()<<this->currentFilePath;
+    c_args.append(this->currentFilePath);
+    QDir ad("../asm_result/");
+    QString asmDir = ad.absolutePath();
+    qDebug() << asmDir;
+    c_args.append(asmDir);
+    compiler.start(c_cmd,c_args);
+    compiler.waitForFinished();
+    qDebug() << "编译执行";
+
+
+
+
+    ad.setFilter(QDir::Files);
+    ad.setSorting(QDir::Name);
+    QStringList filter;
+    filter.append("*.asm");
+    ad.setNameFilters(filter);
+    asmList = ad.entryList();
+
+//    for(int i=0;i<asmList.size();i++)
+//    {
+//        qDebug()<<asmDir+"/"+asmList[i];
+//    }
+
+
+//    return ;
+
     QProcess assembler;
 //    QString a_cmd = str+"/assembler/dist/assembler/assembler.exe";
     QDir a("../IDE/assembler/dist/assembler/assembler.exe");
     QString a_cmd = a.absolutePath();
-//    qDebug() << "编译执行："<<aDir;
+    qDebug() << "编译执行："<<a_cmd;
     QStringList a_args;
     for(int i=0;i<asmList.size();i++)
     {
-        a_args.append(asmList[i]);
+        a_args.append(asmDir+"/"+asmList[i]);
     }
     QDir res("../coe_result/");
     QString resDir = res.absolutePath();
     a_args.append(resDir);
     assembler.start(a_cmd,a_args);
     assembler.waitForFinished();
+
+
+
+
+    //删除所有的asm中间文件
+    QDir m_dir(asmDir);
+     if(m_dir.isEmpty())
+     {
+         qDebug() << "临时文件文件夹" << asmDir << "为空";
+         m_dir.removeRecursively();
+         return;
+     }
+
+     // 第三个参数是QDir的过滤参数，这三个表示收集所有文件和目录，且不包含"."和".."目录。
+     // 因为只需要遍历第一层即可，所以第四个参数填QDirIterator::NoIteratorFlags
+     QDirIterator DirsIterator(asmDir, QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
+     while(DirsIterator.hasNext())
+     {
+         if (!m_dir.remove(DirsIterator.next())) // 删除文件操作如果返回否，那它就是目录
+         {
+             QDir(DirsIterator.filePath()).removeRecursively(); // 删除目录本身以及它下属所有的文件及目录
+         }
+     }
+
+     m_dir.removeRecursively();
+
+
+    //显示log
+     QDir d("../IDE/compiler/release/MyCompiler.log");
+     QString filename = d.absolutePath();
+     QFile newfile(filename);//构建文件对象，对文件做相关操作
+     bool tag = newfile.open(QIODevice::ReadOnly);//只读方式打开文件
+     if(!tag)
+     {
+         QMessageBox::information(this,"提示","文件打开失败");
+         return;//文件打开失败
+     }
+
+     //创建数据流对象
+      QByteArray array =  newfile.readAll();
+      QString o_message(array);
+      QMessageBox::information(this,"提示信息",o_message);
+
    }
+    return;
 }
 
 void MainWindow::on_actionCompiler_triggered()

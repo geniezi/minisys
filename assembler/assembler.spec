@@ -5,8 +5,8 @@ block_cipher = None
 
 
 a = Analysis(
-    ['assembler.py', 'instructions.py', 'linker.py'],
-    pathex=['D:\Project\Python\minisys\assembler'],
+    ['assembler.py'],
+    pathex=[],
     binaries=[],
     datas=[],
     hiddenimports=[],
@@ -31,7 +31,7 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=False,
+    console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
