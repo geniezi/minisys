@@ -1,0 +1,92 @@
+D:/SEU/IDE/asm_result/Fibonacci.asm-------------------------------------------------
+                          op      arg1      arg2       des
+ Fibonacci :   0)        j==     8(x8)         1   LABEL_4
+           :   1)          j                       LABEL_2
+   LABEL_2 :   2)        j==     8(x8)         2   LABEL_4
+           :   3)          j                       LABEL_6
+   LABEL_4 :   4)     return         1                    
+           :   5)          j                      LABEL_16
+   LABEL_6 :   6)        sub     8(x8)         1    -4(x8)
+           :   7)      param    -4(x8)                    
+           :   8)       call         1 Fibonacci          
+           :   9)        MOV         #             -12(x8)
+           :  10)        sub     8(x8)         2   -16(x8)
+           :  11)      param   -16(x8)                    
+           :  12)       call         1 Fibonacci          
+           :  13)        MOV         #             -20(x8)
+           :  14)        add   -12(x8)   -20(x8)   -24(x8)
+           :  15)     return   -24(x8)                    
+  LABEL_16 :  16)        nop                              
+      main :  17)        MOV     20000             -12(x8)
+  LABEL_18 :  18)        j!=         1         0  LABEL_20
+           :  19)          j                      LABEL_35
+  LABEL_20 :  20)       call         0read_keyboard          
+           :  21)        MOV         #             -20(x8)
+           :  22)        MOV   -20(x8)              -4(x8)
+           :  23)      param    -4(x8)                    
+           :  24)       call         1 Fibonacci          
+           :  25)        MOV         #             -24(x8)
+           :  26)        MOV   -24(x8)              -8(x8)
+  LABEL_27 :  27)        j>=   -12(x8)         0  LABEL_29
+           :  28)          j                      LABEL_18
+  LABEL_29 :  29)        sub   -12(x8)         1   -28(x8)
+           :  30)        MOV   -28(x8)             -12(x8)
+           :  31)      param    -8(x8)                    
+           :  32)       call         1smart_display_digit          
+           :  33)          j                      LABEL_27
+           :  34)          j                      LABEL_18
+  LABEL_35 :  35)     return         0                    
+           :  36)        nop                              
+D:/SEU/IDE/asm_result/digits_driver.asm-------------------------------------------------
+                          op      arg1      arg2       des
+ Fibonacci :   0)         j<    12(x8)         0   LABEL_2
+           :   1)          j                       LABEL_3
+   LABEL_2 :   2)        MOV         0              12(x8)
+   LABEL_3 :   3)         j>    12(x8)        17   LABEL_5
+           :   4)          j                       LABEL_6
+   LABEL_5 :   5)        MOV        17              12(x8)
+   LABEL_6 :   6)         j<     8(x8)         0   LABEL_8
+           :   7)          j                       LABEL_9
+   LABEL_8 :   8)        MOV         0               8(x8)
+   LABEL_9 :   9)         j>     8(x8)         7  LABEL_11
+           :  10)          j                      LABEL_12
+  LABEL_11 :  11)        MOV         7               8(x8)
+  LABEL_12 :  12)        set     -1024    12(x8)          
+           :  13)        set     -1020     8(x8)          
+           :  14)     return                              
+           :  15)        nop                              
+clear_digits :  16)        MOV         8              -4(x8)
+      main :  17)        set     -1020    -4(x8)          
+           :  18)     return                              
+           :  19)        nop                              
+smart_display_digit :  20)        MOV         0              -4(x8)
+           :  21)        MOV     8(x8)              -8(x8)
+  LABEL_22 :  22)        j>=    -8(x8)         0  LABEL_24
+           :  23)          j                      LABEL_36
+  LABEL_24 :  24)         j<    -4(x8)         8  LABEL_26
+           :  25)          j                      LABEL_36
+  LABEL_26 :  26)        rem    -8(x8)        10   -16(x8)
+           :  27)        MOV   -16(x8)             -12(x8)
+           :  28)        div    -8(x8)        10   -20(x8)
+           :  29)        MOV   -20(x8)              -8(x8)
+           :  30)      param   -12(x8)                    
+           :  31)      param    -4(x8)                    
+           :  32)       call         2display_digit          
+           :  33)        add    -4(x8)         1   -24(x8)
+           :  34)        MOV   -24(x8)              -4(x8)
+           :  35)          j                      LABEL_22
+  LABEL_36 :  36)        MOV         8              -4(x8)
+           :  37)      param         0                    
+           :  38)      param    -4(x8)                    
+           :  39)       call         2display_digit          
+           :  40)     return                              
+           :  41)        nop                              
+D:/SEU/IDE/asm_result/keyboard_driver.asm-------------------------------------------------
+                          op      arg1      arg2       des
+ Fibonacci :   0)       load     -1008              -8(x8)
+           :   1)        MOV    -8(x8)              -4(x8)
+           :   2)     return    -4(x8)                    
+           :   3)        nop                              
+clear_keyboard :   4)        set     -1008        -1          
+           :   5)     return                              
+           :   6)        nop                              
