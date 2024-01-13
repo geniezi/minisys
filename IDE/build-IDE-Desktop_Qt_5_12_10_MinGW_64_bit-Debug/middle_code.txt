@@ -1,2 +1,0 @@
-                           op      arg1      arg2       des
-      main :   0)        MOV        10              -4(x8)
