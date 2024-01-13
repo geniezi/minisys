@@ -1,0 +1,21 @@
+D:/QICQ/学习/计算机系统综合设计/mycomp/IDE/exe/asm_mid_result//IDEtest.asm--------------------------------------------------
+
+testError
+return size = 0
+              name   place    type   offset   space
+
+main
+return size = 4
+              name   place    type   offset   space
+                 #  -4(x8)     int        4       4
+                T0  -8(x8)     int        8       4
+                 b -12(x8)     int       12       4
+
+const
+return size = 0
+              name   place    type   offset   space
+                 0       0     dec        0       0
+
+global
+return size = 0
+              name   place    type   offset   space

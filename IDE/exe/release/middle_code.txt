@@ -1,0 +1,8 @@
+D:/QICQ/学习/计算机系统综合设计/mycomp/IDE/exe/asm_mid_result//IDEtest.asm-------------------------------------------------
+                                 op      arg1              arg2       des
+        testError :   0)     return                                      
+                  :   1)        nop                                      
+             main :   2)       call         0         testError          
+                  :   3)        MOV         #                      -8(x8)
+                  :   4)     return         0                            
+                  :   5)        nop                                      
