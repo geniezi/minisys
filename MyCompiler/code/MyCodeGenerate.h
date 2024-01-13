@@ -148,9 +148,9 @@ int storeToGetReg() {
 //imm -> reg
 void imm2reg(int imm,int reg)
 {
-	int x_l = imm & ((1 << 13) - 1);
+	int x_l = imm & ((1 << 12) - 1);
 	int x_u = imm>>12;
-	if (imm >> 12 & 1) x_u++;
+	if (imm >> 11 & 1) x_u++;
 	if (x_u==0)
 	{
 		assemblyCode.push_back(Assembly("addi", reg, "x0", x_l));
@@ -158,7 +158,7 @@ void imm2reg(int imm,int reg)
 	else
 	{
 		assemblyCode.push_back(Assembly("lui", reg, x_u));
-		assemblyCode.push_back(Assembly("addi", reg, reg, x_l));
+		if(x_l!=0) assemblyCode.push_back(Assembly("addi", reg, reg, x_l));
 		
 	}
 	set<string> set;
@@ -167,9 +167,9 @@ void imm2reg(int imm,int reg)
 }
 void imm2reg(int imm, string reg)
 {
-	int x_l = imm & ((1 << 13) - 1);
+	int x_l = imm & ((1 << 12) - 1);
 	int x_u = imm>>12;
-	if (imm >> 12 & 1) x_u++;
+	if (imm >> 11 & 1) x_u++;
 	if (x_u == 0)
 	{
 		assemblyCode.push_back(Assembly("addi", reg, "x0", x_l));
@@ -177,8 +177,7 @@ void imm2reg(int imm, string reg)
 	else
 	{
 		assemblyCode.push_back(Assembly("lui", reg, x_u));
-		assemblyCode.push_back(Assembly("addi", reg, reg, x_l));
-
+		if (x_l != 0) assemblyCode.push_back(Assembly("addi", reg, reg, x_l));
 	}
 }
 // code : A = B op C
@@ -1094,9 +1093,9 @@ void outputAssemblyCode(string filename) {
 	int index = 0;
 	for (const auto& code : assemblyCode) {
 		if (!code._fun.empty()) {
-			out << setw(13) << code._fun + " : ";
+			out << setw(20) << code._fun + " : ";
 		}
-		else out << "             ";
+		else out << setw(23)<<" ";
 		out << code._op << " ";
 		if (jlabel.find(code._des) != jlabel.end()) {
 			//cout << jlabel[code._des] << " " << index << endl;

@@ -116,11 +116,11 @@ void setOutLiveVar(strType name) {
 void outputSymbolTable(SymbolTable* table, ofstream& out) {
 	out << endl << table->_funName << endl;
 	out << "return size = " << table->_returnSize << endl;
-	out << setw(6) << "name" << setw(8) << "place" << setw(15) << "type" << setw(9) << "offset" << setw(8) << "space" << endl;
+	out << setw(18) << "name" << setw(8) << "place" << setw(8) << "type" << setw(9) << "offset" << setw(8) << "space" << endl;
 	for (auto& _map : table->_field) {
-		out << setw(6) << _map._name
+		out << setw(18) << _map._name
 			<< setw(8) << _map._place
-			<< setw(15) << _map._type
+			<< setw(8) << _map._type
 			<< setw(9) << _map._offset
 			<< setw(8) << _map._space;
 		if (table == globalTable) out << setw(6) << _map.init_value;
@@ -277,16 +277,16 @@ string getRetType(string name)
 }
 // output middle code
 void outputMiddleCode(ofstream& middleCodeOut) {
-	middleCodeOut << "                  " << setw(10) << "op" << setw(10) << "arg1" << setw(10) << "arg2" << setw(10) << "des" << endl;
+	middleCodeOut << "                         " << setw(10) << "op" << setw(10) << "arg1" << setw(18) << "arg2" << setw(10) << "des" << endl;
 	for (int i = 0; i < middleCode.size(); ++i) {
 		auto& code = middleCode.at(i);
 		// 输出LABEL没有则为空
-		if(code._fun!="") middleCodeOut << setw(13) << code._fun + " : ";
-		else middleCodeOut << setw(13) << code._label + " : "; 
+		if(code._fun!="") middleCodeOut << setw(20) << code._fun + " : ";
+		else middleCodeOut << setw(20) << code._label + " : "; 
 		middleCodeOut << setw(3) << i << ") ";
 		middleCodeOut << setw(10) << code._op;
 		middleCodeOut << setw(10) << code._arg1;
-		middleCodeOut << setw(10) << code._arg2;
+		middleCodeOut << setw(18) << code._arg2;
 		middleCodeOut << setw(10) << code._des;
 		middleCodeOut << endl;
 	}

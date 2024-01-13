@@ -30,8 +30,8 @@ int errorline;
 void errorReduce( list<Token>::iterator token) {
 	fstream write;
 	write.open("compiler.log",  ios::out);
-	write <<"parsing analysis error at "<< "line " << token->_line << ",offset " << token->_offset << " is wrong for grammar\n";
-	cout << "parsing analysis error at " << "line " << token->_line << ",offset " << token->_offset << " is wrong for grammar\n";
+	write <<"parsing analysis error around "<< "line " << token->_line << ",offset " << token->_offset << ", which is wrong for grammar\n";
+	cout << "parsing analysis error around " << "line " << token->_line << ",offset " << token->_offset << ", which is wrong for grammar\n";
 
 }
 
