@@ -15,7 +15,6 @@ using namespace std;
 #define GOTO_STATE 3
 #define ERROR 4
 #define ACCEPT 5
-extern int errorline;
 const int REGISTER_NUM = 17;
 void error(string err) {
 	fstream write;

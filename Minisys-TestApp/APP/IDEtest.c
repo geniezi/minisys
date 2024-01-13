@@ -1,14 +1,10 @@
-int main()
+void testError()
 {
-	int a;
-}nt a=10;
-    // int a=20;
-    int b=50
-    return a+b;
+    return;
 }
- 
 int main(){
    testError();
+   int b;
    return 0;
-}turn 0;
 }
+}}

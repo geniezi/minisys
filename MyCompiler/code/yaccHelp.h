@@ -26,7 +26,7 @@ SymbolTable* constTable;
 stack< string> paramStack;
 vector<string> filelist;
 vector<Quadruple> middleCode;
-int errorline;
+
 void errorReduce( list<Token>::iterator token) {
 	fstream write;
 	write.open("compiler.log",  ios::out);
@@ -52,25 +52,31 @@ bool yaccReduce(list<Token> _tokenList,string filename,int file_t) {
 	globalTable->_beginIndex = nextInstr;
 	currentTable = globalTable;
 	// 把终结符送入token末和压入栈当匹配到$时表示结束
-	_tokenList.push_back(Token("$", "$", 0, 0, 0));
+	_tokenList.push_back(Token("$", "$", 0, _tokenList.back()._line, _tokenList.back()._offset+1));
 	st.push_back(StackItem(0, "$")); // init stack
 	auto token = _tokenList.begin(), tokenEnd = _tokenList.end();
 	bool ok = 1;
 	// 依次读取token序列
 	while (token != tokenEnd) {
-		
-		TableItem tableItem = _parseTable.find(st.back()._state)->second.find(token->_attribute)->second;
-		//cout << token->_lexecal << " " << token->_line<< " "<<token->_offset << endl;
+		auto cur = _parseTable.find(st.back()._state)->second;
+		if (cur.find(token->_attribute) == cur.end())
+		{
+			errorReduce(token);
+			ok = 0;
+			return false;
+		}
+		TableItem tableItem = cur.find(token->_attribute)->second;
+	//	cout << token->_lexecal << " " << token->_attribute<< " " << token->_line<<" "<< token->_offset << endl;
 		if (tableItem._action == SHIFT) {
-			// push t onto the stack
+			// push token onto the stack
 			map< string,  string> map;
 			map["lexeme"] = token->_lexecal;
 			st.push_back(StackItem(tableItem._index, token->_attribute, map));
-			// let a be the next input symbol
-			errorline = token->_line;
+			// next input symbol
 			++token;
 		}
 		else if (tableItem._action == REDUCTION) {
+
 			// ACTION[s, a] = reduce A->beta
 			map< string, string> reduceHead; reduceHead.clear();
 			// pair <length of production, production head>
