@@ -28,8 +28,13 @@ stmt	: includestmt {}
 	| var_decl ';' { $$.nextlist = $1.nextlist; }
 	| 'static' var_decl ';' { $$.nextlist = $2.nextlist; }
 	| expr_stmt ';' {$$.nextlist = $1.nextlist;}
-	| 'return' expr ';' { emit("return",$2.place,"",""); }
-	| 'return' ';' { emit("return","","",""); }
+	| 'return' expr ';' { if(getRetType()=="void") error("return-statement with a value, in function returning void");
+							emit("return",$2.place,"",""); 
+						}
+	| 'return' ';' { 
+		if(getRetType()!="void") error("return-statement with no value");
+		emit("return","","",""); 
+		}
 	| call_stmt ';' {$$.nextlist = $1.nextlist; }
 	| 'set_mem' '(' expr ',' expr ')' ';' { emit("set",$3.place,$5.place,""); }
 	| ';' { }
@@ -145,7 +150,6 @@ expr : expr '+' expr {
 			$$.place = lookupPlace($1.lexeme);
             	     }
      | call_stmt {
-			if($1.type=="void") error("void value not ignored as it ought to be");
 			$$.place = newtemp($1.place);
 			emit("MOV",$1.place,"",$$.place); 
 			}
@@ -183,14 +187,10 @@ call_stmt : 'id' '(' arg_list ')' {
 				emit("param", paramStack.top(),"","");
 				paramStack.pop();
 			}
-			$$.type=getRetType($1.lexeme);
 			emit("call", p, $1.lexeme,"");
-			if($$.type!="void")
-			{
-				enter("#","int",4);
-				$$.place=newtemp($$.type);
-				emit("MOV","#","",$$.place);
-			}
+			enter("#","int",4);
+			$$.place=newtemp("int");
+			emit("MOV","#","",$$.place);
 		}	
 	}
 	;

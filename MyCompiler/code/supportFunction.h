@@ -263,17 +263,11 @@ void addToLabel(string t)
 	labelMap.insert(make_pair(atoi(t.substr(6).c_str()), t));
 	addLeader(atoi(t.substr(6).c_str()));
 }
-string getRetType(string name)
+string getRetType()
 {
-	for (auto tab : symbolTables) {
-		if (tab->_funName == name)
-		{
-			if (tab->_returnSize == 0) return "void";
-			else if (tab->_returnSize == 1) return "char";
-			else if (tab->_returnSize == 4) return "int";
-		}
-	}
-	error("function " + name + " not declared in this scope");
+	if (currentTable->_returnSize == 0) return "void";
+	else if (currentTable->_returnSize == 1) return "char";
+	else if (currentTable->_returnSize == 4) return "int";
 }
 // output middle code
 void outputMiddleCode(ofstream& middleCodeOut) {

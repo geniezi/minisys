@@ -12,9 +12,6 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	initTable(_parseTable);
-	_minDFAStateTranfer = new vector<map<char, unsigned int> >();
-	initMinDFAStateTranfer(_minDFAStateTranfer);
-	initFinalSet(_minDFAfinalStateSet);
 	list<Token> tokenlist;
 	string filename = argv[1];
 	string base = "";
@@ -55,7 +52,6 @@ int main(int argc, char *argv[]) {
 	for (int i = 0; i < filelist.size(); i++) am = am +asmfile[i] + " ";
 	am += out_path;
 	system(am.c_str());
-	delete _minDFAStateTranfer; _minDFAStateTranfer = nullptr;
 	return 0;
 }
 /*int main() {
