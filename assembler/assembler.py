@@ -273,7 +273,7 @@ def main(input_files, output_path):
     assemble_risc_v(bios)
 
     bios_code,machine_code_new = linker.process_jal(funct, machine_code)
-    print(machine_code_new)
+    # print(machine_code_new)
 
     linker.generate_ins_coe_file(funct, bios_code, machine_code_new, output_path)
     linker.generate_data_coe_file(data, output_path)
@@ -321,6 +321,7 @@ if __name__ == '__main__':
     # cmd 运行 python assembler.py input_file1 input_file2 ... output_path
     input_files = sys.argv[1:-1]
     output_path = sys.argv[-1]
+
 
     os.makedirs(output_path, exist_ok=True)
 
