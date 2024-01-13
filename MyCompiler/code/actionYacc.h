@@ -77,13 +77,15 @@ reduceHead["nextlist"] = st[stackSize - 2 + 1]._map["nextlist"];
 	return pair<unsigned int, string>(2,"stmt");
 
 	case 12 ://stmt->return expr ; 
- emit("return",st[stackSize - 3 + 2]._map["place"],"","");
- 
+	if(getRetType()=="void") error("return-statement with a value, in function returning void");
+							emit("return",st[stackSize - 3 + 2]._map["place"],"","");
+ 						
 	return pair<unsigned int, string>(3,"stmt");
 
 	case 13 ://stmt->return ; 
- emit("return","","","");
- 
+ 		if(getRetType()!="void") error("return-statement with no value");
+		emit("return","","","");
+ 		
 	return pair<unsigned int, string>(2,"stmt");
 
 	case 14 ://stmt->call_stmt ; 
@@ -289,14 +291,12 @@ enter(st[stackSize - 2 + 2]._map["lexeme"],st[stackSize - 2 + 1]._map["type"],at
 	return pair<unsigned int, string>(1,"expr");
 
 	case 49 ://expr->call_stmt 
-			if(st[stackSize - 1 + 1]._map["type"]=="void") error("void value not ignored as it ought to be");
-			reduceHead["place"] = newtemp(st[stackSize - 2 + 2]._map["place"]);
+			reduceHead["place"] = newtemp(st[stackSize - 1 + 1]._map["place"]);
 			emit("MOV",st[stackSize - 1 + 1]._map["place"],"",reduceHead["place"]);
  			
 	return pair<unsigned int, string>(1,"expr");
 
 	case 50 ://expr->num 
-		reduceHead["lexval"] = st[stackSize - 1 + 1]._map["lexeme"];
 		reduceHead["place"] = addNum(st[stackSize - 1 + 1]._map["lexeme"]);
 	     
 	return pair<unsigned int, string>(1,"expr");
@@ -339,19 +339,17 @@ enter(st[stackSize - 2 + 2]._map["lexeme"],st[stackSize - 2 + 1]._map["type"],at
 	return pair<unsigned int, string>(0,"arg_list");
 
 	case 57 ://call_stmt->id ( arg_list ) 
-		{			p = gen(paramStack.size());
-			while (!paramStack.empty()) {				emit("param", paramStack.top(),"","");
+		{			
+			p = gen(paramStack.size());
+			while (!paramStack.empty()) {				
+				emit("param", paramStack.top(),"","");
 				paramStack.pop();
 			}			
-			reduceHead["type"]=getRetType(st[stackSize - 4 + 1]._map["lexeme"]);
 			emit("call", p, st[stackSize - 4 + 1]._map["lexeme"],"");
-			if(reduceHead["type"]!="void")			
-			{				
-				enter("#","int",4);
-				reduceHead["place"]=newtemp(reduceHead["type"]);
-				emit("MOV","#","", reduceHead["place"]);
-			}		
-	}		
+			enter("#","int",4);
+			reduceHead["place"]=newtemp("int");
+			emit("MOV","#","",reduceHead["place"]);
+		}		
 	return pair<unsigned int, string>(4,"call_stmt");
 
 	case 58 ://if_stmt->if ( logic_expr ) M stmt 
