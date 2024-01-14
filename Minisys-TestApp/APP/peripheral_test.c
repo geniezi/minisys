@@ -1,5 +1,3 @@
-#include "../Driver/digits_driver.c"
-#include "../Driver/led_driver.c"
 int WATCHDOG_ADDR = 0xfffffc50;
 int SWITCH_ADDR = -0x390;
 int LED_ADDR = -0x3a0;
@@ -14,18 +12,6 @@ int Fa = 0xdfda;
 int Sao = 0xc74c;
 int La = 0xb18e;
 int Xi = 0x9e25;
-int Fibonacci(int n)
-{
-	if (n == 1 || n == 2)
-	{
-		return 1;
-	}
-	else
-	{
-		return Fibonacci(n - 1) + Fibonacci(n - 2);
-	}
-}
-
 int main(){
     int counter = 0;
     while(counter < 1250000){
@@ -86,60 +72,6 @@ int main(){
         set_mem(BUZZER_ADDR,Xi);
         set_mem(PWM_ADDR + 2,0xcf);
         set_mem(PWM_ADDR + 4,1);
-        }
-        if(keyboard_value == 8){
-        int number=Fibonacci(8);
-        int counter2=0;
-        while(counter2 < 2500000){
-        counter2 = counter2 + 1;
-        smart_display_digit(number);
-        }
-        }
-        if(keyboard_value == 9){
-        int key1;
-        int key2;
-        int counter1=0;
-        key1=0x0000000f;
-        key2=0x00000000;
-        while(counter1 < 1250000){
-        counter1 = counter1 + 1;
-        light_leds(key1,key2);
-        }
-        counter1=0;
-        key1=0x000000f0;
-        key2=0x00000000;
-        while(counter1 < 1250000){
-        counter1 = counter1 + 1;
-        light_leds(key1,key2);
-        }
-        counter1=0;
-        key1=0x00000f00;
-        key2=0x00000000;
-        while(counter1 < 1250000){
-        counter1 = counter1 + 1;
-        light_leds(key1,key2);
-        }
-        counter1=0;
-        key1=0x00000000;
-        key2=0x0000000f;
-        while(counter1 < 1250000){
-        counter1 = counter1 + 1;
-        light_leds(key1,key2);
-        }
-        counter1=0;
-        key1=0x00000000;
-        key2=0x000000f0;
-        while(counter1 < 1250000){
-        counter1 = counter1 + 1;
-        light_leds(key1,key2);
-        }
-        counter1=0;
-        key1=0x00000000;
-        key2=0x00000f00;
-        while(counter1 < 1250000){
-        counter1 = counter1 + 1;
-        light_leds(key1,key2);
-        }
         }
     }
   }
