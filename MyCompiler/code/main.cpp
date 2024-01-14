@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 	string am = "..\\..\\assembler\\dist\\assembler\\assembler.exe ";
 	for (int i = 0; i < filelist.size(); i++) am = am +asmfile[i] + " ";
 	am += out_path;
-	//system(am.c_str());
+	system(am.c_str());
 	return 0;
 }
 /*int main() {

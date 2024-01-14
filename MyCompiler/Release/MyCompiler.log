@@ -4,16 +4,16 @@ D:\Windows Kits\10\Include\10.0.18362.0\um\wingdi.h(118): message : 参见“ERR
 D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\structDefine.h(106,23): warning C4101: “e”: 未引用的局部变量
 D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\structDefine.h(115,23): warning C4101: “e”: 未引用的局部变量
 D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\supportFunction.h(275,20): warning C4018: “<”: 有符号/无符号不匹配
-D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\MyCodeGenerate.h(711,25): warning C4553: “==”: 未使用表达式结果；是否打算使用“=”?
-D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\MyCodeGenerate.h(717,31): warning C4553: “==”: 未使用表达式结果；是否打算使用“=”?
-D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\MyCodeGenerate.h(818,31): warning C4553: “==”: 未使用表达式结果；是否打算使用“=”?
+D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\MyCodeGenerate.h(712,25): warning C4553: “==”: 未使用表达式结果；是否打算使用“=”?
+D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\MyCodeGenerate.h(718,31): warning C4553: “==”: 未使用表达式结果；是否打算使用“=”?
+D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\MyCodeGenerate.h(819,31): warning C4553: “==”: 未使用表达式结果；是否打算使用“=”?
 D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\yaccHelp.h(130,23): warning C4018: “>”: 有符号/无符号不匹配
 D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\yaccHelp.h(133,25): warning C4018: “>”: 有符号/无符号不匹配
 D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\main.cpp(32,20): warning C4018: “<”: 有符号/无符号不匹配
 D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\main.cpp(54,20): warning C4018: “<”: 有符号/无符号不匹配
   正在生成代码
-  1 of 2454 functions (<0.1%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    5 functions had inline decision re-evaluated but remain unchanged
+  Previous IPDB not found, fall back to full compilation.
+D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\code\supportFunction.h(271): warning C4715: “getRetType”: 不是所有的控件路径都返回值
+  All 2454 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   已完成代码的生成
   MyCompiler.vcxproj -> D:\QICQ\学习\计算机系统综合设计\mycomp\MyCompiler\Release\MyCompiler.exe

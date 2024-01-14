@@ -681,6 +681,7 @@ void Assembly_param(const Quadruple& code) {
 	if (code._typeArg1)
 	{
 		imm2reg(atoi(code._arg1.c_str()), "x12");
+		assemblyCode.push_back(Assembly("addi", "x2", "x2", -4));
 		assemblyCode.push_back(Assembly("sw", "x12", "0(x2)"));
 	}
 	else
