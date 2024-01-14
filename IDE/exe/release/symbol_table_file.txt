@@ -1,44 +1,138 @@
-D:/SEU/IDE/exe/asm_result//Fibonacci.asm--------------------------------------------------
+D:/Project/Course_Project/Integrated_design_of_computer_systems/minisys/IDE/exe/asm_result//peripheral_test.asm--------------------------------------------------
 
 Fibonacci
 return size = 4
               name   place    type   offset   space
                  n   8(x8)     int        8       4
-                T0  -4(x8)     int        4       4
+                T2  -4(x8)     int        4       4
                  #  -8(x8)     int        8       4
-                T1 -12(x8)     int       12       4
-                T2 -16(x8)     int       16       4
-                T3 -20(x8)     int       20       4
-                T4 -24(x8)     int       24       4
-                T5 -28(x8)     int       28       4
-                T6 -32(x8)     int       32       4
+                T3 -12(x8)     int       12       4
+                T4 -16(x8)     int       16       4
+                T5 -20(x8)     int       20       4
+                T6 -24(x8)     int       24       4
+                T7 -28(x8)     int       28       4
+                T8 -32(x8)     int       32       4
 
 main
 return size = 4
               name   place    type   offset   space
-                 n  -4(x8)     int        4       4
-               ret  -8(x8)     int        8       4
-           delayer -12(x8)     int       12       4
-                 # -16(x8)     int       16       4
-                T7 -20(x8)     int       20       4
-                T8 -24(x8)     int       24       4
-                T9 -28(x8)     int       28       4
-               T10 -32(x8)     int       32       4
-               T11 -36(x8)     int       36       4
-               T12 -40(x8)     int       40       4
+           counter  -4(x8)     int        4       4
+                T9  -8(x8)     int        8       4
+               T10 -12(x8)     int       12       4
+           led_out -16(x8)     int       16       4
+               T11 -20(x8)     int       20       4
+    keyboard_state -24(x8)     int       24       4
+    keyboard_value -28(x8)     int       28       4
+               T12 -32(x8)     int       32       4
+               T13 -36(x8)     int       36       4
+               T14 -40(x8)     int       40       4
+               T15 -44(x8)     int       44       4
+               T16 -48(x8)     int       48       4
+               T17 -52(x8)     int       52       4
+               T18 -56(x8)     int       56       4
+               T19 -60(x8)     int       60       4
+               T20 -64(x8)     int       64       4
+               T21 -68(x8)     int       68       4
+               T22 -72(x8)     int       72       4
+               T23 -76(x8)     int       76       4
+               T24 -80(x8)     int       80       4
+               T25 -84(x8)     int       84       4
+               T26 -88(x8)     int       88       4
+               T27 -92(x8)     int       92       4
+               T28 -96(x8)     int       96       4
+               T29-100(x8)     int      100       4
+               T30-104(x8)     int      104       4
+               T31-108(x8)     int      108       4
+               T32-112(x8)     int      112       4
+               T33-116(x8)     int      116       4
+               T34-120(x8)     int      120       4
+               T35-124(x8)     int      124       4
+                 #-128(x8)     int      128       4
+               T36-132(x8)     int      132       4
+               T37-136(x8)     int      136       4
+            number-140(x8)     int      140       4
+          counter2-144(x8)     int      144       4
+               T38-148(x8)     int      148       4
+               T39-152(x8)     int      152       4
+              key1-156(x8)     int      156       4
+              key2-160(x8)     int      160       4
+          counter1-164(x8)     int      164       4
+               T40-168(x8)     int      168       4
+               T41-172(x8)     int      172       4
+               T42-176(x8)     int      176       4
+               T43-180(x8)     int      180       4
+               T44-184(x8)     int      184       4
+               T45-188(x8)     int      188       4
+               T46-192(x8)     int      192       4
+               T47-196(x8)     int      196       4
+               T48-200(x8)     int      200       4
+               T49-204(x8)     int      204       4
+               T50-208(x8)     int      208       4
+               T51-212(x8)     int      212       4
 
 const
 return size = 0
               name   place    type   offset   space
+        0xfffffc50    -944     hex        0       0
+             0x390     912     hex        0       0
+              -912    -912     dec        0       0
+             0x3a0     928     hex        0       0
+              -928    -928     dec        0       0
+        0xfffffc20    -992     hex        0       0
+        0xfffffc10   -1008     hex        0       0
+        0xfffffc40    -960     hex        0       0
+        0xfffffc30    -976     hex        0       0
+           0x12a2f   76335     hex        0       0
+           0x109bb   68027     hex        0       0
+            0xecbe   60606     hex        0       0
+            0xdfda   57306     hex        0       0
+            0xc74c   51020     hex        0       0
+            0xb18e   45454     hex        0       0
+            0x9e25   40485     hex        0       0
                  1       1     dec        0       0
                  2       2     dec        0       0
-             20000   20000     dec        0       0
                  0       0     dec        0       0
+           1250000 1250000     dec        0       0
+                 4       4     dec        0       0
+            0xffff   65535     hex        0       0
+             0xfff    4095     hex        0       0
+               0xf      15     hex        0       0
+              0x2f      47     hex        0       0
+                 3       3     dec        0       0
+              0x4f      79     hex        0       0
+              0x6f     111     hex        0       0
+                 5       5     dec        0       0
+              0x8f     143     hex        0       0
+                 6       6     dec        0       0
+              0xaf     175     hex        0       0
+                 7       7     dec        0       0
+              0xcf     207     hex        0       0
+                 8       8     dec        0       0
+           2500000 2500000     dec        0       0
+                 9       9     dec        0       0
+        0x0000000f      15     hex        0       0
+        0x00000000       0     hex        0       0
+        0x000000f0     240     hex        0       0
+        0x00000f00    3840     hex        0       0
 
 global
 return size = 0
               name   place    type   offset   space
-D:/SEU/IDE/exe/asm_result//digits_driver.asm--------------------------------------------------
+     WATCHDOG_ADDR   0(x3)     int        0       4  -944
+       SWITCH_ADDR   4(x3)     int        4       4  -912
+          LED_ADDR   8(x3)     int        8       4  -928
+        TIMER_ADDR  12(x3)     int       12       4  -992
+     KEYBOARD_ADDR  16(x3)     int       16       4 -1008
+       BUZZER_ADDR  20(x3)     int       20       4  -960
+          PWM_ADDR  24(x3)     int       24       4  -976
+                Do  28(x3)     int       28       4 76335
+               Rai  32(x3)     int       32       4 68027
+                Mi  36(x3)     int       36       4 60606
+                Fa  40(x3)     int       40       4 57306
+               Sao  44(x3)     int       44       4 51020
+                La  48(x3)     int       48       4 45454
+                Xi  52(x3)     int       52       4 40485
+D:/Project/Course_Project/Integrated_design_of_computer_systems/minisys/IDE/exe/asm_result//digits_driver.asm--------------------------------------------------
 
 display_digit
 return size = 0
@@ -58,12 +152,12 @@ return size = 0
        current_loc  -4(x8)     int        4       4
               data  -8(x8)     int        8       4
          remainder -12(x8)     int       12       4
-               T13 -16(x8)     int       16       4
-               T14 -20(x8)     int       20       4
+               T52 -16(x8)     int       16       4
+               T53 -20(x8)     int       20       4
                  # -24(x8)     int       24       4
-               T15 -28(x8)     int       28       4
-               T16 -32(x8)     int       32       4
-               T17 -36(x8)     int       36       4
+               T54 -28(x8)     int       28       4
+               T55 -32(x8)     int       32       4
+               T56 -36(x8)     int       36       4
 
 const
 return size = 0
@@ -80,23 +174,19 @@ return size = 0
 global
 return size = 0
               name   place    type   offset   space
-D:/SEU/IDE/exe/asm_result//keyboard_driver.asm--------------------------------------------------
+D:/Project/Course_Project/Integrated_design_of_computer_systems/minisys/IDE/exe/asm_result//led_driver.asm--------------------------------------------------
 
-read_keyboard
-return size = 4
-              name   place    type   offset   space
-               key  -4(x8)     int        4       4
-               T18  -8(x8)     int        8       4
-
-clear_keyboard
+light_leds
 return size = 0
               name   place    type   offset   space
+             code1   8(x8)     int        8       4
+             code2  12(x8)     int       12       4
 
 const
 return size = 0
               name   place    type   offset   space
-        0xFFFFFC10   -1008     hex        0       0
-        0xFFFFFFFF      -1     hex        0       0
+        0xFFFFFC60    -928     hex        0       0
+        0xFFFFFC62    -926     hex        0       0
 
 global
 return size = 0
