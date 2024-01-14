@@ -15,14 +15,14 @@
 
 S : program { }
   ;
-program : stmts	{backpatch($1.nextlist,"LABEL_"+ gen(nextInstr));}
+program : stmts	{}
 	;
 stmts	: stmts	M stmt { backpatch($1.nextlist, $2.instr); $$.nextlist = $3.nextlist;}
 	| stmt { backpatch($1.nextlist, "LABEL_"+ gen(nextInstr));}
 	;
 stmt	: includestmt {}
 	| '{' stmts  '}' { $$.nextlist = $2.nextlist; }
-	| fun_define  {	emit("nop","","",""); returnToGlobalTable(); $$.nextlist = $1.nextlist; }
+	| fun_define  { backpatch($1.nextlist, "LABEL_"+ gen(nextInstr));emit("nop","","","");returnToGlobalTable();}
 	| if_stmt { $$.nextlist = $1.nextlist; }
 	| while_stmt { $$.nextlist = $1.nextlist; }
 	| var_decl ';' { $$.nextlist = $1.nextlist; }

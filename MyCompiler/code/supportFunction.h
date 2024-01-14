@@ -116,6 +116,7 @@ void setOutLiveVar(strType name) {
 void outputSymbolTable(SymbolTable* table, ofstream& out) {
 	out << endl << table->_funName << endl;
 	out << "return size = " << table->_returnSize << endl;
+	out << " code " << table->_beginIndex << " -->  " << table->_endIndex << endl;
 	out << setw(18) << "name" << setw(8) << "place" << setw(8) << "type" << setw(9) << "offset" << setw(8) << "space" << endl;
 	for (auto& _map : table->_field) {
 		out << setw(18) << _map._name
@@ -185,6 +186,7 @@ string gen(int a) {
 }
 // 加入函数基本块开始入口，leaders为该函数所有基本块的入口序号
 void addLeader(int leaderIndex) {
+	//cout << currentTable->_funName << " "<<leaderIndex << endl;
 	currentTable->_leaders.insert(leaderIndex);
 }
 

@@ -20,7 +20,6 @@ pair<unsigned int, string> performAction(unsigned int index, map<string, string>
 	return pair<unsigned int, string>(1,"S");
 
 	case 1 ://program->stmts 
-backpatch(st[stackSize - 1 + 1]._map["nextlist"],"LABEL_"+ gen(nextInstr));
 
 	return pair<unsigned int, string>(1,"program");
 
@@ -45,9 +44,11 @@ backpatch(st[stackSize - 1 + 1]._map["nextlist"],"LABEL_"+ gen(nextInstr));
 	return pair<unsigned int, string>(3,"stmt");
 
 	case 6 ://stmt->fun_define 
-	emit("nop","","","");
- returnToGlobalTable();
- reduceHead["nextlist"] = st[stackSize - 1 + 1]._map["nextlist"];
+		
+		backpatch(st[stackSize - 1 + 1]._map["nextlist"], "LABEL_" + gen(nextInstr));
+		emit("nop", "", "", "");
+		returnToGlobalTable();
+
  
 	return pair<unsigned int, string>(1,"stmt");
 
@@ -99,7 +100,7 @@ reduceHead["nextlist"] = st[stackSize - 2 + 1]._map["nextlist"];
 	return pair<unsigned int, string>(7,"stmt");
 
 	case 16 ://stmt->; 
- 
+
 	return pair<unsigned int, string>(1,"stmt");
 
 	case 17 ://includestmt->include " filename " 

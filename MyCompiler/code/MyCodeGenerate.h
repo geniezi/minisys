@@ -1,4 +1,4 @@
-// Éú³Éasm»ã±àÓï¾ä´úÂë
+// ï¿½ï¿½ï¿½ï¿½asmï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 #ifndef MY_CODE_GENERATE_H
 #define MY_CODE_GENERATE_H
 
@@ -20,11 +20,11 @@ using namespace std;
 // reg descripter table
 extern vector<SymbolTable*> symbolTables;
 SymbolTable* table;
-vector<set<string> >* RValue;	// ÌîĞ´R¼Ä´æÆ÷ÖĞ¼Ä´æÁËÄÄĞ©±äÁ¿
-vector<int>* RNextUse;						// RNextUseÖĞÌîĞ´R¼Ä´æÆ÷ÖĞ±äÁ¿µÄ´ıÓÃĞÅÏ¢£¬ÎªËù´æ±äÁ¿ÖĞ´ıÓÃËÄÔªÊ½ĞòºÅ×îĞ¡µÄÖµ
+vector<set<string> >* RValue;	// ï¿½ï¿½Ğ´Rï¿½Ä´ï¿½ï¿½ï¿½ï¿½Ğ¼Ä´ï¿½ï¿½ï¿½ï¿½ï¿½Ğ©ï¿½ï¿½ï¿½ï¿½
+vector<int>* RNextUse;						// RNextUseï¿½ï¿½ï¿½ï¿½Ğ´Rï¿½Ä´ï¿½ï¿½ï¿½ï¿½Ğ±ï¿½ï¿½ï¿½ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ´ï¿½ï¿½ï¿½ï¿½ï¿½ÔªÊ½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¡ï¿½ï¿½Öµ
 
-vector<Assembly> assemblyCode;				// ´æ´¢ËùÓĞµÄ»ã±à´úÂë
-map<size_t, string> AssemblyLabelMap;	// ¼ÇÂ¼»ã±à´úÂëµÄ±êÇ©ĞÅÏ¢£¬keyÎª»ã±à´úÂëµÄ±êºÅ£¬valueÎª¶ÔÓ¦´Ë±êºÅµÄ±êÇ©
+vector<Assembly> assemblyCode;				// ï¿½æ´¢ï¿½ï¿½ï¿½ĞµÄ»ï¿½ï¿½ï¿½ï¿½ï¿½
+map<size_t, string> AssemblyLabelMap;	// ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½Ç©ï¿½ï¿½Ï¢ï¿½ï¿½keyÎªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½Å£ï¿½valueÎªï¿½ï¿½Ó¦ï¿½Ë±ï¿½ÅµÄ±ï¿½Ç©
 map<size_t, string> AssemblyFunMap;
 typedef set<string> VarSetType;
 varState& Getvar(string place)
@@ -33,20 +33,20 @@ varState& Getvar(string place)
 	else if (constTable->in(place)) return constTable->at(place);
 	else return globalTable->at(place);
 }
-// live_nextuse algorithm ±äÁ¿»îÔ¾Óë´ıÓÃĞÅÏ¢¼ÆËã
+// live_nextuse algorithm ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½
 void fillVarState(int beginIndex, int endIndex, const VarSetType& outLiveVar, VarSetType& inLiveVar) {
 	// table init with outLiveVar
-	// ³ö¿Ú»îÔ¾±äÁ¿_liveÊôĞÔÉèÖÃÎª»îÔ¾true
+	// ï¿½ï¿½ï¿½Ú»ï¿½Ô¾ï¿½ï¿½ï¿½ï¿½_liveï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ô¾true
 	for (auto& var : outLiveVar) {
 		Getvar(var)._live = true;
 		Getvar(var)._nextUse = endIndex;
 	}
-	// ±éÀúÊı¾İ¿éÖĞÆäËûµÄËÄÔªÊ½
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½İ¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÔªÊ½
 	for (int i = endIndex - 1; beginIndex <= i; --i) {
 		auto& code = middleCode.at(i);
 		//cout << i << "--\n";
 		if (code._type == 7) continue; // call N funName
-		if (code._arg1 == "#") { //´¦Àí·µ»ØÖµ
+		if (code._arg1 == "#") { //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
 			code._liveDes = Getvar(code._des)._live;
 			code._nextDes = Getvar(code._des)._nextUse;
 			Getvar(code._des)._live = false;
@@ -91,7 +91,7 @@ void fillVarState(int beginIndex, int endIndex, const VarSetType& outLiveVar, Va
 	}
 }
 
-// »ñÈ¡¿ÕµÄ¼Ä´æÆ÷±êºÅ
+// ï¿½ï¿½È¡ï¿½ÕµÄ¼Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 int getEmptyReg() {
 	for (int i = 0; i < REGISTER_NUM; i++) {
 		if (RValue->at(i).empty()) return i;
@@ -99,7 +99,7 @@ int getEmptyReg() {
 	return -1;
 }
 
-// ¶ÔÓÚÃ»ÓĞ¿Õ¼Ä´æÆ÷Çé¿öÕÒ¼Ä´æÆ÷½øĞĞÌæ»»Ëã·¨
+// ï¿½ï¿½ï¿½ï¿½Ã»ï¿½Ğ¿Õ¼Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò¼Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ»»ï¿½ã·¨
 int storeToGetReg() {
 	// find one available register
 	int furthestUseCode = -1;
@@ -124,7 +124,7 @@ int storeToGetReg() {
 				if (Getvar(var)._inM == false)
 					++varNotInM;
 			}
-			// ÌÚ³ö¼Ä´æÆ÷Ri
+			// ï¿½Ú³ï¿½ï¿½Ä´ï¿½ï¿½ï¿½Ri
 			if (0 < varNotInM && furthestUseCode < RNextUse->at(Reg)) {
 				regReturn = Reg;
 				furthestUseCode = RNextUse->at(Reg);
@@ -140,8 +140,8 @@ int storeToGetReg() {
 		if (Getvar(var)._inM == false) {
 			assemblyCode.push_back(Assembly("sw", regReturn, var));	
 		}
-		Getvar(var)._inR = -1;	//²»ÔÚÈÎºÎ¼Ä´æÆ÷ÖĞ
-		Getvar(var)._inM = true; //ÔÚÄÚ´æÖĞÓĞ¸±±¾
+		Getvar(var)._inR = -1;	//ï¿½ï¿½ï¿½ï¿½ï¿½ÎºÎ¼Ä´ï¿½ï¿½ï¿½ï¿½ï¿½
+		Getvar(var)._inM = true; //ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½Ğ¸ï¿½ï¿½ï¿½
 	}
 	return regReturn;
 }
@@ -238,8 +238,8 @@ void Assembly_A_BopC(const Quadruple& code) {
 	int RegForA = Getvar(code._des)._inR;
 	if (RegForA < 0)
 	{
-		RegForA = getEmptyReg(); // ·ÖÅä¿Õ¼Ä´æÆ÷
-		if (RegForA < 0) RegForA = storeToGetReg(); // »ñµÃÌæ»»¼Ä´æÆ÷
+		RegForA = getEmptyReg(); // ï¿½ï¿½ï¿½ï¿½Õ¼Ä´ï¿½ï¿½ï¿½
+		if (RegForA < 0) RegForA = storeToGetReg(); // ï¿½ï¿½ï¿½ï¿½æ»»ï¿½Ä´ï¿½ï¿½ï¿½
 		set<string> set;
 		set.insert(code._des);
 		RValue->at(RegForA) = set;
@@ -250,14 +250,14 @@ void Assembly_A_BopC(const Quadruple& code) {
 	assemblyCode.push_back(Assembly(code._op, RegForA, RegForB, RegForC));
 	Getvar(code._des)._inM = false;
 	/*if (code._typeArg1) {
-		// B Îª³£Á¿
+		// B Îªï¿½ï¿½ï¿½ï¿½
 		if (RegForC < 0) {
-			// C²»ÔÚregisterÖĞ
+			// Cï¿½ï¿½ï¿½ï¿½registerï¿½ï¿½
 			if (RegForA < 0) {
-				// A²»ÔÚregisterÖĞ
-				// AÔØÈëregister
-				RegForA = getEmptyReg(); // ·ÖÅä¿Õ¼Ä´æÆ÷
-				if (RegForA < 0) RegForA = storeToGetReg(); // »ñµÃÌæ»»¼Ä´æÆ÷
+				// Aï¿½ï¿½ï¿½ï¿½registerï¿½ï¿½
+				// Aï¿½ï¿½ï¿½ï¿½register
+				RegForA = getEmptyReg(); // ï¿½ï¿½ï¿½ï¿½Õ¼Ä´ï¿½ï¿½ï¿½
+				if (RegForA < 0) RegForA = storeToGetReg(); // ï¿½ï¿½ï¿½ï¿½æ»»ï¿½Ä´ï¿½ï¿½ï¿½
 				set<string> set;
 				set.insert(code._des);
 				RValue->at(RegForA) = set;
@@ -269,7 +269,7 @@ void Assembly_A_BopC(const Quadruple& code) {
 			assemblyCode.push_back(Assembly(code._op, RegForA, code._arg1, ""));	// op RegForA B
 		}
 		else {
-			// CÔÚregisterÖĞ
+			// Cï¿½ï¿½registerï¿½ï¿½
 			if (RegForA < 0) {
 				// A in memory and C in reg
 				assemblyCode.push_back(Assembly("sw", RegForC, code._des, 0));		// MOV code._des RegForC -> SW RegForC 0(code._des)
@@ -288,12 +288,12 @@ void Assembly_A_BopC(const Quadruple& code) {
 		}
 	}
 	else if (code._typeArg2) {
-		// BÎª±äÁ¿£¬CÎª³£Á¿
+		// BÎªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½CÎªï¿½ï¿½ï¿½ï¿½
 		if (RegForB < 0) {
-			// B²»ÔÚregisterÖĞ
+			// Bï¿½ï¿½ï¿½ï¿½registerï¿½ï¿½
 			if (RegForA < 0) {
-				// A²»ÔÚregisterÖĞ
-				// AÔØÈëregister
+				// Aï¿½ï¿½ï¿½ï¿½registerï¿½ï¿½
+				// Aï¿½ï¿½ï¿½ï¿½register
 				RegForA = getEmptyReg();
 				if (RegForA < 0) RegForA = storeToGetReg();
 				set<string> set; set.insert(code._des);
@@ -306,7 +306,7 @@ void Assembly_A_BopC(const Quadruple& code) {
 			assemblyCode.push_back(Assembly(code._op, RegForA, code._arg1, ""));	// op RegForA B
 		}
 		else {
-			// BÔÚregisterÖĞ
+			// Bï¿½ï¿½registerï¿½ï¿½
 			if (RegForA < 0) {
 				// A in memory and B in reg
 				assemblyCode.push_back(Assembly("sw", RegForB,  code._des , ""));		// MOV code._des RegForB -> SW RegForB 0(code._des)
@@ -327,7 +327,7 @@ void Assembly_A_BopC(const Quadruple& code) {
 	else {
 		// B and C is variable, not number
 		if (RegForB < 0) {
-			// B²»ÔÚregister
+			// Bï¿½ï¿½ï¿½ï¿½register
 			// IN_R[B] != Ri
 			RegForB = getEmptyReg();
 			if (RegForB < 0) RegForB = storeToGetReg();
@@ -348,11 +348,11 @@ void Assembly_A_BopC(const Quadruple& code) {
 			// select reg of B to store A
 			// [Ri] = {B} && (B.live == false || A = A op C)
 			if (-1 < RegForC) {
-				// CÔÚregisterÖĞ
+				// Cï¿½ï¿½registerï¿½ï¿½
 				assemblyCode.push_back(Assembly(code._op, RegForA, RegForC, ""));		// op RegForA RegForC
 			}
 			else {
-				// C²»ÔÚregisterÖĞ
+				// Cï¿½ï¿½ï¿½ï¿½registerï¿½ï¿½
 				assemblyCode.push_back(Assembly(code._op, RegForA, code._arg2, ""));	// op RegForA C
 			}
 			Getvar(code._arg1)._inR = -1;
@@ -362,8 +362,8 @@ void Assembly_A_BopC(const Quadruple& code) {
 			RegForA = getEmptyReg();
 			if (-1 < RegForA) {
 				assemblyCode.push_back(Assembly("addi", RegForA, RegForB, 0));				// MOV RegForA RegForB -> ADDI RegForA RegForB 0
-				int regC = Getvar(code._arg2)._inR;	// ÖØĞÂÕÒCÊÇ·ñÔÚregisterÖĞ
-														// ÔØÈëAÊ±¿ÉÄÜÆÆ»µÁËC
+				int regC = Getvar(code._arg2)._inR;	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Cï¿½Ç·ï¿½ï¿½ï¿½registerï¿½ï¿½
+														// ï¿½ï¿½ï¿½ï¿½AÊ±ï¿½ï¿½ï¿½ï¿½ï¿½Æ»ï¿½ï¿½ï¿½C
 				if (-1 < regC)
 					assemblyCode.push_back(Assembly(code._op, RegForA, regC, ""));			// op RegForA C
 				else
@@ -404,7 +404,7 @@ void Assembly_A_BopC(const Quadruple& code) {
 
 // code : A = op B
 void Assembly_A_opB(const Quadruple& code) {
-	// BÎª³£Á¿
+	// BÎªï¿½ï¿½ï¿½ï¿½
 	int RegForB = Getvar(code._arg1)._inR;
 	if (code._typeArg1)
 	{
@@ -447,9 +447,9 @@ void Assembly_A_opB(const Quadruple& code) {
 	Getvar(code._des)._inM = false;
 	/*int RegForB = Getvar(code._arg1)._inR;
 	if (RegForB < 0) {
-		// B²»ÔÚregisterÖĞ
+		// Bï¿½ï¿½ï¿½ï¿½registerï¿½ï¿½
 		// IN_R[B] != Ri
-		// ÔØÈëB
+		// ï¿½ï¿½ï¿½ï¿½B
 		RegForB = getEmptyReg();
 		if (RegForB < 0) RegForB = storeToGetReg();
 		// generate targer code
@@ -461,7 +461,7 @@ void Assembly_A_opB(const Quadruple& code) {
 		Getvar(code._arg1)._inR = RegForB;
 		Getvar(code._arg1)._inM = true;
 	}
-	// BÔÚRegForBÖĞ
+	// Bï¿½ï¿½RegForBï¿½ï¿½
 
 	// select reg for A
 	int RegForA = Getvar(code._arg1)._inR;
@@ -497,10 +497,10 @@ void Assembly_A_opB(const Quadruple& code) {
 void Assembly_A_B(const Quadruple& code) {
 
 	if (code._typeArg1) {
-		// BÎª³£Á¿
+		// BÎªï¿½ï¿½ï¿½ï¿½
 		int RegForA = Getvar(code._arg1)._inR;
 		if (RegForA < 0) {
-			// A²»ÔÚregisterÖĞ
+			// Aï¿½ï¿½ï¿½ï¿½registerï¿½ï¿½
 			RegForA = getEmptyReg();
 			if (RegForA < 0) RegForA = storeToGetReg();
 			// generate targer code
@@ -516,10 +516,10 @@ void Assembly_A_B(const Quadruple& code) {
 	}
 
 	if (code._arg1 == "#") {
-		// BÎªº¯Êı·µ»ØÖµ
+		// BÎªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
 		int RegForA = Getvar(code._des)._inR;
 		if (RegForA >=0) {
-			// AÔÚregisterÖĞ
+			// Aï¿½ï¿½registerï¿½ï¿½
 			RegForA = getEmptyReg();
 			if (RegForA < 0) RegForA = storeToGetReg();
 			// generate targer code
@@ -544,7 +544,7 @@ void Assembly_A_B(const Quadruple& code) {
 		Getvar(code._arg1)._inR = RegForB;
 		Getvar(code._arg1)._inM = true;
 	}
-	//¶ÔÓÚBµÄÖµÔÚ¼Ä´æÆ÷ÖĞµÄÇé¿ö²»ĞèÒªÉú³É»ã±à´úÂë£¬Ö±½Ó²åÈëA²¢¸üĞÂA._inR
+	//ï¿½ï¿½ï¿½ï¿½Bï¿½ï¿½Öµï¿½Ú¼Ä´ï¿½ï¿½ï¿½ï¿½Ğµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½É»ï¿½ï¿½ï¿½ï¿½ë£¬Ö±ï¿½Ó²ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½A._inR
 	RValue->at(RegForB).insert(code._des);
 	if (Getvar(code._des)._inR >= 0)
 	{
@@ -664,20 +664,6 @@ void Assembly_jrop(const Quadruple& code) {
 int param_num = 0;
 // code : param p
 void Assembly_param(const Quadruple& code) {
-	/*int regP = Getvar(code._arg1)._inR;
-	if (regP < 0) {
-		regP = getEmptyReg();
-		if (regP < 0) regP = storeToGetReg();
-		assemblyCode.push_back(Assembly("lw", regP,  code._arg1 , ""));	// MOV regP code._arg1 -> LW regP 0(code._arg1)
-		set<string> set; set.insert(code._arg1);
-		RValue->at(regP) = set;
-		RNextUse->at(regP) = code._nextArg1;
-		Getvar(code._arg1)._inR = regP;
-		Getvar(code._arg1)._inM = true;
-	}
-	// PUSH regP 
-	assemblyCode.push_back(Assembly("addi", "x2", "x2", -4));
-	assemblyCode.push_back(Assembly("sw", regP, "0(x2)", ""));*/
 	if (code._typeArg1)
 	{
 		imm2reg(atoi(code._arg1.c_str()), "x12");
@@ -1016,7 +1002,6 @@ void Assembly_set(const Quadruple& code) {
 }
 
 // generate condition choose
-// ¶Ô²»Í¬µÄËÄÔªÊ½½øĞĞcaseÑ¡ÔñÉú³É¶ÔÓ¦µÄÉú³É´úÂë
 void GenerateAssembly(const Quadruple& code) {
 	/*
 		if (code._fun!= "") {
@@ -1155,7 +1140,6 @@ void tranlateIntoAssembly(string filename) {
 			auto& block = flowGragh.at(beginIndex);
 			block._end = endIndex;
 			auto& code = middleCode.at(endIndex - 1);
-
 			if (code._type == 40) {
 				// j LABEL_i
 				int d = atoi(code._des.substr(6).c_str());
@@ -1219,7 +1203,7 @@ void tranlateIntoAssembly(string filename) {
 			//cout << block._begin << " -> " << block._end-1 << endl;
 			for (int i = block._begin; i < block._end - 1; ++i) {
 				GenerateAssembly(middleCode.at(i));
-			//	cout << i << endl;
+				//cout << i << endl;
 			}
 				
 			if (middleCode.at(block._end - 1)._type >= 40 && middleCode.at(block._end - 1)._type <= 46)
@@ -1283,6 +1267,6 @@ void tranlateIntoAssembly(string filename) {
 //x1 ra
 //x10 return value
 //x3 bss
-//x9 ´Õ¸ñÊ½µÄ/array
+//x9 ï¿½Õ¸ï¿½Ê½ï¿½ï¿½/array
 //x11 array
-//x12 º¯Êı²ÎÊı´«µİ
+//x12 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
