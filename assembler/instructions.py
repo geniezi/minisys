@@ -10,7 +10,14 @@ instructions_I = {
 instructions_I_a = {
     "fence":    "0000 pred succ 00000 000 00000 0001111",
 }
-
+# lr rd,rs1
+instructions_I_lr = {
+    "lr":    "00010 00 00000 rs1 010 rd 0101111",
+}
+# sc rd,rs2,rs1
+instructions_I_sc = {
+    "sc":    "00011 00 rs2 rs1 010 rd 0101111",
+}
 # xxx rd csr rs1
 instructions_I_b = {
     "csrrw":    "csr rs1 001 rd 1110011",
